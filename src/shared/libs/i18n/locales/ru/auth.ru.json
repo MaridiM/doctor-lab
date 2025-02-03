@@ -1,0 +1,12 @@
+{
+    "login": {
+        "title": "Войти",
+        "or": "или",
+        "rememberMe": "Запомнить меня",
+        "forgotPassword": "Забыли пароль?",
+        "submit": "Войти",
+        "createAccountText": "Нет аккаунта?",
+        "createAccountLink": "Создать аккаунт.",
+        "back": "Вернуться на панель управления"
+    }
+}

@@ -35,8 +35,8 @@
         --destructive-hover: #7f1d1d;
         --destructive-disabled: #ff5757;
 
-        --border: #e2e8f0;
-        --input: #e2e8f0;
+        --border: #dbdbdb;
+        --input: #efefef;
         --ring: #2563eb;
 
         --chart-1: #e76e50;
@@ -44,8 +44,6 @@
         --chart-3: #274754;
         --chart-4: #e8c468;
         --chart-5: #f4a462;
-
-        --radius: 0.5rem;
 
         --text-primary: #1e1e1e;
         --text-secondary: #4a4a4a;
@@ -70,6 +68,34 @@
         --primary-15: #2563eb15;
         --primary-10: #2563eb10;
         --primary-5: #2563eb05;
+
+        --radius-xs: 2px;
+        --radius-sm: 4px;
+        --radius-md: 6px;
+        --radius-lg: 8px;
+        --radius-xl: 12px;
+        --radius-2xl: 16px;
+        --radius-3xl: 20px;
+        --radius-4xl: 24px;
+
+        --h1: 36px;
+        --h2: 32px;
+        --h4: 24px;
+        --h4: 20px;
+        --h5: 18px;
+
+        --p-lg: 18px;
+        --p-md: 16px;
+        --p-sm: 14px;
+        --p-xs: 12px;
+
+        --button-lg: 16px;
+        --button-md: 14px;
+        --button-sm: 12px;
+
+        --label-lg: 12px;
+        --label-md: 10px;
+        --label-sm: 8px;
 
     }
 
@@ -123,11 +149,55 @@
     * {
         @apply border-border tracking-wide;
         color: var(--text-primary);
+        user-select: none
     }
 
     body {
         font-family: var(--font-roboto);
         font-weight: 400;
         @apply bg-background text-foreground;
+
+        /* unselectable */
+        /* iOS Safari */
+        -webkit-touch-callout: none;
+        /* Chrome/Safari/Opera */
+        -webkit-user-select: none;
+        /* Konqueror */
+        -khtml-user-select: none;
+        /* Firefox */
+        -moz-user-select: none;
+        /* Internet Explorer/Edge */
+        -ms-user-select: none;
+        /* Non-prefixed version, currently */
+        /* not supported by any browser */
+        user-select: none;
     }
+
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    select:-webkit-autofill,
+    select:-webkit-autofill:hover,
+    select:-webkit-autofill:focus,
+    textarea:-webkit-autofill,
+    textarea:-webkit-autofill:hover,
+    textarea:-webkit-autofill:focus {
+        -webkit-text-fill-color: var(--font-color);
+        -webkit-box-shadow: var(--primary-outline-shadow-hover) inset,
+            0 0 0 30px rgba(var(--rgb-primary), 0.1) inset;
+        -webkit-background-clip: text;
+
+        /* Эти свойства для -moz и -ms практически не работают
+     с autofill, но приведены для полноты */
+        -moz-text-fill-color: var(--font-color);
+        -moz-box-shadow: var(--primary-outline-shadow-hover) inset,
+            0 0 0 30px rgba(var(--rgb-primary), 0.1) inset;
+        -moz-background-clip: text;
+
+        -ms-text-fill-color: var(--font-color);
+        -ms-box-shadow: var(--primary-outline-shadow-hover) inset,
+            0 0 0 30px rgba(var(--rgb-primary), 0.1) inset;
+        -ms-background-clip: text;
+    }
+
 }

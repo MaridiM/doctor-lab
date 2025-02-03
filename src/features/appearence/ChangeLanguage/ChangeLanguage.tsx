@@ -16,9 +16,8 @@ import {
     SelectValue
 } from '@/shared/components'
 import { languages, setLanguage } from '@/shared/libs/i18n'
+import { type TChangeLanguageSchema, changeLanguageSchema } from '@/shared/schemas'
 import { cn } from '@/shared/utils'
-
-import { type TChangeLanguageSchema, changeLanguageSchema } from './ChangeLanguage.schema'
 
 interface IProps {
     className?: string
@@ -32,7 +31,7 @@ export function ChangeLanguage({ className }: IProps) {
         resolver: zodResolver(changeLanguageSchema)
     })
 
-    function onSubmit(data: any) {
+    function onSubmit(data: TChangeLanguageSchema) {
         startTransition(async () => {
             try {
                 await setLanguage(data.language)
@@ -56,7 +55,7 @@ export function ChangeLanguage({ className }: IProps) {
                             }}
                         >
                             <SelectTrigger
-                                className={cn('border-none font-medium disabled:opacity-75', className)}
+                                className={cn('border-none font-normal disabled:opacity-75', className)}
                                 arrow={false}
                                 disabled={isPanding}
                             >
@@ -71,7 +70,7 @@ export function ChangeLanguage({ className }: IProps) {
                                             value={language}
                                             disabled={isPanding}
                                             className={cn('', {
-                                                'hover:!bg-primary-20 bg-primary-20': currentLanguage
+                                                'bg-primary-20 hover:!bg-primary-20': currentLanguage
                                             })}
                                         >
                                             {language.toLocaleUpperCase()}

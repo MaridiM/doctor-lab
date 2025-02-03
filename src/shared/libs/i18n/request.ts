@@ -6,7 +6,6 @@ import { translations } from './locales'
 
 export default getRequestConfig(async () => {
     const locale: TLanguage = (await getCurrentLanguage()) ?? defaultLanguage
-
     return {
         locale,
         messages: translations[locale]

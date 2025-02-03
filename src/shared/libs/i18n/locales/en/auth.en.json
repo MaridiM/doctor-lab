@@ -1,0 +1,12 @@
+{
+    "login": {
+        "title": "Sign in",
+        "or": "or",
+        "rememberMe": "Remember me",
+        "forgotPassword": "Forgot your password?",
+        "submit": "Login",
+        "createAccountText": "Don't have an account?",
+        "createAccountLink": "Create account.",
+        "back": "Back to Dashboard"
+    }
+}

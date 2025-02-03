@@ -77,10 +77,36 @@ export default {
                     tertiary: 'var(--text-tertiary)'
                 }
             },
+            fontSize: {
+                h1: ['var(--h1, 36px)', { lineHeight: '1.2' }],
+                h2: ['var(--h2, 32px)', { lineHeight: '1.2' }],
+                h3: ['var(--h3, 24px)', { lineHeight: '1.3' }],
+                h4: ['var(--h4, 20px)', { lineHeight: '1.3' }],
+                h5: ['var(--h5, 18px)', { lineHeight: '1.3' }],
+
+                'p-lg': ['var(--p-lg, 18px)', { lineHeight: '1.5' }],
+                'p-md': ['var(--p-md, 16px)', { lineHeight: '1.5' }],
+                'p-sm': ['var(--p-sm, 14px)', { lineHeight: '1.5' }],
+                'p-xs': ['var(--p-xs, 12px)', { lineHeight: '1.4' }],
+
+                'button-lg': ['var(--button-lg, 16px)', { lineHeight: '1.5' }],
+                'button-md': ['var(--button-md, 14px)', { lineHeight: '1.4' }],
+                'button-sm': ['var(--button-sm, 12px)', { lineHeight: '1.3' }],
+
+                'label-lg': ['var(--label-lg, 12px)', { lineHeight: '1.2' }],
+                'label-md': ['var(--label-md, 10px)', { lineHeight: '1.2' }],
+                'label-sm': ['var(--label-sm, 8px)', { lineHeight: '1.2' }]
+            },
+
             borderRadius: {
-                lg: 'var(--radius)',
-                md: 'calc(var(--radius) - 2px)',
-                sm: 'calc(var(--radius) - 4px)'
+                xs: 'var(--radius-xs, 2px)',
+                sm: 'var(--radius-sm, 4px)',
+                md: 'var(--radius-md, 6px)',
+                lg: 'var(--radius-lg, 8px)',
+                xl: 'var(--radius-xl, 12px)',
+                '2xl': 'var(--radius-2xl, 16px)',
+                '3xl': 'var(--radius-3xl, 20px)',
+                '4xl': 'var(--radius-4xl, 24px)'
             }
         }
     },
