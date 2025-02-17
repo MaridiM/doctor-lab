@@ -24,7 +24,7 @@ export function NavMain({ items }: IProps) {
                     return (
                         <SidebarMenuItem
                             key={item.title}
-                            className='flex items-center group-data-[collapsible=icon]:justify-center'
+                            className='flex items-center group-data-[collapsible=icon]:pl-[5px]'
                         >
                             <SidebarMenuButton
                                 asChild

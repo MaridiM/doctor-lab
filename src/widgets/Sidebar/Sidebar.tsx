@@ -114,7 +114,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                 <NavSecondary items={data.navSecondary} className='mt-auto' />
             </SidebarContent>
 
-            <SidebarFooter className='border-t-20 h-16'>
+            <SidebarFooter className='border-t-20 flex h-16 items-center justify-center p-0'>
                 <NavUser user={data.user} />
             </SidebarFooter>
             <SidebarRail />

@@ -59,7 +59,7 @@ export function OrganizationSwitcher({ organizations }: IProps) {
                             <DropdownMenuItem
                                 key={index}
                                 onClick={() => setActiveTeam(organization)}
-                                className='gap-2 p-2 text-p-sm font-normal'
+                                className='gap-2 p-2 !text-p-sm font-normal'
                             >
                                 <div className='border-10 flex size-6 items-center justify-center rounded-sm'>
                                     <organization.logo className='size-4 shrink-0' />
@@ -71,11 +71,11 @@ export function OrganizationSwitcher({ organizations }: IProps) {
                             </DropdownMenuItem>
                         ))}
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className='gap-2 p-2'>
-                            <div className='flex size-6 items-center justify-center rounded-md border bg-background'>
-                                <Plus className='size-4' />
+                        <DropdownMenuItem className='group gap-2 p-2'>
+                            <div className='border-10 group-hover:border-40 flex size-6 items-center justify-center rounded-md'>
+                                <Plus className='size-4 stroke-text' />
                             </div>
-                            <div className='font-medium text-muted-foreground'>Add team</div>
+                            <div className='!text-p-sm font-normal text-text-secondary shadow-none'>Add team</div>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

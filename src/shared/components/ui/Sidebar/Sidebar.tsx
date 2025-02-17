@@ -133,7 +133,7 @@ const SidebarProvider = forwardRef<
                         } as CSSProperties
                     }
                     className={cn(
-                        'group/sidebar-wrapper has-[[data-variant=inset]]:bg-block flex min-h-svh w-full',
+                        'group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar',
                         className
                     )}
                     ref={ref}
@@ -160,7 +160,7 @@ const Sidebar = forwardRef<
     if (collapsible === 'none') {
         return (
             <div
-                className={cn('bg-block flex h-full w-[--sidebar-width] flex-col text-text', className)}
+                className={cn('flex h-full w-[--sidebar-width] flex-col bg-card text-text', className)}
                 ref={ref}
                 {...props}
             >
@@ -175,7 +175,7 @@ const Sidebar = forwardRef<
                 <SheetContent
                     data-sidebar='sidebar'
                     data-mobile='true'
-                    className='bg-block w-[--sidebar-width] p-0 text-text [&>button]:hidden'
+                    className='w-[--sidebar-width] bg-card p-0 text-text [&>button]:hidden'
                     style={
                         {
                             '--sidebar-width': SIDEBAR_WIDTH_MOBILE
@@ -192,7 +192,7 @@ const Sidebar = forwardRef<
     return (
         <div
             ref={ref}
-            className='bg-block group peer hidden text-text md:block'
+            className='group peer hidden bg-card text-text md:block'
             data-state={state}
             data-collapsible={state === 'collapsed' ? collapsible : ''}
             data-variant={variant}
@@ -272,10 +272,10 @@ const SidebarRail = forwardRef<HTMLButtonElement, ComponentProps<'button'>>(({ c
             onClick={toggleSidebar}
             title='Toggle Sidebar'
             className={cn(
-                'hover:after:bg-block-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex',
+                'hover:after:bg-sidebar- absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex',
                 '[[data-side=left]_&]:cursor-w-resize [[data-side=right]_&]:cursor-e-resize',
                 '[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
-                'group-data-[collapsible=offcanvas]:hover:bg-block group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full',
+                'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full group-data-[collapsible=offcanvas]:hover:bg-card',
                 '[[data-side=left][data-collapsible=offcanvas]_&]:-right-2',
                 '[[data-side=right][data-collapsible=offcanvas]_&]:-left-2',
                 className
@@ -331,7 +331,7 @@ const SidebarSeparator = forwardRef<ComponentRef<typeof Separator>, ComponentPro
             <Separator
                 ref={ref}
                 data-sidebar='separator'
-                className={cn('bg-block-border mx-2 w-auto', className)}
+                className={cn('bg-sidebar- mx-2 w-auto', className)}
                 {...props}
             />
         )
@@ -395,7 +395,7 @@ const SidebarGroupAction = forwardRef<HTMLButtonElement, ComponentProps<'button'
                 ref={ref}
                 data-sidebar='group-action'
                 className={cn(
-                    'hover:bg-block-accent absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-text outline-none transition-transform hover:text-text [&>svg]:size-4 [&>svg]:shrink-0',
+                    'absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-text outline-none transition-transform hover:bg-sidebar-accent hover:text-text [&>svg]:size-4 [&>svg]:shrink-0',
                     // Increases the hit area of the button on mobile.
                     'after:absolute after:-inset-2 after:md:hidden',
                     'group-data-[collapsible=icon]:hidden',
@@ -424,7 +424,7 @@ const SidebarMenuItem = forwardRef<HTMLLIElement, ComponentProps<'li'>>(({ class
 SidebarMenuItem.displayName = 'SidebarMenuItem'
 
 const sidebarMenuButtonVariants = cva(
-    'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none transition-[width,height,padding] hover:bg-hover hover:text-text active:bg-block-accent active:text-text disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-block-accent data-[active=true]:font-medium data-[active=true]:text-text data-[state=open]:hover:bg-block-accent data-[state=open]:hover:text-text group-data-[collapsible=icon]:!size-9 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
+    'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none transition-[width,height,padding] hover:bg-hover hover:text-text active:bg-sidebar-accent active:text-text disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-text data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-text group-data-[collapsible=icon]:!size-9 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
     {
         variants: {
             variant: {
@@ -435,7 +435,7 @@ const sidebarMenuButtonVariants = cva(
             size: {
                 default: 'h-8 text-sm',
                 sm: 'h-7 text-xs',
-                lg: 'h-14 min-w-full text-sm'
+                lg: 'h-14 min-w-full text-p-sm'
             }
         },
         defaultVariants: {
@@ -500,7 +500,7 @@ const SidebarMenuAction = forwardRef<
             ref={ref}
             data-sidebar='menu-action'
             className={cn(
-                'hover:bg-block-accent absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-text outline-none transition-transform hover:text-text peer-hover/menu-button:text-text [&>svg]:size-4 [&>svg]:shrink-0',
+                'absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-text outline-none transition-transform hover:bg-sidebar-accent hover:text-text peer-hover/menu-button:text-text [&>svg]:size-4 [&>svg]:shrink-0',
                 // Increases the hit area of the button on mobile.
                 'after:absolute after:-inset-2 after:md:hidden',
                 'peer-data-[size=sm]/menu-button:top-1',
@@ -604,8 +604,8 @@ const SidebarMenuSubButton = forwardRef<
             data-size={size}
             data-active={isActive}
             className={cn(
-                'hover:bg-block-accent active:bg-block-accent flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-text outline-none hover:text-text active:text-text disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-text',
-                'data-[active=true]:bg-block-accent data-[active=true]:text-text',
+                'flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-text outline-none hover:bg-sidebar-accent hover:text-text active:bg-sidebar-accent active:text-text disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-text',
+                'data-[active=true]:bg-sidebar-accent data-[active=true]:text-text',
                 size === 'sm' && 'text-xs',
                 size === 'md' && 'text-sm',
                 'group-data-[collapsible=icon]:hidden',

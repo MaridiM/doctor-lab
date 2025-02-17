@@ -19,7 +19,7 @@ export function NavSecondary({ items, ...props }: IProps) {
                     {items.map(item => {
                         const isActive = currentPath === item.url
                         return (
-                            <SidebarMenuItem key={item.title}>
+                            <SidebarMenuItem key={item.title} className='group-data-[collapsible=icon]:pl-[5px]'>
                                 <SidebarMenuButton
                                     asChild
                                     size='sm'
@@ -30,14 +30,17 @@ export function NavSecondary({ items, ...props }: IProps) {
                                         }
                                     )}
                                 >
-                                    <Link href={item.url}>
+                                    <Link
+                                        href={item.url}
+                                        className='group-data-[collapsible=icon]:size-4 group-data-[collapsible=icon]:!pl-2.5'
+                                    >
                                         <item.icon
-                                            className={cn('stroke-text text-p-md', {
+                                            className={cn('stroke-text', {
                                                 'stroke-text-foreground': isActive
                                             })}
                                         />
                                         <span
-                                            className={cn('text-p-md text-text', {
+                                            className={cn('text-p-sm !text-text', {
                                                 'text-text-foreground': isActive
                                             })}
                                         >
