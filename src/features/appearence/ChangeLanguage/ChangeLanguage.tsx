@@ -63,6 +63,7 @@ export function ChangeLanguage({ className }: IProps) {
                             </SelectTrigger>
                             <SelectContent className='min-w-10' classNameViewport='flex flex-col gap-0.5'>
                                 {languages.map(language => {
+                                    console.log(language === locale)
                                     const currentLanguage = language === locale
                                     return (
                                         <SelectItem
@@ -70,7 +71,7 @@ export function ChangeLanguage({ className }: IProps) {
                                             value={language}
                                             disabled={isPanding}
                                             className={cn('', {
-                                                'bg-primary-20 hover:!bg-primary-20': currentLanguage
+                                                'bg-primary-100 hover:!bg-primary-100': currentLanguage
                                             })}
                                         >
                                             {language.toLocaleUpperCase()}

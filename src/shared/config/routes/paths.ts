@@ -6,5 +6,12 @@ export const PATHS = {
         `/auth${page.length ? `/${page}` : ''}`,
 
     // Guest dashboard routes
-    dashboard: '/dashboard'
+    dashboard: '/dashboard',
+    patients: '/patients',
+    appointments: '/appointments',
+    staff: '/staff',
+    messenger: '/messenger',
+    news: '/news',
+    organizations: '/organizations',
+    settings: '/settings'
 }

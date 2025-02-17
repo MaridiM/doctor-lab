@@ -4,9 +4,10 @@ import { useTheme } from 'next-themes'
 
 import { LogoFullSVG } from './LogoFullSVG'
 import { LogoMiniSVG } from './LogoMiniSVG'
+import { LogoTextSVG } from './LogoTextSVG'
 import type { TIconProps } from './types'
 
-export function LogoIcon({ mini = true, ...props }: TIconProps) {
+export function LogoIcon({ mini = true, onlyText = false, ...props }: TIconProps) {
     const { theme } = useTheme()
 
     const isDark = theme === 'dark'
@@ -17,10 +18,14 @@ export function LogoIcon({ mini = true, ...props }: TIconProps) {
 
     return (
         <>
-            {mini ? (
-                <LogoMiniSVG shadow={shadow} primary={primary} secondary={secondary} {...props} />
+            {!onlyText ? (
+                mini ? (
+                    <LogoMiniSVG shadow={shadow} primary={primary} secondary={secondary} {...props} />
+                ) : (
+                    <LogoFullSVG shadow={shadow} primary={primary} secondary={secondary} {...props} />
+                )
             ) : (
-                <LogoFullSVG shadow={shadow} primary={primary} secondary={secondary} {...props} />
+                <LogoTextSVG shadow={shadow} primary={primary} secondary={secondary} {...props} />
             )}
         </>
     )

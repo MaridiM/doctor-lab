@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { Roboto } from 'next/font/google'
+import { ReactNode } from 'react'
 
 import { ThemeProvider } from '@/shared/config'
 import { SITE_DESCRIPTION, SITE_NAME } from '@/shared/constants'
 
-import './styles/globals.css'
+import './styles/globals.scss'
 
 const roboto = Roboto({
     variable: '--font-roboto',
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({
     children
 }: Readonly<{
-    children: React.ReactNode
+    children: ReactNode
 }>) {
     const locale = await getLocale()
     const messages = await getMessages()
@@ -34,7 +35,7 @@ export default async function RootLayout({
         <html lang={locale}>
             <body className={`${roboto.variable} antialiased`}>
                 <NextIntlClientProvider messages={messages}>
-                    <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
+                    <ThemeProvider attribute='class' defaultTheme='light' enableSystem disableTransitionOnChange>
                         <main className='min-h-screen w-full'>{children}</main>
                     </ThemeProvider>
                 </NextIntlClientProvider>

@@ -1,11 +1,12 @@
 import { Metadata } from 'next'
 
-import { HomeScreen } from '@/screens'
+import Link from 'next/link'
+import { PATHS } from '@/shared/config'
 
 export const metadata: Metadata = {
-    title: 'Home'
+    title: 'Dashboard'
 }
 
 export default function HomePage() {
-    return <HomeScreen />
+    return <div><Link href={PATHS.dashboard}>Dashboard</Link></div>
 }

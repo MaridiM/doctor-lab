@@ -5,22 +5,27 @@ import { ButtonHTMLAttributes, forwardRef } from 'react'
 import { cn } from '@/shared/utils'
 
 const buttonVariants = cva(
-    'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors duration-300 ease-in-out focus-visible:outline-none  disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+    'flex justify-center items-center rounded-sm transition-all duration-300 ease-in-out [&_svg]:pointer-events-none [&_svg]:size-6 [&_svg]:shrink-0 gap-1',
     {
         variants: {
             variant: {
-                default: 'bg-primary text-primary-foreground hover:bg-primary-hover',
-                destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive-hover',
-                outline: 'border border-input bg-transparent hover:bg-accent hover:text-accent-foreground',
-                secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary-hover',
-                ghost: 'hover:bg-accent hover:text-accent-foreground',
-                link: 'text-primary underline-offset-4 hover:underline'
+                default: '',
+                primary: 'bg-primary !text-primary-foreground hover:bg-primary-hover',
+                outline: 'bg-transparent !text-text-primary hover:bg-hover',
+                ghost: 'border-10 bg-transparent !text-text-primary hover:bg-hover hover:border-40 text-text'
             },
             size: {
-                default: 'h-10 px-6 py-2',
-                sm: 'h-9 rounded-md px-4',
-                lg: 'h-11 rounded-md px-8',
-                icon: 'h-10 w-10'
+                default: 'h-10 px-4 text-button-md [&_svg]:size-6',
+                lg: 'h-12 px-5 text-button-lg [&_svg]:size-6',
+                sm: 'h-8 px-3 text-button-md [&_svg]:size-5',
+                xs: 'h-6 px-2 text-button-sm [&_svg]:size-4',
+                icon: ''
+            },
+            icon: {
+                default: 'p-0 h-10 w-10 [&_svg]:size-6',
+                lg: 'p-0 h-12 w-12 [&_svg]:size-6',
+                sm: 'p-0 h-8 w-8 [&_svg]:size-5',
+                xs: 'p-0 h-6 w-6 [&_svg]:size-4'
             }
         },
         defaultVariants: {
@@ -35,9 +40,12 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, Va
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant, size, asChild = false, ...props }, ref) => {
+    ({ className, variant, size, icon, asChild = false, ...props }, ref) => {
+        size !== 'icon' && !!icon ? ((size = 'icon'), icon) : size
+        size === 'icon' && !icon ? (icon = 'default') : icon
+
         const Comp = asChild ? Slot : 'button'
-        return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+        return <Comp className={cn(buttonVariants({ size, variant, icon, className }))} ref={ref} {...props} />
     }
 )
 Button.displayName = 'Button'

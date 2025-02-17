@@ -1,0 +1,257 @@
+@use "sass:math";
+
+$sizes: (4xs: 0.1px,
+    3xs: 0.25px,
+    2xs: 0.5px,
+    xs: 0.75px,
+    sm: 1px,
+    md: 1.5px,
+    lg: 2px);
+
+$opacities: (05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100);
+
+@each $size-name,
+$size-value in $sizes {
+    @each $opacity in $opacities {
+
+        /* Все стороны */
+        .border-#{$size-name}-#{$opacity} {
+            box-shadow: inset 0 0 0 #{$size-value} rgba(var(--border-color), #{math.div($opacity, 100)});
+        }
+
+        /* Левая сторона */
+        .border-l-#{$size-name}-#{$opacity} {
+            box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+        }
+
+        /* Правая сторона */
+        .border-r-#{$size-name}-#{$opacity} {
+            box-shadow: inset -#{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+        }
+
+        /* Верхняя сторона */
+        .border-t-#{$size-name}-#{$opacity} {
+            box-shadow: inset 0 #{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+        }
+
+        /* Нижняя сторона */
+        .border-b-#{$size-name}-#{$opacity} {
+            box-shadow: inset 0 -#{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+        }
+
+        /* Угол: верхний левый */
+        .border-tl-#{$size-name}-#{$opacity} {
+            box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
+            inset 0 #{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+        }
+
+        /* Угол: верхний правый */
+        .border-tr-#{$size-name}-#{$opacity} {
+            box-shadow: inset -#{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
+            inset 0 #{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+        }
+
+        /* Угол: нижний левый */
+        .border-bl-#{$size-name}-#{$opacity} {
+            box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
+            inset 0 -#{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+        }
+
+        /* Угол: нижний правый */
+        .border-br-#{$size-name}-#{$opacity} {
+            box-shadow: inset -#{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
+            inset 0 -#{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+        }
+
+        /* Горизонтальные стороны (x) */
+        .border-x-#{$size-name}-#{$opacity} {
+            box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
+            inset -#{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+        }
+
+        /* Вертикальные стороны (y) */
+        .border-y-#{$size-name}-#{$opacity} {
+            box-shadow: inset 0 #{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
+            inset 0 -#{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+        }
+    }
+}
+
+@each $opacity in $opacities {
+
+    /* Все стороны */
+    .border {
+        box-shadow: inset 0 0 0 1px rgba(var(--border-color), 1);
+    }
+
+    .border-#{$opacity} {
+        box-shadow: inset 0 0 0 1px rgba(var(--border-color), #{math.div($opacity, 100)});
+    }
+
+    /* Левая сторона */
+    .border-l {
+        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), 1);
+    }
+
+    .border-l-#{$opacity} {
+        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+    }
+
+    /* Правая сторона */
+    .border-r {
+        box-shadow: inset -1px 0 0 0 rgba(var(--border-color), 1);
+    }
+
+    .border-r-#{$opacity} {
+        box-shadow: inset -1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+    }
+
+    /* Верхняя сторона */
+    .border-t {
+        box-shadow: inset 0 1px 0 0 rgba(var(--border-color), 1);
+    }
+
+    .border-t-#{$opacity} {
+        box-shadow: inset 0 1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+    }
+
+    /* Нижняя сторона */
+    .border-b {
+        box-shadow: inset 0 -1px 0 0 rgba(var(--border-color), 1);
+    }
+
+    .border-b-#{$opacity} {
+        box-shadow: inset 0 -1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+    }
+
+    /* Горизонтальные стороны (x) */
+    .border-x {
+        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), 1),
+            inset -1px 0 0 0 rgba(var(--border-color), 1);
+    }
+
+    .border-x-#{$opacity} {
+        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
+        inset -1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+    }
+
+    /* Вертикальные стороны (y) */
+    .border-y {
+        box-shadow: inset 0 1px 0 0 rgba(var(--border-color), 1),
+            inset 0 -1px 0 0 rgba(var(--border-color), 1);
+    }
+
+    .border-y-#{$opacity} {
+        box-shadow: inset 0 1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
+        inset 0 -1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+    }
+
+    /* Верхний левый угол */
+    .border-tl {
+        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), 1),
+            inset 0 1px 0 0 rgba(var(--border-color), 1);
+    }
+
+    .border-tl-#{$opacity} {
+        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
+        inset 0 1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+    }
+
+    /* Верхний правый угол */
+    .border-tr {
+        box-shadow: inset -1px 0 0 0 rgba(var(--border-color), 1),
+            inset 0 1px 0 0 rgba(var(--border-color), 1);
+    }
+
+    .border-tr-#{$opacity} {
+        box-shadow: inset -1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
+        inset 0 1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+    }
+
+    /* Нижний левый угол */
+    .border-bl {
+        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), 1),
+            inset 0 -1px 0 0 rgba(var(--border-color), 1);
+    }
+
+    .border-bl-#{$opacity} {
+        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
+        inset 0 -1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+    }
+
+    /* Нижний правый угол */
+    .border-br {
+        box-shadow: inset -1px 0 0 0 rgba(var(--border-color), 1),
+            inset 0 -1px 0 0 rgba(var(--border-color), 1);
+    }
+
+    .border-br-#{$opacity} {
+        box-shadow: inset -1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
+        inset 0 -1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+    }
+}
+
+@each $size-name,
+$size-value in $sizes {
+
+    /* Все стороны */
+    .border-#{$size-name} {
+        box-shadow: inset 0 0 0 #{$size-value} rgba(var(--border-color), 1);
+    }
+
+    /* Левая сторона */
+    .border-l-#{$size-name} {
+        box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), 1);
+    }
+
+    /* Правая сторона */
+    .border-r-#{$size-name} {
+        box-shadow: inset -#{$size-value} 0 0 0 rgba(var(--border-color), 1);
+    }
+
+    /* Верхняя сторона */
+    .border-t-#{$size-name} {
+        box-shadow: inset 0 #{$size-value} 0 0 rgba(var(--border-color), 1);
+    }
+
+    /* Нижняя сторона */
+    .border-b-#{$size-name} {
+        box-shadow: inset 0 -#{$size-value} 0 0 rgba(var(--border-color), 1);
+    }
+
+    /* Горизонтальные стороны (x) */
+    .border-x-#{$size-name} {
+        box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), 1),
+        inset -#{$size-value} 0 0 0 rgba(var(--border-color), 1);
+    }
+
+    /* Вертикальные стороны (y) */
+    .border-y-#{$size-name} {
+        box-shadow: inset 0 #{$size-value} 0 0 rgba(var(--border-color), 1),
+        inset 0 -#{$size-value} 0 0 rgba(var(--border-color), 1);
+    }
+
+    /* Верхний левый угол */
+    .border-tl-#{$size-name} {
+        box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), 1),
+        inset 0 #{$size-value} 0 0 rgba(var(--border-color), 1);
+    }
+
+    /* Верхний правый угол */
+    .border-tr-#{$size-name} {
+        box-shadow: inset -#{$size-value} 0 0 0 rgba(var(--border-color), 1),
+        inset 0 #{$size-value} 0 0 rgba(var(--border-color), 1);
+    }
+
+    /* Нижний левый угол */
+    .border-bl-#{$size-name} {
+        box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), 1),
+        inset 0 -#{$size-value} 0 0 rgba(var(--border-color), 1);
+    }
+
+    /* Нижний правый угол */
+    .border-br-#{$size-name} {
+        box-shadow: inset -#{$size-value} 0 0 0 rgba(var(--border-color), 1),
+        inset 0 -#{$size-value} 0 0 rgba(var(--border-color), 1);
+    }
+}

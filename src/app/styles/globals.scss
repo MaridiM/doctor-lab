@@ -1,0 +1,64 @@
+@use '_vars/index.scss';
+@use '_border.scss';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+@layer base {
+  * {
+    @apply box-border outline-none;
+    color: var(--text-primary);
+    user-select: none
+  }
+
+  body {
+    font-family: var(--font-roboto);
+    font-weight: 400;
+    @apply bg-background text-foreground;
+
+    /* unselectable */
+    /* iOS Safari */
+    -webkit-touch-callout: none;
+    /* Chrome/Safari/Opera */
+    -webkit-user-select: none;
+    /* Konqueror */
+    -khtml-user-select: none;
+    /* Firefox */
+    -moz-user-select: none;
+    /* Internet Explorer/Edge */
+    -ms-user-select: none;
+    /* Non-prefixed version, currently */
+    /* not supported by any browser */
+    user-select: none;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--font-color);
+    -webkit-box-shadow: var(--primary-outline-shadow-hover) inset,
+      0 0 0 30px rgba(var(--rgb-primary), 0.1) inset;
+    -webkit-background-clip: text;
+
+    /* Эти свойства для -moz и -ms практически не работают
+        с autofill, но приведены для полноты */
+    -moz-text-fill-color: var(--font-color);
+    -moz-box-shadow: var(--primary-outline-shadow-hover) inset,
+      0 0 0 30px rgba(var(--rgb-primary), 0.1) inset;
+    -moz-background-clip: text;
+
+    -ms-text-fill-color: var(--font-color);
+    -ms-box-shadow: var(--primary-outline-shadow-hover) inset,
+      0 0 0 30px rgba(var(--rgb-primary), 0.1) inset;
+    -ms-background-clip: text;
+  }
+}
