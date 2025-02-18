@@ -1,11 +1,7 @@
-'use client'
-
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuGroup,
@@ -29,6 +25,7 @@ export function NavUser({
         avatar: string
     }
 }) {
+    const t = useTranslations('core')
     const { isMobile } = useSidebar()
 
     return (
@@ -38,7 +35,7 @@ export function NavUser({
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size='lg'
-                            className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
+                            className='h-full data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-12'
                         >
                             <UserAvatar
                                 src={user.avatar}
@@ -77,28 +74,28 @@ export function NavUser({
                         <DropdownMenuGroup>
                             <DropdownMenuItem>
                                 <Sparkles />
-                                Upgrade to Pro
+                                {t('userMenu.upgrade')}
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             <DropdownMenuItem>
                                 <BadgeCheck />
-                                Account
+                                {t('userMenu.account')}
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                                 <CreditCard />
-                                Billing
+                                {t('userMenu.billing')}
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                                 <Bell />
-                                Notifications
+                                {t('userMenu.notifications')}
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>
                             <LogOut />
-                            Log out
+                            {t('userMenu.logout')}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

@@ -1,6 +1,4 @@
-'use client'
-
-import { type LucideIcon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -14,6 +12,7 @@ interface IProps {
 }
 
 export function NavMain({ items }: IProps) {
+    const t = useTranslations('core')
     const currentPath = usePathname()
 
     return (
@@ -28,7 +27,7 @@ export function NavMain({ items }: IProps) {
                         >
                             <SidebarMenuButton
                                 asChild
-                                tooltip={item.title}
+                                tooltip={t(`sidebar.${item.title.toLowerCase()}`)}
                                 className={cn(
                                     'h-full gap-2 px-4 py-3 transition-all duration-150 ease-in-out hover:pl-5',
                                     {
@@ -47,7 +46,7 @@ export function NavMain({ items }: IProps) {
                                             'text-text-foreground': isActive
                                         })}
                                     >
-                                        {item.title}
+                                        {t(`sidebar.${item.title.toLowerCase()}`)}
                                     </span>
                                 </Link>
                             </SidebarMenuButton>

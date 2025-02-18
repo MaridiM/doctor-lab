@@ -12,7 +12,8 @@ import {
     Settings2,
     UsersRound
 } from 'lucide-react'
-import { ComponentProps, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import { ComponentProps } from 'react'
 
 import { LogoIcon, Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/shared/components'
 import { PATHS } from '@/shared/config'
@@ -23,7 +24,7 @@ const data = {
     user: {
         name: 'Dr. Medison',
         email: 'dr.medison@gmail.com',
-        avatar: '/avatars/shadcn.jpg'
+        avatar: ''
     },
     organizations: [
         {
@@ -56,7 +57,8 @@ const data = {
         {
             title: 'Appointments',
             url: PATHS.appointments,
-            icon: Calendar
+            icon: Calendar,
+            badge: 8
         },
         {
             title: 'Staff',

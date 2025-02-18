@@ -1,5 +1,32 @@
 {
-    "header": {
-        "loginButton": "Войти"
-    }
+    "organizationMenu": {
+        "title": "Организации",
+        "button": "Создать организацию"
+    },
+    "sidebar": {
+        "button": {
+            "open": "Открыть меню",
+            "close": "Закрыть меню"
+        },
+        "dashboard": "Панель управления",
+        "patients": "Пациенты",
+        "appointments": "Записи на приём",
+        "staff": "Персонал",
+        "messenger": "Мессенджер",
+        "news": "Новости",
+        "organizations": "Организации",
+        "settings": "Настройки",
+        "support": "Поддержка",
+        "feedback": "Обратная связь"
+    },
+    "userMenu": {
+        "upgrade": "Обновить до Pro",
+        "account": "Аккаунт",
+        "billing": "Оплата",
+        "notifications": "Уведомления",
+        "logout": "Выйти"
+    },
+    "notifications": "Уведомления",
+    "addNewAppointment": "Добавить новую запись",
+    "addNewPatient": "Добавить нового пациента"
 }

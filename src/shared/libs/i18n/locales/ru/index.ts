@@ -1,5 +1,4 @@
-import auth from './auth.ru.json'
 import core from './core.ru.json'
-import home from './home.ru.json'
+import dashboard from './dashboard.ru.json'
 
-export default { auth, core, home }
+export default { core, dashboard }

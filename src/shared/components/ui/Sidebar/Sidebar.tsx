@@ -2,7 +2,8 @@
 
 import { Slot } from '@radix-ui/react-slot'
 import { VariantProps, cva } from 'class-variance-authority'
-import { AlignJustify, Menu, PanelLeft, X } from 'lucide-react'
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import {
     CSSProperties,
     ComponentProps,
@@ -22,7 +23,7 @@ import { cn } from '@/shared/utils'
 import { Button } from '../Button'
 import { Input } from '../Input'
 import { Separator } from '../Separator'
-import { Sheet, SheetContent } from '../Sheet'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../Sheet'
 import { Skeleton } from '../Skeleton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../Tooltip'
 
@@ -172,9 +173,13 @@ const Sidebar = forwardRef<
     if (isMobile) {
         return (
             <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+                <SheetHeader>
+                    <SheetTitle />
+                </SheetHeader>
                 <SheetContent
                     data-sidebar='sidebar'
                     data-mobile='true'
+                    aria-describedby={undefined}
                     className='w-[--sidebar-width] bg-card p-0 text-text [&>button]:hidden'
                     style={
                         {
@@ -238,6 +243,7 @@ Sidebar.displayName = 'Sidebar'
 const SidebarTrigger = forwardRef<ComponentRef<typeof Button>, ComponentProps<typeof Button>>(
     ({ className, onClick, ...props }, ref) => {
         const { toggleSidebar, open } = useSidebar()
+        const t = useTranslations('core')
 
         return (
             <Button
@@ -246,13 +252,14 @@ const SidebarTrigger = forwardRef<ComponentRef<typeof Button>, ComponentProps<ty
                 variant='outline'
                 size='icon'
                 className={cn('!hover:border-20 rounded-md', className)}
+                tooltip={open ? t('sidebar.button.close') : t('sidebar.button.open')}
                 onClick={event => {
                     onClick?.(event)
                     toggleSidebar()
                 }}
                 {...props}
             >
-                {open ? <Menu className='stroke-text' /> : <X className='stroke-text' />}
+                {open ? <PanelLeftClose className='stroke-text' /> : <PanelLeftOpen className='stroke-text' />}
                 <span className='sr-only'>Toggle Sidebar</span>
             </Button>
         )

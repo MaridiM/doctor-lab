@@ -1,11 +1,13 @@
 import { Slot } from '@radix-ui/react-slot'
 import { type VariantProps, cva } from 'class-variance-authority'
-import { ButtonHTMLAttributes, forwardRef } from 'react'
+import { ButtonHTMLAttributes, ComponentProps, forwardRef } from 'react'
 
 import { cn } from '@/shared/utils'
 
+import { Tooltip, TooltipContent, TooltipTrigger } from './Tooltip'
+
 const buttonVariants = cva(
-    'flex justify-center items-center rounded-sm transition-all duration-300 ease-in-out [&_svg]:pointer-events-none [&_svg]:size-6 [&_svg]:shrink-0 gap-1',
+    'flex justify-center items-center rounded-md transition-all duration-300 ease-in-out [&_svg]:pointer-events-none [&_svg]:size-6 [&_svg]:shrink-0 gap-1',
     {
         variants: {
             variant: {
@@ -37,15 +39,36 @@ const buttonVariants = cva(
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
     asChild?: boolean
+    tooltip?: string | ComponentProps<typeof TooltipContent>
+    side?: 'right' | 'top' | 'bottom' | 'left'
+    align?: 'center' | 'start' | 'end'
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant, size, icon, asChild = false, ...props }, ref) => {
+    ({ className, variant, size, icon, tooltip, asChild = false, ...props }, ref) => {
         size !== 'icon' && !!icon ? ((size = 'icon'), icon) : size
         size === 'icon' && !icon ? (icon = 'default') : icon
 
         const Comp = asChild ? Slot : 'button'
-        return <Comp className={cn(buttonVariants({ size, variant, icon, className }))} ref={ref} {...props} />
+
+        const button = <Comp className={cn(buttonVariants({ size, variant, icon, className }))} ref={ref} {...props} />
+
+        if (!tooltip) {
+            return button
+        }
+
+        if (typeof tooltip === 'string') {
+            tooltip = {
+                children: tooltip
+            }
+        }
+
+        return (
+            <Tooltip>
+                <TooltipTrigger asChild>{button}</TooltipTrigger>
+                <TooltipContent {...tooltip} />
+            </Tooltip>
+        )
     }
 )
 Button.displayName = 'Button'

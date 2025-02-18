@@ -1,6 +1,7 @@
 'use client'
 
 import { ChevronsUpDown, Plus } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { ElementType, useState } from 'react'
 
 import {
@@ -26,6 +27,8 @@ interface IProps {
 }
 
 export function OrganizationSwitcher({ organizations }: IProps) {
+    const t = useTranslations('core')
+
     const { isMobile } = useSidebar()
     const [activeTeam, setActiveTeam] = useState(organizations[0])
 
@@ -36,7 +39,7 @@ export function OrganizationSwitcher({ organizations }: IProps) {
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size='lg'
-                            className='h-full w-full data-[state=open]:bg-accent data-[state=open]:text-text group-data-[collapsible=icon]:!size-10'
+                            className='h-full w-full data-[state=open]:bg-accent data-[state=open]:text-text group-data-[collapsible=icon]:!size-12'
                         >
                             <div className='flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground'>
                                 <activeTeam.logo className='size-8' />
@@ -49,17 +52,19 @@ export function OrganizationSwitcher({ organizations }: IProps) {
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
-                        className='w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg'
+                        className='w-[--radix-dropdown-menu-trigger-width] min-w-64 rounded-lg'
                         align='start'
                         side={isMobile ? 'bottom' : 'right'}
                         sideOffset={4}
                     >
-                        <DropdownMenuLabel className='text-p-xs font-medium text-text'>Organisations</DropdownMenuLabel>
+                        <DropdownMenuLabel className='text-p-xs font-medium text-text'>
+                            {t('organizationMenu.title')}
+                        </DropdownMenuLabel>
                         {organizations.map((organization, index) => (
                             <DropdownMenuItem
                                 key={index}
                                 onClick={() => setActiveTeam(organization)}
-                                className='gap-2 p-2 !text-p-sm font-normal'
+                                className='items-center gap-2 p-2 !text-p-sm font-normal'
                             >
                                 <div className='border-10 flex size-6 items-center justify-center rounded-sm'>
                                     <organization.logo className='size-4 shrink-0' />
@@ -75,7 +80,9 @@ export function OrganizationSwitcher({ organizations }: IProps) {
                             <div className='border-10 group-hover:border-40 flex size-6 items-center justify-center rounded-md'>
                                 <Plus className='size-4 stroke-text' />
                             </div>
-                            <div className='!text-p-sm font-normal text-text-secondary shadow-none'>Add team</div>
+                            <div className='!text-p-sm font-normal text-text-secondary shadow-none'>
+                                {t('organizationMenu.button')}
+                            </div>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

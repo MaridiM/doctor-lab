@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ComponentPropsWithoutRef } from 'react'
@@ -11,6 +12,7 @@ interface IProps extends ComponentPropsWithoutRef<typeof SidebarGroup> {
     items: INavItem[]
 }
 export function NavSecondary({ items, ...props }: IProps) {
+    const t = useTranslations('core')
     const currentPath = usePathname()
     return (
         <SidebarGroup {...props}>
@@ -23,6 +25,7 @@ export function NavSecondary({ items, ...props }: IProps) {
                                 <SidebarMenuButton
                                     asChild
                                     size='sm'
+                                    tooltip={t(`sidebar.${item.title.toLowerCase()}`)}
                                     className={cn(
                                         'h-full gap-2 px-4 py-3 transition-all duration-150 ease-in-out hover:pl-5',
                                         {
@@ -44,7 +47,7 @@ export function NavSecondary({ items, ...props }: IProps) {
                                                 'text-text-foreground': isActive
                                             })}
                                         >
-                                            {item.title}
+                                            {t(`sidebar.${item.title.toLowerCase()}`)}
                                         </span>
                                     </Link>
                                 </SidebarMenuButton>
