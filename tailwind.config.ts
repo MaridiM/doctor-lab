@@ -1,5 +1,4 @@
 import type { Config } from 'tailwindcss'
-import plugin from 'tailwindcss/plugin'
 
 export default {
     darkMode: ['class'],
@@ -164,27 +163,27 @@ export default {
                 }
             },
             fontSize: {
-                h1: ['var(--h1, 36px)', { lineHeight: '1.2' }],
-                h2: ['var(--h2, 32px)', { lineHeight: '1.2' }],
-                h3: ['var(--h3, 24px)', { lineHeight: '1.3' }],
-                h4: ['var(--h4, 20px)', { lineHeight: '1.3' }],
-                h5: ['var(--h5, 18px)', { lineHeight: '1.3' }],
+                h1: ['var(--h1, 36px)', { lineHeight: '48px' }],
+                h2: ['var(--h2, 32px)', { lineHeight: '40px' }],
+                h3: ['var(--h3, 24px)', { lineHeight: '32px' }],
+                h4: ['var(--h4, 20px)', { lineHeight: '24px' }],
+                h5: ['var(--h5, 18px)', { lineHeight: '24px' }],
 
-                p: ['var(--p-sm, 14px)', { lineHeight: '1.5' }],
-                'p-lg': ['var(--p-lg, 18px)', { lineHeight: '1.5' }],
-                'p-md': ['var(--p-md, 16px)', { lineHeight: '1.5' }],
-                'p-sm': ['var(--p-sm, 14px)', { lineHeight: '1.5' }],
-                'p-xs': ['var(--p-xs, 12px)', { lineHeight: '1.4' }],
+                p: ['var(--p-sm, 14px)', { lineHeight: '20px' }],
+                'p-lg': ['var(--p-lg, 18px)', { lineHeight: '24px' }],
+                'p-md': ['var(--p-md, 16px)', { lineHeight: '24px' }],
+                'p-sm': ['var(--p-sm, 14px)', { lineHeight: '20px' }],
+                'p-xs': ['var(--p-xs, 12px)', { lineHeight: '16px' }],
 
-                button: ['var(--button-md, 14px)', { lineHeight: '1.4' }],
-                'button-lg': ['var(--button-lg, 16px)', { lineHeight: '1.5' }],
-                'button-md': ['var(--button-md, 14px)', { lineHeight: '1.4' }],
-                'button-sm': ['var(--button-sm, 12px)', { lineHeight: '1.3' }],
+                button: ['var(--button-md, 14px)', { lineHeight: '20' }],
+                'button-lg': ['var(--button-lg, 16px)', { lineHeight: '24px' }],
+                'button-md': ['var(--button-md, 14px)', { lineHeight: '20px' }],
+                'button-sm': ['var(--button-sm, 12px)', { lineHeight: '16px' }],
 
-                label: ['var(--label-md, 10px)', { lineHeight: '1.2' }],
-                'label-lg': ['var(--label-lg, 12px)', { lineHeight: '1.2' }],
-                'label-md': ['var(--label-md, 10px)', { lineHeight: '1.2' }],
-                'label-sm': ['var(--label-sm, 8px)', { lineHeight: '1.2' }]
+                label: ['var(--label-md, 10px)', { lineHeight: '12px' }],
+                'label-lg': ['var(--label-lg, 12px)', { lineHeight: '14px' }],
+                'label-md': ['var(--label-md, 10px)', { lineHeight: '12px' }],
+                'label-sm': ['var(--label-sm, 8px)', { lineHeight: '10px' }]
             },
             borderRadius: {
                 DEFAULT: 'var(--radius-sm, 4px)',
@@ -199,119 +198,13 @@ export default {
             }
         }
     },
-    plugins: [
-        require('tailwindcss-animate'),
-        plugin(function ({ addUtilities }) {
-            const sizes = {
-                '4xs': '0.1px',
-                '3xs': '0.25px',
-                '2xs': '0.5px',
-                xs: '0.75px',
-                sm: '1px',
-                md: '1.5px',
-                lg: '2px'
-            }
 
-            const opacities = {
-                5: '0.05',
-                10: '0.1',
-                15: '0.15',
-                20: '0.2',
-                25: '0.25',
-                30: '0.3',
-                35: '0.35',
-                40: '0.4',
-                45: '0.45',
-                50: '0.5',
-                55: '0.55',
-                60: '0.6',
-                65: '0.65',
-                70: '0.7',
-                75: '0.75',
-                80: '0.8',
-                85: '0.85',
-                90: '0.9',
-                95: '0.95',
-                100: '1'
-            }
+    corePlugins: {
+        // Отключаем дефолтные утилиты для бордера:
+        borderWidth: false,
+        borderColor: false,
+        // borderStyle: false
+    },
 
-            const utilities: Record<string, any> = {}
-
-            // Генерация классов для всех сторон
-            Object.entries(sizes).forEach(([size, value]) => {
-                Object.entries(opacities).forEach(([opacity, opacityValue]) => {
-                    utilities[`.border-${size}-${opacity}`] = {
-                        boxShadow: `inset 0 0 0 ${value} rgba(var(--border-color), ${opacityValue})`
-                    }
-                })
-
-                // Добавление классов без прозрачности (по умолчанию opacity = 1)
-                utilities[`.border-${size}`] = {
-                    boxShadow: `inset 0 0 0 ${value} rgba(var(--border-color), 1)`
-                }
-            })
-
-            // Генерация классов для индивидуальных сторон
-            Object.entries(sizes).forEach(([size, value]) => {
-                Object.entries(opacities).forEach(([opacity, opacityValue]) => {
-                    utilities[`.border-l-${size}-${opacity}`] = {
-                        boxShadow: `inset ${value} 0 0 0 rgba(var(--border-color), ${opacityValue})`
-                    }
-                    utilities[`.border-r-${size}-${opacity}`] = {
-                        boxShadow: `inset -${value} 0 0 0 rgba(var(--border-color), ${opacityValue})`
-                    }
-                    utilities[`.border-t-${size}-${opacity}`] = {
-                        boxShadow: `inset 0 ${value} 0 0 rgba(var(--border-color), ${opacityValue})`
-                    }
-                    utilities[`.border-b-${size}-${opacity}`] = {
-                        boxShadow: `inset 0 -${value} 0 0 rgba(var(--border-color), ${opacityValue})`
-                    }
-                })
-
-                // Добавление классов без прозрачности для индивидуальных сторон
-                utilities[`.border-l-${size}`] = {
-                    boxShadow: `inset ${value} 0 0 0 rgba(var(--border-color), 1)`
-                }
-                utilities[`.border-r-${size}`] = {
-                    boxShadow: `inset -${value} 0 0 0 rgba(var(--border-color), 1)`
-                }
-                utilities[`.border-t-${size}`] = {
-                    boxShadow: `inset 0 ${value} 0 0 rgba(var(--border-color), 1)`
-                }
-                utilities[`.border-b-${size}`] = {
-                    boxShadow: `inset 0 -${value} 0 0 rgba(var(--border-color), 1)`
-                }
-            })
-
-            // Генерация угловых и направленных классов (x, y, tl, tr, bl, br)
-            Object.entries(sizes).forEach(([size, value]) => {
-                Object.entries(opacities).forEach(([opacity, opacityValue]) => {
-                    utilities[`.border-x-${size}-${opacity}`] = {
-                        boxShadow: `inset ${value} 0 0 0 rgba(var(--border-color), ${opacityValue}), inset -${value} 0 0 0 rgba(var(--border-color), ${opacityValue})`
-                    }
-                    utilities[`.border-y-${size}-${opacity}`] = {
-                        boxShadow: `inset 0 ${value} 0 0 rgba(var(--border-color), ${opacityValue}), inset 0 -${value} 0 0 rgba(var(--border-color), ${opacityValue})`
-                    }
-                    utilities[`.border-tl-${size}-${opacity}`] = {
-                        boxShadow: `inset ${value} 0 0 0 rgba(var(--border-color), ${opacityValue}), inset 0 ${value} 0 0 rgba(var(--border-color), ${opacityValue})`
-                    }
-                    utilities[`.border-tr-${size}-${opacity}`] = {
-                        boxShadow: `inset -${value} 0 0 0 rgba(var(--border-color), ${opacityValue}), inset 0 ${value} 0 0 rgba(var(--border-color), ${opacityValue})`
-                    }
-                    utilities[`.border-bl-${size}-${opacity}`] = {
-                        boxShadow: `inset ${value} 0 0 0 rgba(var(--border-color), ${opacityValue}), inset 0 -${value} 0 0 rgba(var(--border-color), ${opacityValue})`
-                    }
-                    utilities[`.border-br-${size}-${opacity}`] = {
-                        boxShadow: `inset -${value} 0 0 0 rgba(var(--border-color), ${opacityValue}), inset 0 -${value} 0 0 rgba(var(--border-color), ${opacityValue})`
-                    }
-                })
-            })
-
-            // Добавление утилит
-            addUtilities(utilities, {
-                respectPrefix: true,
-                respectImportant: true
-            })
-        })
-    ]
+    plugins: [require('tailwindcss-animate')]
 } satisfies Config

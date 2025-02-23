@@ -6,6 +6,7 @@ import {
     Calendar,
     LayoutDashboard,
     LifeBuoy,
+    ListTodo,
     MessagesSquare,
     Rss,
     Send,
@@ -61,6 +62,12 @@ const data = {
             badge: 8
         },
         {
+            title: 'Tasks',
+            url: PATHS.tasks,
+            icon: ListTodo,
+            badge: 8
+        },
+        {
             title: 'Staff',
             url: PATHS.staff,
             icon: BookUser
@@ -91,12 +98,12 @@ const data = {
     navSecondary: [
         {
             title: 'Support',
-            url: '#',
+            url: PATHS.support,
             icon: LifeBuoy
         },
         {
             title: 'Feedback',
-            url: '#',
+            url: PATHS.feedback,
             icon: Send
         }
     ]

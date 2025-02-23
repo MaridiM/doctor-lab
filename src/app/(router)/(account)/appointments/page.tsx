@@ -6,7 +6,7 @@ import { PATHS } from '@/shared/config'
 import { cn } from '@/shared/utils'
 
 export const metadata: Metadata = {
-    title: 'Dashboard'
+    title: 'Appointments'
 }
 
 export default function AppointmentsPage() {

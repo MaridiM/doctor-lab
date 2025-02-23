@@ -1,18 +1,14 @@
 'use client'
 
-import { Bell, CalendarPlus2, Menu, Terminal, UserPlus, X } from 'lucide-react'
+import { Bell, CalendarPlus2, Menu, UserPlus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 import {
-    Alert,
-    AlertDescription,
-    AlertTitle,
     Button,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-    Hint,
     SidebarTrigger
 } from '@/shared/components'
 
@@ -55,8 +51,15 @@ export function Header() {
                 </Button>
 
                 <DropdownMenu>
-                    <DropdownMenuTrigger className='flex h-10 w-10 items-center justify-center gap-1 rounded-md bg-transparent p-0 !text-text transition-all duration-300 ease-in-out hover:bg-hover [&_svg]:pointer-events-none [&_svg]:size-6 [&_svg]:shrink-0'>
-                        <Menu />
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant='outline'
+                            size='icon'
+                            icon='sm'
+                            tooltip={{ children: 'Menu', align: 'center', side: 'bottom' }}
+                        >
+                            <Menu />
+                        </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
                         <DropdownMenuItem>Profile</DropdownMenuItem>

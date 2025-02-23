@@ -1,4 +1,32 @@
 {
     "heading": "Dashboard",
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "tasks": {
+        "title": "Tasks",
+        "searchPlaceholder": "Search task",
+        "header": {
+            "all": "All",
+            "sortBy": "Sort by:",
+            "newestOnTop": "Newest on top",
+            "newestOnBottom": "Newest on bottom",
+            "dateCreated": "Date created",
+            "dateModified": "Date modified",
+            "showCompleted": "Show completed",
+            "addNewTask": "Add new task",
+            "generateTask": "Generate task",
+            "taskSettings": "Task settings"
+        },
+        "task": {
+            "complete": "Mark as complete",
+            "incomplete": "Mark as incomplete",
+            "important": "Mark as important",
+            "unimportant": "Remove from important",
+            "pin": "Pin",
+            "unpin": "Unpin",
+            "edit": "Edit",
+            "archive": "Archive",
+            "delete": "Delete",
+            "menu": "Task menu"
+        }
+    }
 }

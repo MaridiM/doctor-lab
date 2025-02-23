@@ -1,257 +1,463 @@
 @use "sass:math";
 
-$sizes: (4xs: 0.1px,
-    3xs: 0.25px,
-    2xs: 0.5px,
-    xs: 0.75px,
-    sm: 1px,
-    md: 1.5px,
-    lg: 2px);
+// 1) Стороны (directive)
+$directives: ("", // .border   (все стороны)
+    "t", // .border-t (верх)
+    "r", // .border-r (право)
+    "b", // .border-b (низ)
+    "l", // .border-l (лево)
+    "x", // .border-x (лево + право)
+    "y", // .border-y (верх + низ)
+    "tl", // .border-tl (угол: верх+лево)
+    "tr", // .border-tr (угол: верх+право)
+    "bl", // .border-bl (угол: низ+лево)
+    "br" // .border-br (угол: низ+право)
+);
 
-$opacities: (05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100);
+// 2) Толщины (size)
+$sizes: ("": 1px, // пустая строка = толщина 1px по умолчанию
+    "4xs": 0.1px,
+    "3xs": 0.25px,
+    "2xs": 0.5px,
+    "xs": 0.75px,
+    "sm": 1px,
+    "md": 1.5px,
+    "lg": 2px);
 
-@each $size-name,
-$size-value in $sizes {
-    @each $opacity in $opacities {
+// 3) Прозрачности (opacity)
+$opacities: ("": 1, // "" = 1 (непрозрачно)
+    "05": 0.05,
+    "10": 0.1,
+    "15": 0.15,
+    "20": 0.2,
+    "25": 0.25,
+    "30": 0.3,
+    "40": 0.4,
+    "50": 0.5,
+    "60": 0.6,
+    "70": 0.7,
+    "75": 0.75,
+    "80": 0.8,
+    "85": 0.85,
+    "90": 0.9,
+    "95": 0.95,
+    "100": 1);
 
-        /* Все стороны */
-        .border-#{$size-name}-#{$opacity} {
-            box-shadow: inset 0 0 0 #{$size-value} rgba(var(--border-color), #{math.div($opacity, 100)});
+// 4) Цвета (color)
+$colors: ("": var(--border-color), // "" = дефолтный цвет → var(--border-color)
+    "white": var(--rgb-white),
+    "dark": var(--rgb-dark),
+    "primary": var(--rgb-primary),
+    "secondary": var(--rgb-secondary),
+    "ettention": var(--rgb-ettention),
+    "positive": var(--rgb-positive),
+    "negative": var(--rgb-negative),
+    "gray": var(--rgb-gray));
+
+// 5) Особые модификаторы (special)
+$specials: ("", // обычный border
+    "none", // border: none
+    "transparent", // border-color: transparent
+    "inset" // border-style: inset
+);
+
+/* ---------------------------------------------
+   МИКСИН: define-border
+   Назначает обычные свойства border-*,
+   учитывая directive (сторону), thickness, color, opacity
+   и флаг inset.
+--------------------------------------------- */
+@mixin define-border($directive, $thickness, $color, $opacity, $inset: false) {
+    // 1) Определим стили границы
+    //    Если inset = true → border-style: inset (3D-эффект)
+    //    иначе → border-style: solid
+    $borderStyle: if($inset, inset, solid);
+
+    // 2) Сформируем цвет
+    //    Если color = transparent → border-color: transparent
+    //    Иначе → rgba($color, $opacity)
+    $borderColor: if($color==transparent, transparent, rgba($color, $opacity));
+
+    // Если нужно "отключить" бордер на определённых сторонах,
+    // просто не задаём свойства. И наоборот, для каждой стороны:
+    @if $directive=="" {
+        // все стороны
+        border: #{$thickness} #{$borderStyle} #{$borderColor};
+
+    }
+
+    @else if $directive=="l" {
+        border-left: #{$thickness} #{$borderStyle} #{$borderColor};
+
+    }
+
+    @else if $directive=="r" {
+        border-right: #{$thickness} #{$borderStyle} #{$borderColor};
+
+    }
+
+    @else if $directive=="t" {
+        border-top: #{$thickness} #{$borderStyle} #{$borderColor};
+
+    }
+
+    @else if $directive=="b" {
+        border-bottom: #{$thickness} #{$borderStyle} #{$borderColor};
+
+    }
+
+    @else if $directive=="x" {
+        // слева + справа
+        border-left: #{$thickness} #{$borderStyle} #{$borderColor};
+        border-right: #{$thickness} #{$borderStyle} #{$borderColor};
+
+    }
+
+    @else if $directive=="y" {
+        // сверху + снизу
+        border-top: #{$thickness} #{$borderStyle} #{$borderColor};
+        border-bottom: #{$thickness} #{$borderStyle} #{$borderColor};
+
+    }
+
+    @else if $directive=="tl" {
+        // угол: сверху + слева
+        border-top: #{$thickness} #{$borderStyle} #{$borderColor};
+        border-left: #{$thickness} #{$borderStyle} #{$borderColor};
+
+    }
+
+    @else if $directive=="tr" {
+        // угол: сверху + справа
+        border-top: #{$thickness} #{$borderStyle} #{$borderColor};
+        border-right: #{$thickness} #{$borderStyle} #{$borderColor};
+
+    }
+
+    @else if $directive=="bl" {
+        // угол: снизу + слева
+        border-bottom: #{$thickness} #{$borderStyle} #{$borderColor};
+        border-left: #{$thickness} #{$borderStyle} #{$borderColor};
+
+    }
+
+    @else if $directive=="br" {
+        // угол: снизу + справа
+        border-bottom: #{$thickness} #{$borderStyle} #{$borderColor};
+        border-right: #{$thickness} #{$borderStyle} #{$borderColor};
+    }
+}
+
+/* ---------------------------------------------
+   МИКСИН: make-border-class
+   Генерирует класс:
+   .border(-directive)(-size)(-opacity)(-color)(-special)
+--------------------------------------------- */
+@mixin make-border-class($directive,
+    $size-name, $size-value,
+    $opacity-key, $opacity-value,
+    $color-key, $color-value,
+    $special) {
+    // Формируем имя класса
+    $className: "border";
+
+    @if $directive !="" {
+        $className: "#{$className}-#{$directive}";
+    }
+
+    @if $size-name !="" {
+        $className: "#{$className}-#{$size-name}";
+    }
+
+    @if $opacity-key !="" {
+        $className: "#{$className}-#{$opacity-key}";
+    }
+
+    @if $color-key !="" {
+        $className: "#{$className}-#{$color-key}";
+    }
+
+    @if $special !="" {
+        $className: "#{$className}-#{$special}";
+    }
+
+    .#{$className} {
+
+        // Логика special:
+        @if $special=="none" {
+            // Полностью убираем бордер
+            border: none !important;
+
         }
 
-        /* Левая сторона */
-        .border-l-#{$size-name}-#{$opacity} {
-            box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+        @else if $special=="transparent" {
+            // Делаем цвет transparent
+            @include define-border($directive, $size-value, transparent, 1, false);
+
         }
 
-        /* Правая сторона */
-        .border-r-#{$size-name}-#{$opacity} {
-            box-shadow: inset -#{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+        @else if $special=="inset" {
+            // border-style: inset
+            @include define-border($directive, $size-value, $color-value, $opacity-value, true);
+
         }
 
-        /* Верхняя сторона */
-        .border-t-#{$size-name}-#{$opacity} {
-            box-shadow: inset 0 #{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-        }
-
-        /* Нижняя сторона */
-        .border-b-#{$size-name}-#{$opacity} {
-            box-shadow: inset 0 -#{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-        }
-
-        /* Угол: верхний левый */
-        .border-tl-#{$size-name}-#{$opacity} {
-            box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
-            inset 0 #{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-        }
-
-        /* Угол: верхний правый */
-        .border-tr-#{$size-name}-#{$opacity} {
-            box-shadow: inset -#{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
-            inset 0 #{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-        }
-
-        /* Угол: нижний левый */
-        .border-bl-#{$size-name}-#{$opacity} {
-            box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
-            inset 0 -#{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-        }
-
-        /* Угол: нижний правый */
-        .border-br-#{$size-name}-#{$opacity} {
-            box-shadow: inset -#{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
-            inset 0 -#{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-        }
-
-        /* Горизонтальные стороны (x) */
-        .border-x-#{$size-name}-#{$opacity} {
-            box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
-            inset -#{$size-value} 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-        }
-
-        /* Вертикальные стороны (y) */
-        .border-y-#{$size-name}-#{$opacity} {
-            box-shadow: inset 0 #{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
-            inset 0 -#{$size-value} 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+        @else {
+            // Обычный случай
+            @include define-border($directive, $size-value, $color-value, $opacity-value, false);
         }
     }
 }
 
-@each $opacity in $opacities {
+// ---------------------------------------------
+// ГЕНЕРАЦИЯ ВСЕХ КЛАССОВ
+// (directive × size × opacity × color × special)
+// ---------------------------------------------
+@each $directive in $directives {
 
-    /* Все стороны */
-    .border {
-        box-shadow: inset 0 0 0 1px rgba(var(--border-color), 1);
-    }
+    @each $size-name,
+    $size-value in $sizes {
 
-    .border-#{$opacity} {
-        box-shadow: inset 0 0 0 1px rgba(var(--border-color), #{math.div($opacity, 100)});
-    }
+        @each $opacity-key,
+        $opacity-value in $opacities {
 
-    /* Левая сторона */
-    .border-l {
-        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), 1);
-    }
-
-    .border-l-#{$opacity} {
-        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-    }
-
-    /* Правая сторона */
-    .border-r {
-        box-shadow: inset -1px 0 0 0 rgba(var(--border-color), 1);
-    }
-
-    .border-r-#{$opacity} {
-        box-shadow: inset -1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-    }
-
-    /* Верхняя сторона */
-    .border-t {
-        box-shadow: inset 0 1px 0 0 rgba(var(--border-color), 1);
-    }
-
-    .border-t-#{$opacity} {
-        box-shadow: inset 0 1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-    }
-
-    /* Нижняя сторона */
-    .border-b {
-        box-shadow: inset 0 -1px 0 0 rgba(var(--border-color), 1);
-    }
-
-    .border-b-#{$opacity} {
-        box-shadow: inset 0 -1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-    }
-
-    /* Горизонтальные стороны (x) */
-    .border-x {
-        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), 1),
-            inset -1px 0 0 0 rgba(var(--border-color), 1);
-    }
-
-    .border-x-#{$opacity} {
-        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
-        inset -1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-    }
-
-    /* Вертикальные стороны (y) */
-    .border-y {
-        box-shadow: inset 0 1px 0 0 rgba(var(--border-color), 1),
-            inset 0 -1px 0 0 rgba(var(--border-color), 1);
-    }
-
-    .border-y-#{$opacity} {
-        box-shadow: inset 0 1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
-        inset 0 -1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-    }
-
-    /* Верхний левый угол */
-    .border-tl {
-        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), 1),
-            inset 0 1px 0 0 rgba(var(--border-color), 1);
-    }
-
-    .border-tl-#{$opacity} {
-        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
-        inset 0 1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-    }
-
-    /* Верхний правый угол */
-    .border-tr {
-        box-shadow: inset -1px 0 0 0 rgba(var(--border-color), 1),
-            inset 0 1px 0 0 rgba(var(--border-color), 1);
-    }
-
-    .border-tr-#{$opacity} {
-        box-shadow: inset -1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
-        inset 0 1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-    }
-
-    /* Нижний левый угол */
-    .border-bl {
-        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), 1),
-            inset 0 -1px 0 0 rgba(var(--border-color), 1);
-    }
-
-    .border-bl-#{$opacity} {
-        box-shadow: inset 1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
-        inset 0 -1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
-    }
-
-    /* Нижний правый угол */
-    .border-br {
-        box-shadow: inset -1px 0 0 0 rgba(var(--border-color), 1),
-            inset 0 -1px 0 0 rgba(var(--border-color), 1);
-    }
-
-    .border-br-#{$opacity} {
-        box-shadow: inset -1px 0 0 0 rgba(var(--border-color), #{math.div($opacity, 100)}),
-        inset 0 -1px 0 0 rgba(var(--border-color), #{math.div($opacity, 100)});
+            @each $color-key,
+            $color-value in $colors {
+                @each $special in $specials {
+                    @include make-border-class($directive,
+                        $size-name, $size-value,
+                        $opacity-key, $opacity-value,
+                        $color-key, $color-value,
+                        $special);
+                }
+            }
+        }
     }
 }
 
-@each $size-name,
-$size-value in $sizes {
 
-    /* Все стороны */
-    .border-#{$size-name} {
-        box-shadow: inset 0 0 0 #{$size-value} rgba(var(--border-color), 1);
-    }
 
-    /* Левая сторона */
-    .border-l-#{$size-name} {
-        box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), 1);
-    }
 
-    /* Правая сторона */
-    .border-r-#{$size-name} {
-        box-shadow: inset -#{$size-value} 0 0 0 rgba(var(--border-color), 1);
-    }
 
-    /* Верхняя сторона */
-    .border-t-#{$size-name} {
-        box-shadow: inset 0 #{$size-value} 0 0 rgba(var(--border-color), 1);
-    }
+// @use "sass:math";
 
-    /* Нижняя сторона */
-    .border-b-#{$size-name} {
-        box-shadow: inset 0 -#{$size-value} 0 0 rgba(var(--border-color), 1);
-    }
+// // 1) Возможные стороны (directive). Пустая строка "" означает "border" без уточнения стороны.
+// $directives: ("", // = все стороны (просто "border")
+//     "t", // top
+//     "r", // right
+//     "b", // bottom
+//     "l", // left
+//     "x", // left+right
+//     "y", // top+bottom
+//     "tl", // top-left угол
+//     "tr", // top-right угол
+//     "bl", // bottom-left угол
+//     "br" // bottom-right угол
+// );
 
-    /* Горизонтальные стороны (x) */
-    .border-x-#{$size-name} {
-        box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), 1),
-        inset -#{$size-value} 0 0 0 rgba(var(--border-color), 1);
-    }
+// // 2) Толщины (size). Ключ — то, что попадёт в название класса, значение — фактическая толщина
+// $sizes: ("": 1px, // Пустая строка = дефолтная толщина 1px
+//     "4xs": 0.1px,
+//     "3xs": 0.25px,
+//     "2xs": 0.5px,
+//     "xs": 0.75px,
+//     "sm": 1px,
+//     "md": 1.5px,
+//     "lg": 2px);
 
-    /* Вертикальные стороны (y) */
-    .border-y-#{$size-name} {
-        box-shadow: inset 0 #{$size-value} 0 0 rgba(var(--border-color), 1),
-        inset 0 -#{$size-value} 0 0 rgba(var(--border-color), 1);
-    }
+// // 3) Прозрачности (opacity). Ключ: "05" → класс будет .border-05, значение: 0.05 для RGBA.
+// //    Пустая строка = 1 (непрозрачно)
+// $opacities: ("": 1,
+//     "05": 0.05,
+//     "10": 0.1,
+//     "15": 0.15,
+//     "20": 0.2,
+//     "25": 0.25,
+//     "30": 0.3,
+//     "40": 0.4,
+//     "50": 0.5,
+//     "60": 0.6,
+//     "70": 0.7,
+//     "75": 0.75,
+//     "80": 0.8,
+//     "85": 0.85,
+//     "90": 0.9,
+//     "95": 0.95,
+//     "100": 1);
 
-    /* Верхний левый угол */
-    .border-tl-#{$size-name} {
-        box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), 1),
-        inset 0 #{$size-value} 0 0 rgba(var(--border-color), 1);
-    }
+// // 4) Цвета (color). Ключ — то, что попадёт в класс, значение — соответствующий var(...) 
+// //    или rgb(...) набор.
+// //    Пустая строка = дефолтный цвет (var(--border-color)).
+// $colors: ("": var(--border-color),
+//     "white": var(--rgb-white),
+//     "dark": var(--rgb-dark),
+//     "primary": var(--rgb-primary),
+//     "secondary": var(--rgb-secondary),
+//     "ettention": var(--rgb-ettention),
+//     "positive": var(--rgb-positive),
+//     "negative": var(--rgb-negative),
+//     "gray": var(--rgb-gray));
 
-    /* Верхний правый угол */
-    .border-tr-#{$size-name} {
-        box-shadow: inset -#{$size-value} 0 0 0 rgba(var(--border-color), 1),
-        inset 0 #{$size-value} 0 0 rgba(var(--border-color), 1);
-    }
+// // 5) Особые финальные "статусы" (или модификаторы).
+// //    - ""          → обычная рамка
+// //    - "none"      → box-shadow: none
+// //    - "transparent" → цвет = transparent
+// //    - "inset"     → добавляет inset в box-shadow
+// $specials: ("", // нет суффикса
+//     "none",
+//     "transparent",
+//     "inset"
+// );
 
-    /* Нижний левый угол */
-    .border-bl-#{$size-name} {
-        box-shadow: inset #{$size-value} 0 0 0 rgba(var(--border-color), 1),
-        inset 0 -#{$size-value} 0 0 rgba(var(--border-color), 1);
-    }
+// /* ---------------------------------------------
+//    Миксин, который вычисляет box-shadow,
+//    учитывая directive (сторону), thickness, цвет, прозрачность и "inset".
+// --------------------------------------------- */
+// @mixin define-box-shadow($directive, $thickness, $color, $opacity, $inset: false) {
+//     // Превращаем цвет в RGBA (если это не 'transparent')
+//     $rgba: if($color==transparent, transparent, rgba($color, $opacity));
 
-    /* Нижний правый угол */
-    .border-br-#{$size-name} {
-        box-shadow: inset -#{$size-value} 0 0 0 rgba(var(--border-color), 1),
-        inset 0 -#{$size-value} 0 0 rgba(var(--border-color), 1);
-    }
-}
+//     // Сформируем префикс "inset " если $inset == true
+//     $prefix: if($inset, inset, "");
+
+//     @if $directive=="" {
+//         // Все стороны
+//         box-shadow: #{$prefix} 0 0 0 #{$thickness} #{$rgba};
+//     }
+
+//     @else if $directive=="l" {
+//         // Левая
+//         box-shadow: #{$prefix} #{$thickness} 0 0 0 #{$rgba};
+//     }
+
+//     @else if $directive=="r" {
+//         // Правая
+//         box-shadow: #{$prefix} -#{$thickness} 0 0 0 #{$rgba};
+//     }
+
+//     @else if $directive=="t" {
+//         // Верх
+//         box-shadow: #{$prefix} 0 #{$thickness} 0 0 #{$rgba};
+//     }
+
+//     @else if $directive=="b" {
+//         // Низ
+//         box-shadow: #{$prefix} 0 -#{$thickness} 0 0 #{$rgba};
+//     }
+
+//     @else if $directive=="x" {
+//         // Лево + Право
+//         box-shadow: #{$prefix} #{$thickness} 0 0 0 #{$rgba},
+//         #{$prefix} -#{$thickness} 0 0 0 #{$rgba};
+//     }
+
+//     @else if $directive=="y" {
+//         // Верх + Низ
+//         box-shadow: #{$prefix} 0 #{$thickness} 0 0 #{$rgba},
+//         #{$prefix} 0 -#{$thickness} 0 0 #{$rgba};
+//     }
+
+//     @else if $directive=="tl" {
+//         // Угол верхний левый
+//         box-shadow: #{$prefix} #{$thickness} 0 0 0 #{$rgba},
+//         #{$prefix} 0 #{$thickness} 0 0 #{$rgba};
+//     }
+
+//     @else if $directive=="tr" {
+//         // Угол верхний правый
+//         box-shadow: #{$prefix} -#{$thickness} 0 0 0 #{$rgba},
+//         #{$prefix} 0 #{$thickness} 0 0 #{$rgba};
+//     }
+
+//     @else if $directive=="bl" {
+//         // Угол нижний левый
+//         box-shadow: #{$prefix} #{$thickness} 0 0 0 #{$rgba},
+//         #{$prefix} 0 -#{$thickness} 0 0 #{$rgba};
+//     }
+
+//     @else if $directive=="br" {
+//         // Угол нижний правый
+//         box-shadow: #{$prefix} -#{$thickness} 0 0 0 #{$rgba},
+//         #{$prefix} 0 -#{$thickness} 0 0 #{$rgba};
+//     }
+// }
+
+// /* ---------------------------------------------
+//    Главный миксин, который генерирует класс
+//    по переданным параметрам и назначает нужный box-shadow.
+// --------------------------------------------- */
+// @mixin make-border-class($directive, $size-name, $size-value, $opacity-key, $opacity-value, $color-key, $color-value, $special) {
+//     // 1) Сформировать имя класса:
+//     //   "border" +[-directive] +[-size-name] +[-opacity-key] +[-color-key] +[-special]
+
+//     $className: "border"; // базовый префикс
+
+//     @if $directive !="" {
+//         $className: "#{$className}-#{$directive}";
+//     }
+
+//     @if $size-name !="" {
+//         $className: "#{$className}-#{$size-name}";
+//     }
+
+//     @if $opacity-key !="" {
+//         $className: "#{$className}-#{$opacity-key}";
+//     }
+
+//     @if $color-key !="" {
+//         $className: "#{$className}-#{$color-key}";
+//     }
+
+//     @if $special !="" {
+//         $className: "#{$className}-#{$special}";
+//     }
+
+//     // 2) Генерируем правило с этим классом
+//     .#{$className} {
+
+//         // Если режим "none" → box-shadow: none
+//         @if $special=="none" {
+//             box-shadow: none !important;
+//         }
+
+//         // Если режим "transparent" → цвет становится transparent
+//         @else if $special=="transparent" {
+//             @include define-box-shadow($directive, $size-value, transparent, 1, false);
+//         }
+
+//         // Если режим "inset" → используем inset
+//         @else if $special=="inset" {
+//             @include define-box-shadow($directive, $size-value, $color-value, $opacity-value, true);
+//         }
+
+//         // Обычный случай
+//         @else {
+//             @include define-box-shadow($directive, $size-value, $color-value, $opacity-value, false);
+//         }
+//     }
+// }
+
+// /* ---------------------------------------------
+//    6) Генерация всех классов во вложенных циклах
+// --------------------------------------------- */
+// @each $directive in $directives {
+
+//     @each $size-name,
+//     $size-value in $sizes {
+
+//         @each $opacity-key,
+//         $opacity-value in $opacities {
+
+//             @each $color-key,
+//             $color-value in $colors {
+//                 @each $special in $specials {
+//                     @include make-border-class($directive,
+//                         $size-name, $size-value,
+//                         $opacity-key, $opacity-value,
+//                         $color-key, $color-value,
+//                         $special);
+//                 }
+//             }
+//         }
+//     }
+// }

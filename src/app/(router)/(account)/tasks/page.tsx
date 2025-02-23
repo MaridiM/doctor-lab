@@ -6,14 +6,14 @@ import { PATHS } from '@/shared/config'
 import { cn } from '@/shared/utils'
 
 export const metadata: Metadata = {
-    title: 'News'
+    title: 'Tasks'
 }
 
-export default function NewsPage() {
+export default function TasksPage() {
     return (
         <div className='flex min-h-screen flex-1 flex-col items-center justify-center bg-background'>
             <h1 className='mb-4 text-center text-h1 font-bold tracking-wider text-text'>
-                News page <br /> is under construction
+                Tasks page <br /> is under construction
             </h1>
             <Link href={PATHS.dashboard} className={cn(buttonVariants({ variant: 'outline' }), 'border-sm-40')}>
                 Go Back to Dashboard
