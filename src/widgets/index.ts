@@ -1,2 +1,5 @@
-export * from './Sidebar'
 export * from './Header'
+export * from './Schedule'
+export * from './Patients'
+export * from './Sidebar'
+export * from './Tasks'

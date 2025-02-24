@@ -28,5 +28,30 @@
             "delete": "Delete",
             "menu": "Task menu"
         }
+    },
+    "schedule": {
+        "title": "Schedule",
+        "header": {
+            "all": "All",
+            "addNewAppointment": "Add new appointment",
+            "scheduleSettings": "Schedule settings",
+            "timeFormat": {
+                "24": "Use 24 time format",
+                "12": "Use 12 time format"
+            },
+            "stepTime": {
+                "title": "Step time -",
+                "5": "5 min",
+                "10": "10 min",
+                "15": "15 min",
+                "20": "20 min",
+                "30": "30 min",
+                "60": "60 min"
+            }
+        },
+        "slot": {
+            "hover": "Add new appointment"
+        },
+        "addASlot": "Add a slot"
     }
 }

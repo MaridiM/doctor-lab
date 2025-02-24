@@ -1,6 +1,6 @@
 'use client'
 
-import { Bell, CalendarPlus2, Menu, UserPlus } from 'lucide-react'
+import { Bell, CalendarPlus2, Menu, UserPlus2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 import {
@@ -17,7 +17,7 @@ export function Header() {
     const t = useTranslations('core')
 
     return (
-        <header className='border-b-20 flex h-16 shrink-0 items-center justify-between gap-2 bg-card px-4 transition-[width,height] ease-linear'>
+        <header className='flex h-16 shrink-0 items-center justify-between gap-2 bg-card px-4 transition-[width,height] ease-linear border-b-20'>
             <div className='flex items-center gap-4'>
                 <SidebarTrigger className='-ml-1' />
                 <span className='text-h4 !text-text drop-shadow-sm'>{tDashboard('title')}</span>
@@ -30,7 +30,7 @@ export function Header() {
                     tooltip={t('addNewPatient')}
                     onClick={() => console.log('Add patient')}
                 >
-                    <UserPlus className='stroke-text-foreground' />
+                    <UserPlus2 className='stroke-text-foreground' />
                 </Button>
                 <Button
                     size='icon'
