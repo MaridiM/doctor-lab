@@ -25,7 +25,7 @@ const data = {
     user: {
         name: 'Dr. Medison',
         email: 'dr.medison@gmail.com',
-        avatar: ''
+        avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDKdBKoPukxVfmkSyArwRK6p10AjSyCWaFOg&s'
     },
     organizations: [
         {
@@ -114,7 +114,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 
     return (
         <Sidebar collapsible='icon' {...props} className='border-r-20'>
-            <SidebarHeader className='border-b-20 h-16'>
+            <SidebarHeader className='h-16 border-b-20'>
                 {isOrganisation ? <OrganizationSwitcher organizations={data.organizations} /> : <BaseHeader />}
             </SidebarHeader>
 
@@ -123,7 +123,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                 <NavSecondary items={data.navSecondary} className='mt-auto' />
             </SidebarContent>
 
-            <SidebarFooter className='border-t-20 flex h-16 items-center justify-center p-0'>
+            <SidebarFooter className='flex h-16 items-center justify-center p-0 border-t-20'>
                 <NavUser user={data.user} />
             </SidebarFooter>
             <SidebarRail />

@@ -35,49 +35,19 @@ import { cn } from '@/shared/utils'
 
 export function Schedule() {
     const t = useTranslations('dashboard')
+    const { height } = useWindowSize()
 
-    const [isHoverTimeSlot, setIsHoverTimeSlot] = useState<number | null>(null)
     const [isOpenScheduleSettings, setIsOpenScheduleSettings] = useState(false)
 
-    const { height } = useWindowSize()
-    const [timeStart, setTimeStart] = useState<number>(8 - 1)
+    const [heightSlots, setHeightSlot] = useState<number>(64)
+    const [operatingHours, setOperatingHours] = useState<number>(24)
+    const [showHours, setShowHours] = useState<number>(8)
 
-    const [timeEnd, setTimeEnd] = useState<number>(17 + 1)
-
-    const [operatingHours, setOperatingHours] = useState<number>(timeEnd - timeStart > 12 ? timeEnd - timeStart : 12)
-
-    const [timeStep, setTimeStep] = useState<5 | 10 | 15 | 20 | 30 | 60>(30)
-    const [showHours, setShowHours] = useState<number>(6)
-
-    useEffect(() => {
-        let timeSlotCount =
-            timeStep === 60
-                ? 12
-                : timeStep < 30 && timeStep > 10
-                  ? 4
-                  : timeStep <= 10 && timeStep > 5
-                    ? 3
-                    : timeStep <= 5
-                      ? 2
-                      : 6
-
-        setShowHours(timeSlotCount)
-    }, [timeStep])
-
-    useEffect(() => {
-        const showOperatingHours = timeEnd - timeStart > 12 ? timeEnd - timeStart : 12
-        setOperatingHours(showOperatingHours)
-    }, [timeEnd, timeStart])
+    const [timeStep, setTimeStep] = useState<15 | 20 | 30 | 60>(30)
 
     const [isTime24Format, setIsTime24Format] = useState<boolean>(true)
 
-    const heightCell = (height - 136) / showHours > 24 ? (height - 136) / showHours : 24
-
-    let currentSlotTime: number = timeStart
     const step = 60 / timeStep
-
-    let countStep = 0
-    let stepSlotTime = countStep
 
     const stepTimeIcon = {
         5: <Clock1 />,
@@ -121,16 +91,7 @@ export function Schedule() {
                         onOpenChange={() => setIsOpenScheduleSettings(!isOpenScheduleSettings)}
                     >
                         <DropdownMenuTrigger asChild>
-                            <Button
-                                variant='outline'
-                                size='icon'
-                                icon='sm'
-                                tooltip={{
-                                    children: t('schedule.header.scheduleSettings'),
-                                    align: 'center',
-                                    side: 'bottom'
-                                }}
-                            >
+                            <Button variant='outline' size='icon' icon='sm'>
                                 <Settings className='stroke-[1.5px]' />
                             </Button>
                         </DropdownMenuTrigger>
@@ -205,168 +166,59 @@ export function Schedule() {
                     </DropdownMenu>
                 </div>
             </header>
-            <ScrollArea className='flex h-full max-h-[calc(100vh-138px)] w-full' type='auto'>
-                <div className='flex flex-col'>
-                    <div className='flex h-full'>
-                        <div className='flex w-16 flex-col items-end justify-center bg-card border-r-20'>
-                            <ul className='flex h-full w-16 flex-col'>
-                                {Array(operatingHours * step + 2)
-                                    .fill(null)
-                                    .map((_, idx) => {
-                                        if (idx === 0) {
-                                            return
-                                        }
-                                        let timeMeridiem = ''
-                                        const isEvenNumber = !!(idx % 2)
-                                        const isStepHour = timeStep === 60
-
-                                        if (countStep === 0 && idx > 1) {
-                                            countStep = step
-                                        }
-                                        if (countStep > 0) {
-                                            countStep = countStep - 1
-                                            stepSlotTime = stepSlotTime + timeStep
-                                        }
-                                        if (stepSlotTime === 60) {
-                                            stepSlotTime = 0
-                                        }
-
-                                        const currentStepSlotTime = stepSlotTime === 0 ? '00' : stepSlotTime
-                                        currentSlotTime =
-                                            idx === 1
-                                                ? currentSlotTime
-                                                : stepSlotTime === 0
-                                                  ? currentSlotTime + 1
-                                                  : currentSlotTime
-
-                                        if (!isTime24Format) {
-                                            timeMeridiem = currentSlotTime < 12 ? 'AM' : 'PM'
-                                        }
-
-                                        const currentSlotStepTime = isEvenNumber
-                                            ? currentStepSlotTime
-                                            : isStepHour
-                                              ? '00'
-                                              : currentStepSlotTime
-
-                                        return (
-                                            <li
-                                                key={idx}
-                                                className='flex w-full items-center justify-end px-1'
-                                                style={{
-                                                    minHeight:
-                                                        idx === 0
-                                                            ? heightCell / (60 / timeStep) / 2
-                                                            : heightCell / (60 / timeStep)
-                                                }}
-                                            >
-                                                <div
-                                                    className={cn('flex h-6 items-start justify-end gap-[2px]', {
-                                                        'items-center': !isTime24Format || !!countStep
-                                                    })}
-                                                >
-                                                    {(isStepHour
-                                                        ? isStepHour
-                                                        : isEvenNumber
-                                                          ? !countStep
-                                                          : !countStep) && (
-                                                        <span className='bg-red text-p-lg leading-[18px] text-text-secondary'>
-                                                            {currentSlotTime}
-                                                        </span>
+            <ScrollArea className='flex h-full max-h-[calc(100vh-138px)] w-full bg-background' type='auto'>
+                <div className='flex'>
+                    <ul className='gap flex w-16 flex-col bg-card border-r-20'>
+                        {Array(operatingHours * step)
+                            .fill(null)
+                            .map((_, idx) => {
+                                const lastItem =
+                                    Array(operatingHours * (60 / timeStep) + 2).fill(null).length - 1 === idx
+                                console.log(lastItem || idx === 0 ? heightSlots / 2 : heightSlots)
+                                return (
+                                    <li
+                                        key={idx}
+                                        className='flex w-full items-center justify-end'
+                                        style={{ height: heightSlots }}
+                                    >
+                                        <div className={cn('flex h-6 items-start px-0.5')}>
+                                            <span className='text-h4 leading-[20px] text-text'>09</span>
+                                            <div className='flex w-4 flex-col items-center'>
+                                                <span
+                                                    className={cn(
+                                                        'flex w-full justify-center !text-label-md leading-[10px] text-text'
                                                     )}
-                                                    <div className='flex flex-col items-center'>
-                                                        <span
-                                                            className={cn(
-                                                                '!text-label-md leading-[10px] text-text-secondary',
-                                                                {
-                                                                    '!text-label-lg leading-[12px]':
-                                                                        !!countStep || !isEvenNumber
-                                                                }
-                                                            )}
-                                                        >
-                                                            {currentSlotStepTime}
-                                                        </span>
-                                                        {!isTime24Format && (
-                                                            <span className='!text-label-md uppercase leading-[10px] text-text-secondary'>
-                                                                {timeMeridiem}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        )
-                                    })}
-                            </ul>
-                        </div>
-                        <div className='flex h-full w-full flex-col bg-background'>
-                            <ul className='flex flex-1 flex-col'>
-                                {Array(operatingHours * step + 2)
-                                    .fill(null)
-                                    .map((_, idx) => {
-                                        if (countStep === 0 && idx > 0) {
-                                            countStep = step
-                                        }
-                                        if (countStep > 0) {
-                                            countStep = countStep - 1
-                                            stepSlotTime = stepSlotTime + timeStep
-                                        }
-
-                                        if (stepSlotTime === 60) {
-                                            stepSlotTime = 0
-                                        }
-                                        const isEvenNumber = !!(idx % 2)
-                                        const isStepHour = timeStep === 60
-                                        const isDashed = isStepHour
-                                            ? !isStepHour
-                                            : isEvenNumber
-                                              ? !!countStep
-                                              : !!countStep
-
-                                        const lastItem =
-                                            Array(operatingHours * (60 / timeStep) + 2).fill(null).length - 1 === idx
-
-                                        return (
-                                            <li
-                                                key={idx}
-                                                onMouseEnter={
-                                                    idx !== 0 && !lastItem ? () => setIsHoverTimeSlot(idx) : undefined
-                                                }
-                                                onMouseLeave={
-                                                    idx !== 0 && !lastItem ? () => setIsHoverTimeSlot(null) : undefined
-                                                }
-                                                className={cn(
-                                                    'transition-color group bg-transparent p-1 duration-300 ease-in-out border-b-20',
-                                                    {
-                                                        'hover:bg-hover': idx !== 0 && !lastItem,
-                                                        'border-b-none': lastItem,
-                                                        'border-dashed': isDashed
-                                                    }
+                                                >
+                                                    00
+                                                </span>
+                                                {!isTime24Format && (
+                                                    <span className='flex w-full justify-center !text-label-md uppercase leading-[10px] text-text'>
+                                                        AM
+                                                    </span>
                                                 )}
-                                                style={{
-                                                    minHeight:
-                                                        idx === 0 || lastItem
-                                                            ? heightCell / (60 / timeStep) / 2
-                                                            : heightCell / (60 / timeStep)
-                                                }}
-                                            >
-                                                {idx > 0 && !lastItem && isHoverTimeSlot === idx && (
-                                                    <div className='flex min-h-[inherit] w-full items-center justify-center gap-2 rounded-md border-20'>
-                                                        <CalendarPlus2 className='size-4 stroke-text-tertiary' />
-                                                        <span className='pt-[2px] text-p-md text-text-tertiary'>
-                                                            {t('schedule.slot.hover')}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </li>
-                                        )
-                                    })}
-                            </ul>
-                        </div>
-                    </div>
-                    <Button className='group mt-auto h-14 w-full gap-2 rounded-none bg-background border-y-20 hover:bg-hover'>
-                        <CalendarClock className='size-5 stroke-text' />
-                        <span className='pt-[2px] text-p-md text-text'>{t('schedule.addASlot')}</span>
-                    </Button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                )
+                            })}
+                    </ul>
+                    <ul className='flex w-full flex-col'>
+                        {Array(operatingHours * step)
+                            .fill(null)
+                            .map((_, idx) => {
+                                const lastItem =
+                                    Array(operatingHours * (60 / timeStep) + 2).fill(null).length - 1 === idx
+                                return (
+                                    <li
+                                        key={idx}
+                                        className={cn('flex items-center', { 'border-b-20': !lastItem })}
+                                        style={{ height: lastItem || idx === 0 ? heightSlots / 2 : heightSlots }}
+                                    >
+                                        {idx}
+                                    </li>
+                                )
+                            })}
+                    </ul>
                 </div>
             </ScrollArea>
         </section>

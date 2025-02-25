@@ -1,5 +1,7 @@
 import type { Config } from 'tailwindcss'
 
+import bordersPlugin from './plugins/borders.plugin'
+
 export default {
     darkMode: ['class'],
     content: ['./src/**/*.{js,ts,jsx,tsx,mdx}', { raw: String.raw`group-data-\[.*?\]:border.*` }],
@@ -149,7 +151,7 @@ export default {
                     '900': 'var(--gray-900)',
                     '950': 'var(--gray-950)'
                 },
-
+                scroll: 'var(--scroll)',
                 // Sidebar
                 sidebar: {
                     DEFAULT: 'var(--sidebar-background)',
@@ -202,9 +204,9 @@ export default {
     corePlugins: {
         // Отключаем дефолтные утилиты для бордера:
         borderWidth: false,
-        borderColor: false,
+        borderColor: false
         // borderStyle: false
     },
 
-    plugins: [require('tailwindcss-animate')]
+    plugins: [require('tailwindcss-animate'), bordersPlugin]
 } satisfies Config

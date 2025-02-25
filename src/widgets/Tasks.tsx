@@ -11,7 +11,6 @@ import {
     Check,
     CheckCheck,
     EllipsisVertical,
-    Link,
     ListChecks,
     ListTodo,
     Package,
@@ -26,6 +25,7 @@ import {
     Trash2
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import Link from 'next/link'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -65,8 +65,8 @@ export function Tasks() {
 
     const { isDirty } = form.formState
     return (
-        <section className='w-full overflow-hidden rounded-lg bg-card border-20'>
-            <header className='flex h-14 items-center justify-between px-4 py-2 border-b-20'>
+        <section className='bg-baclground w-full overflow-hidden rounded-lg border-20'>
+            <header className='flex h-14 items-center justify-between bg-card px-4 py-2 border-b-20'>
                 <div className='flex items-center gap-2'>
                     <span className='rounded-md bg-primary p-1.5'>
                         <ListTodo className='size-5 stroke-text-foreground' />
@@ -173,7 +173,7 @@ export function Tasks() {
                                 onMouseEnter={() => setIsHoverTask(item.id)}
                                 onMouseLeave={() => setIsHoverTask(null)}
                                 onClick={() => setIsSelectedTask(item.id)}
-                                className={cn('rounded-md bg-transparent border-20 hover:bg-hover', {
+                                className={cn('rounded-md bg-card border-20 hover:border-40', {
                                     'bg-primary-50 border-sm-primary hover:border-sm-primary': isSelect
                                 })}
                             >
@@ -301,7 +301,13 @@ export function Tasks() {
                                     </div>
                                 </header>
 
-                                <p className='line-clamp-3 px-2 py-1 text-p-sm text-text'>{item.text}</p>
+                                <p
+                                    className={cn('line-clamp-3 px-2 py-1 text-p-sm text-text', {
+                                        'text-text-tertiary line-through': item.done
+                                    })}
+                                >
+                                    {item.text}
+                                </p>
                             </li>
                         )
                     })}

@@ -34,7 +34,6 @@
         "header": {
             "all": "All",
             "addNewAppointment": "Add new appointment",
-            "scheduleSettings": "Schedule settings",
             "timeFormat": {
                 "24": "Use 24 time format",
                 "12": "Use 12 time format"

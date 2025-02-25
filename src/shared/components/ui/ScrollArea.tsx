@@ -28,8 +28,8 @@ const ScrollBar = forwardRef<
         orientation={orientation}
         className={cn(
             'flex touch-none select-none transition-colors',
-            orientation === 'vertical' && 'h-full w-2 p-[2px]',
-            orientation === 'horizontal' && 'h-2 flex-col p-[2px]',
+            orientation === 'vertical' && 'h-full w-1 p-[0.5px]',
+            orientation === 'horizontal' && 'h-1 flex-col p-[0.5px]',
             className
         )}
         {...props}
