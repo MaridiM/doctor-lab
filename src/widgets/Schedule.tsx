@@ -2,7 +2,6 @@
 
 import {
     CalendarClock,
-    CalendarCog,
     CalendarPlus2,
     Check,
     Clock3,
@@ -15,7 +14,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
     Button,
@@ -53,6 +52,24 @@ export function Schedule() {
     useEffect(() => {
         setSlotHeight(MAX_SLOT_HEIGHT / stepsPerHour)
     }, [stepsPerHour])
+
+    const calculateTime = (idx: number) => {
+        const totalSteps = (operatingHours + 2) * stepsPerHour
+        const baseHour = -1 // Начало за 1 час до основного времени
+        const hour = baseHour + Math.floor(idx / stepsPerHour)
+        const adjustedHour = (hour + 24) % 24
+        const minute = (idx % stepsPerHour) * timeStep
+
+        // Коррекция последнего слота
+        if (idx === totalSteps - 1) {
+            return {
+                adjustedHour: (adjustedHour + 1) % 24,
+                minute: 0
+            }
+        }
+
+        return { adjustedHour, minute }
+    }
 
     const operatingHoursIcon = {
         6: <Clock6 />,
@@ -199,34 +216,13 @@ export function Schedule() {
                 <div className='flex'>
                     {/* Левая колонка с временной шкалой */}
                     <ul className='gap flex w-16 flex-col bg-card border-r-20'>
-                        {Array(operatingHours * stepsPerHour)
+                        {Array((operatingHours + 2) * stepsPerHour)
                             .fill(null)
                             .map((_, idx) => {
-                                if (stepCounter === 0 && idx > 0) {
-                                    stepCounter = stepsPerHour
-                                }
-                                if (stepCounter > 0) {
-                                    stepCounter -= 1
-                                    minuteSlot += timeStep
-                                }
-                                if (minuteSlot === 60) {
-                                    minuteSlot = 0
-                                }
-
-                                const isMinuteSlotZero = minuteSlot === 0
-
-                                if (idx === 0) {
-                                    currentHour = currentHour
-                                } else if (isMinuteSlotZero) {
-                                    currentHour++
-                                }
-
-                                let timeMeridiem = ''
-                                if (!isTime24Format) {
-                                    timeMeridiem = currentHour < 12 ? 'AM' : 'PM'
-                                }
-
-                                const currentMinuteSlot = isMinuteSlotZero ? '00' : minuteSlot.toString()
+                                const { adjustedHour, minute } = calculateTime(idx)
+                                const isMinuteZero = minute === 0
+                                const displayHour = isTime24Format ? adjustedHour : adjustedHour % 12 || 12
+                                const timeMeridiem = adjustedHour < 12 ? 'AM' : 'PM'
 
                                 return (
                                     <li
@@ -235,14 +231,14 @@ export function Schedule() {
                                         style={{ height: slotHeight }}
                                     >
                                         <div className={cn('flex h-6 items-start px-0.5')}>
-                                            {isMinuteSlotZero && (
+                                            {isMinuteZero && (
                                                 <span className='text-h4 leading-[20px] text-text-secondary'>
-                                                    {isTime24Format ? currentHour : currentHour % 12 || 0}
+                                                    {displayHour}
                                                 </span>
                                             )}
                                             <div
                                                 className={cn('flex h-full w-4 flex-col items-center', {
-                                                    'justify-center': !isMinuteSlotZero
+                                                    'justify-center': !isMinuteZero
                                                 })}
                                             >
                                                 <span
@@ -250,9 +246,9 @@ export function Schedule() {
                                                         'flex w-full justify-center !text-label-md leading-[10px] text-text-secondary'
                                                     )}
                                                 >
-                                                    {currentMinuteSlot}
+                                                    {minute.toString().padStart(2, '0')}
                                                 </span>
-                                                {!isTime24Format && isMinuteSlotZero && (
+                                                {!isTime24Format && isMinuteZero && (
                                                     <span className='flex w-full justify-center !text-label-md uppercase leading-[10px] text-text-secondary'>
                                                         {timeMeridiem}
                                                     </span>
@@ -265,29 +261,18 @@ export function Schedule() {
                     </ul>
                     {/* Правая колонка (сетка расписания) */}
                     <ul className='flex w-full flex-col'>
-                        {Array(operatingHours * stepsPerHour)
+                        {Array((operatingHours + 2) * stepsPerHour)
                             .fill(null)
                             .map((_, idx) => {
-                                const lastItem = Array(operatingHours * stepsPerHour + 2).fill(null).length - 1 === idx
-
-                                if (stepCounter === 0 && idx > 0) {
-                                    stepCounter = stepsPerHour
-                                }
-                                if (stepCounter > 0) {
-                                    stepCounter -= 1
-                                    minuteSlot += timeStep
-                                }
-                                if (minuteSlot === 60) {
-                                    minuteSlot = 0
-                                }
-
-                                const isMinuteSlotZero = minuteSlot === 0
+                                const { minute } = calculateTime(idx)
+                                const isMinuteZero = minute === 0
+                                const lastItem = idx === (operatingHours + 2) * stepsPerHour
                                 return (
                                     <li
                                         key={idx}
                                         className={cn('flex items-center border-b-20', {
                                             'border-b-none': lastItem,
-                                            '!border-dashed': !isMinuteSlotZero
+                                            '!border-dashed': !isMinuteZero
                                         })}
                                         style={{
                                             height: lastItem || idx === 0 ? slotHeight / 2 : slotHeight
