@@ -269,12 +269,12 @@ export function Patients() {
                                     </div>
                                     <footer className='flex h-7 items-center justify-between gap-1 px-2 border-t-20'>
                                         <div className='flex h-full items-center gap-1'>
-                                            <span className='text-p-sm text-text-secondary'>Attending physician:</span>
-                                            <span className='text-p-sm font-medium text-text'>
+                                            <span className='text-p-sm text-text-tertiary'>Doctora:</span>
+                                            <span className='text-p-sm font-medium text-text-secondary'>
                                                 {patient.patientMedicalRecord.appointments[0].doctors[0].name}
                                             </span>
                                         </div>
-                                        <span className='text-label-lg font-medium tracking-wider text-text-secondary'>
+                                        <span className='text-label-lg font-medium tracking-wider text-text-tertiary'>
                                             {patient.patientMedicalRecord.appointments[0].doctors[0].specialties.name}
                                         </span>
                                     </footer>

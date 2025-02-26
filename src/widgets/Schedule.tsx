@@ -1,20 +1,9 @@
 'use client'
 
-import {
-    CalendarClock,
-    CalendarPlus2,
-    Check,
-    Clock1,
-    Clock2,
-    Clock3,
-    Clock4,
-    Clock6,
-    Clock12,
-    ListTodo,
-    Settings
-} from 'lucide-react'
+import { CalendarClock, CalendarPlus2, Check, Clock3, Clock4, Clock6, Clock12, ListTodo, Settings } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import { format } from 'path'
 import { useEffect, useState } from 'react'
 import { useWindowSize } from 'react-use'
 
@@ -35,23 +24,25 @@ import { cn } from '@/shared/utils'
 
 export function Schedule() {
     const t = useTranslations('dashboard')
-    const { height } = useWindowSize()
+    const MAX_SLOT_HEIGHT = 160
 
     const [isOpenScheduleSettings, setIsOpenScheduleSettings] = useState(false)
-
-    const [heightSlots, setHeightSlot] = useState<number>(64)
     const [operatingHours, setOperatingHours] = useState<number>(24)
-    const [showHours, setShowHours] = useState<number>(8)
-
-    const [timeStep, setTimeStep] = useState<15 | 20 | 30 | 60>(30)
-
+    const [timeStep, setTimeStep] = useState<15 | 20 | 30 | 60>(15)
+    const [slotHeight, setSlotHeight] = useState<number>(MAX_SLOT_HEIGHT)
     const [isTime24Format, setIsTime24Format] = useState<boolean>(true)
 
-    const step = 60 / timeStep
+    const stepsPerHour = 60 / timeStep
+
+    let countStep = 0
+    let stepSlotTime = countStep
+    let currentHour: number = 0
+
+    useEffect(() => {
+        setSlotHeight(MAX_SLOT_HEIGHT / stepsPerHour)
+    }, [stepsPerHour])
 
     const stepTimeIcon = {
-        5: <Clock1 />,
-        10: <Clock2 />,
         15: <Clock3 />,
         20: <Clock4 />,
         30: <Clock6 />,
@@ -111,27 +102,12 @@ export function Schedule() {
                             <DropdownMenuSub>
                                 <DropdownMenuSubTrigger className='gap-2'>
                                     {stepTimeIcon[timeStep]}
-                                    {/* <span>Step time - {timeStep} min</span> */}
                                     <span>
                                         {t(`schedule.header.stepTime.title`)}{' '}
                                         {t(`schedule.header.stepTime.${timeStep}`)}
                                     </span>
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent className='ml-2.5 min-w-[200px]'>
-                                    <DropdownMenuItem onClick={() => setTimeStep(5)}>
-                                        <Clock1 />
-                                        <span className='w-full text-p-sm text-text'>
-                                            {t('schedule.header.stepTime.5')}
-                                        </span>
-                                        {timeStep === 5 && <Check />}
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => setTimeStep(10)}>
-                                        <Clock2 />
-                                        <span className='w-full text-p-sm text-text'>
-                                            {t('schedule.header.stepTime.10')}
-                                        </span>
-                                        {timeStep === 10 && <Check />}
-                                    </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => setTimeStep(15)}>
                                         <Clock3 />
                                         <span className='w-full text-p-sm text-text'>
@@ -169,31 +145,62 @@ export function Schedule() {
             <ScrollArea className='flex h-full max-h-[calc(100vh-138px)] w-full bg-background' type='auto'>
                 <div className='flex'>
                     <ul className='gap flex w-16 flex-col bg-card border-r-20'>
-                        {Array(operatingHours * step)
+                        {Array(operatingHours * stepsPerHour)
                             .fill(null)
                             .map((_, idx) => {
-                                const lastItem =
-                                    Array(operatingHours * (60 / timeStep) + 2).fill(null).length - 1 === idx
-                                console.log(lastItem || idx === 0 ? heightSlots / 2 : heightSlots)
+                                if (countStep === 0 && idx > 0) {
+                                    countStep = stepsPerHour
+                                }
+                                if (countStep > 0) {
+                                    countStep -= 1
+                                    stepSlotTime += timeStep
+                                }
+                                if (stepSlotTime === 60) {
+                                    stepSlotTime = 0
+                                }
+
+                                const isStepSlotTimeZero = stepSlotTime === 0
+
+                                if (idx === 0) {
+                                    currentHour = currentHour
+                                } else if (isStepSlotTimeZero) {
+                                    currentHour++
+                                }
+
+                                let timeMeridiem = ''
+                                if (!isTime24Format) {
+                                    timeMeridiem = currentHour < 12 ? 'AM' : 'PM'
+                                }
+
+                                const currentStepSlotTime = isStepSlotTimeZero ? '00' : stepSlotTime
+
                                 return (
                                     <li
                                         key={idx}
                                         className='flex w-full items-center justify-end'
-                                        style={{ height: heightSlots }}
+                                        style={{ height: slotHeight }}
                                     >
                                         <div className={cn('flex h-6 items-start px-0.5')}>
-                                            <span className='text-h4 leading-[20px] text-text'>09</span>
-                                            <div className='flex w-4 flex-col items-center'>
+                                            {isStepSlotTimeZero && (
+                                                <span className='text-h4 leading-[20px] text-text-secondary'>
+                                                    {isTime24Format ? currentHour : currentHour % 12 || 0}
+                                                </span>
+                                            )}
+                                            <div
+                                                className={cn('flex h-full w-4 flex-col items-center', {
+                                                    'justify-center': !isStepSlotTimeZero
+                                                })}
+                                            >
                                                 <span
                                                     className={cn(
-                                                        'flex w-full justify-center !text-label-md leading-[10px] text-text'
+                                                        'flex w-full justify-center !text-label-md leading-[10px] text-text-secondary'
                                                     )}
                                                 >
-                                                    00
+                                                    {currentStepSlotTime}
                                                 </span>
-                                                {!isTime24Format && (
-                                                    <span className='flex w-full justify-center !text-label-md uppercase leading-[10px] text-text'>
-                                                        AM
+                                                {!isTime24Format && stepSlotTime === 0 && (
+                                                    <span className='flex w-full justify-center !text-label-md uppercase leading-[10px] text-text-secondary'>
+                                                        {timeMeridiem}
                                                     </span>
                                                 )}
                                             </div>
@@ -203,23 +210,42 @@ export function Schedule() {
                             })}
                     </ul>
                     <ul className='flex w-full flex-col'>
-                        {Array(operatingHours * step)
+                        {Array(operatingHours * stepsPerHour)
                             .fill(null)
                             .map((_, idx) => {
-                                const lastItem =
-                                    Array(operatingHours * (60 / timeStep) + 2).fill(null).length - 1 === idx
+                                const lastItem = Array(operatingHours * stepsPerHour + 2).fill(null).length - 1 === idx
+
+                                if (countStep === 0 && idx > 0) {
+                                    countStep = stepsPerHour
+                                }
+                                if (countStep > 0) {
+                                    countStep -= 1
+                                    stepSlotTime += timeStep
+                                }
+                                if (stepSlotTime === 60) {
+                                    stepSlotTime = 0
+                                }
+
+                                const isStepSlotTimeZero = stepSlotTime === 0
                                 return (
                                     <li
                                         key={idx}
-                                        className={cn('flex items-center', { 'border-b-20': !lastItem })}
-                                        style={{ height: lastItem || idx === 0 ? heightSlots / 2 : heightSlots }}
-                                    >
-                                        {idx}
-                                    </li>
+                                        className={cn('flex items-center border-b-20', {
+                                            'border-b-none': lastItem,
+                                            '!border-dashed': !isStepSlotTimeZero
+                                        })}
+                                        style={{
+                                            height: lastItem || idx === 0 ? slotHeight / 2 : slotHeight
+                                        }}
+                                    ></li>
                                 )
                             })}
                     </ul>
                 </div>
+                <Button className='group mt-auto h-14 w-full gap-2 rounded-none bg-background border-y-20 hover:bg-hover'>
+                    <CalendarClock className='size-5 stroke-text' />
+                    <span className='pt-[2px] text-p-md text-text'>{t('schedule.addASlot')}</span>
+                </Button>
             </ScrollArea>
         </section>
     )
