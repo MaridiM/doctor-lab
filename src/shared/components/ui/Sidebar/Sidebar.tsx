@@ -382,7 +382,7 @@ const SidebarGroupLabel = forwardRef<HTMLDivElement, ComponentProps<'div'> & { a
                 ref={ref}
                 data-sidebar='group-label'
                 className={cn(
-                    'text-text/70 flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-none transition-[margin,opa] duration-200 ease-linear [&>svg]:size-4 [&>svg]:shrink-0',
+                    'text-text/70 flex h-8 shrink-0 items-center rounded-md px-2 text-p-xs font-medium outline-none transition-[margin,opa] duration-200 ease-linear [&>svg]:size-4 [&>svg]:shrink-0',
                     'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0',
                     className
                 )}
@@ -416,7 +416,7 @@ const SidebarGroupAction = forwardRef<HTMLButtonElement, ComponentProps<'button'
 SidebarGroupAction.displayName = 'SidebarGroupAction'
 
 const SidebarGroupContent = forwardRef<HTMLDivElement, ComponentProps<'div'>>(({ className, ...props }, ref) => (
-    <div ref={ref} data-sidebar='group-content' className={cn('w-full text-sm', className)} {...props} />
+    <div ref={ref} data-sidebar='group-content' className={cn('w-full text-p-sm', className)} {...props} />
 ))
 SidebarGroupContent.displayName = 'SidebarGroupContent'
 
@@ -431,7 +431,7 @@ const SidebarMenuItem = forwardRef<HTMLLIElement, ComponentProps<'li'>>(({ class
 SidebarMenuItem.displayName = 'SidebarMenuItem'
 
 const sidebarMenuButtonVariants = cva(
-    'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none transition-[width,height,padding] hover:bg-hover hover:text-text active:bg-sidebar-accent active:text-text disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-text data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-text group-data-[collapsible=icon]:!size-9 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
+    'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-p-sm outline-none transition-[width,height,padding] hover:bg-hover hover:text-text active:bg-sidebar-accent active:text-text disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-text data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-text group-data-[collapsible=icon]:!size-9 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
     {
         variants: {
             variant: {
@@ -440,8 +440,8 @@ const sidebarMenuButtonVariants = cva(
                     'bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-hover hover:text-text hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]'
             },
             size: {
-                default: 'h-8 text-sm',
-                sm: 'h-7 text-xs',
+                default: 'h-8 text-p-sm',
+                sm: 'h-7 text-p-xs',
                 lg: 'h-14 min-w-full text-p-sm'
             }
         },
@@ -529,7 +529,7 @@ const SidebarMenuBadge = forwardRef<HTMLDivElement, ComponentProps<'div'>>(({ cl
         ref={ref}
         data-sidebar='menu-badge'
         className={cn(
-            'pointer-events-none absolute right-1 flex h-5 min-w-5 select-none items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-text',
+            'pointer-events-none absolute right-1 flex h-5 min-w-5 select-none items-center justify-center rounded-md px-1 text-p-xs font-medium tabular-nums text-text',
             'peer-hover/menu-button:text-text peer-data-[active=true]/menu-button:text-text',
             'peer-data-[size=sm]/menu-button:top-auto',
             'peer-data-[size=default]/menu-button:top-auto',
@@ -613,8 +613,8 @@ const SidebarMenuSubButton = forwardRef<
             className={cn(
                 'flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-text outline-none hover:bg-sidebar-accent hover:text-text active:bg-sidebar-accent active:text-text disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-text',
                 'data-[active=true]:bg-sidebar-accent data-[active=true]:text-text',
-                size === 'sm' && 'text-xs',
-                size === 'md' && 'text-sm',
+                size === 'sm' && 'text-p-xs',
+                size === 'md' && 'text-p-sm',
                 'group-data-[collapsible=icon]:hidden',
                 className
             )}

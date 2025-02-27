@@ -25,7 +25,15 @@ import {
     DropdownMenuSubContent,
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
+    Input,
     ScrollArea,
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
     Switch
 } from '@/shared/components'
 import { PATHS } from '@/shared/config'
@@ -36,18 +44,14 @@ export function Schedule() {
     const MAX_SLOT_HEIGHT = 160
 
     const [isOpenScheduleSettings, setIsOpenScheduleSettings] = useState(false)
-    // const [operatingHoursStart, setOperatingHoursStart] = useState<number>(0)
-    // const [operatingHoursEnd, setOperatingHoursEnd] = useState<number>(0)
     const [operatingHours, setOperatingHours] = useState<6 | 8 | 12 | 16 | 24>(24)
+    const [operatingHoursStart, setOperatingHoursStart] = useState<number>(8)
+    const [operatingHoursMeridiemStart, setOperatingHoursMeridiemStart] = useState<'AM' | 'PM'>('AM')
     const [timeStep, setTimeStep] = useState<15 | 20 | 30 | 60>(15)
     const [slotHeight, setSlotHeight] = useState<number>(MAX_SLOT_HEIGHT)
     const [isTime24Format, setIsTime24Format] = useState<boolean>(true)
 
     const stepsPerHour = 60 / timeStep
-
-    let stepCounter = 0
-    let minuteSlot = 0
-    let currentHour = 0
 
     useEffect(() => {
         setSlotHeight(MAX_SLOT_HEIGHT / stepsPerHour)
@@ -55,12 +59,11 @@ export function Schedule() {
 
     const calculateTime = (idx: number) => {
         const totalSteps = (operatingHours + 2) * stepsPerHour
-        const baseHour = -1 // Начало за 1 час до основного времени
+        const baseHour = -1
         const hour = baseHour + Math.floor(idx / stepsPerHour)
         const adjustedHour = (hour + 24) % 24
         const minute = (idx % stepsPerHour) * timeStep
 
-        // Коррекция последнего слота
         if (idx === totalSteps - 1) {
             return {
                 adjustedHour: (adjustedHour + 1) % 24,
@@ -123,7 +126,7 @@ export function Schedule() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align='end' className='min-w-[280px]'>
-                            <DropdownMenuItem onSelect={e => e.preventDefault()} className=''>
+                            <DropdownMenuItem onSelect={e => e.preventDefault()}>
                                 <CalendarClock />
                                 <span className='w-full text-p-sm text-text'>
                                     {t(`schedule.header.timeFormat.${isTime24Format ? '24' : '12'}`)}
@@ -142,6 +145,57 @@ export function Schedule() {
                                     </span>
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent className='ml-2.5 min-w-[200px]'>
+                                    <DropdownMenuItem className='flex flex-col' onSelect={e => e.preventDefault()}>
+                                        <span className='w-full text-p-sm font-medium tracking-wider text-text-secondary'>
+                                        Start operating hours:
+                                        </span>
+                                        <div className='flex w-full items-center gap-1'>
+                                            <Select
+                                                onValueChange={value =>
+                                                    setOperatingHoursStart(value === 'auto' ? 8 : Number(value))
+                                                }
+                                            >
+                                                <SelectTrigger className='w-full bg-card'>
+                                                    <SelectValue placeholder='Auto' className='border-none bg-card' />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <ScrollArea className='max-h-48'>
+                                                        <div className='max-h-48'>
+                                                            <SelectItem value={'auto'}>Auto</SelectItem>
+                                                            {Array.from(
+                                                                { length: isTime24Format ? 24 : 12 },
+                                                                (_, i) => (
+                                                                    <SelectItem key={i} value={i.toString()}>
+                                                                        {`${i}:00`}
+                                                                    </SelectItem>
+                                                                )
+                                                            )}
+                                                        </div>
+                                                    </ScrollArea>
+                                                </SelectContent>
+                                            </Select>
+                                            {!isTime24Format && (
+                                                <Select
+                                                    onValueChange={(value: 'AM' | 'PM') =>
+                                                        setOperatingHoursMeridiemStart(value)
+                                                    }
+                                                >
+                                                    <SelectTrigger className='w-16 bg-card'>
+                                                        <SelectValue placeholder='AM' className='border-none bg-card' />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            {['AM', 'PM'].map(meridiem => (
+                                                                <SelectItem key={meridiem} value={meridiem}>
+                                                                    {meridiem}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        </div>
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => setOperatingHours(6)}>
                                         <Clock6 />
                                         <span className='w-full text-p-sm text-text'>6 hours</span>

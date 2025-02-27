@@ -43,9 +43,9 @@ export function NavUser({
                                 className='h-8 w-8'
                                 radius='rounded-lg'
                             />
-                            <div className='grid flex-1 text-left text-sm leading-tight'>
+                            <div className='grid flex-1 text-left text-p-sm leading-tight'>
                                 <span className='truncate font-semibold'>{user.name}</span>
-                                <span className='truncate text-xs'>{user.email}</span>
+                                <span className='truncate text-p-xs'>{user.email}</span>
                             </div>
                             <ChevronsUpDown className='ml-auto size-4' />
                         </SidebarMenuButton>
@@ -57,16 +57,16 @@ export function NavUser({
                         sideOffset={4}
                     >
                         <DropdownMenuLabel className='p-0 font-normal'>
-                            <div className='flex items-center gap-2 px-1 py-1.5 text-left text-sm'>
+                            <div className='flex items-center gap-2 px-1 py-1.5 text-left text-p-sm'>
                                 <UserAvatar
                                     src={user.avatar}
                                     fullName={user.name}
                                     className='h-8 w-8'
                                     radius='rounded-lg'
                                 />
-                                <div className='grid flex-1 text-left text-sm leading-tight'>
+                                <div className='grid flex-1 text-left text-p-sm leading-tight'>
                                     <span className='truncate font-semibold'>{user.name}</span>
-                                    <span className='truncate text-xs'>{user.email}</span>
+                                    <span className='truncate text-p-xs'>{user.email}</span>
                                 </div>
                             </div>
                         </DropdownMenuLabel>

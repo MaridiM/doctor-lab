@@ -113,7 +113,7 @@ const FormDescription = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLPara
         const { formDescriptionId } = useFormField()
 
         return (
-            <p ref={ref} id={formDescriptionId} className={cn('text-sm text-muted-foreground', className)} {...props} />
+            <p ref={ref} id={formDescriptionId} className={cn('text-p-sm text-muted-foreground', className)} {...props} />
         )
     }
 )
@@ -132,7 +132,7 @@ const FormMessage = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLParagrap
             <p
                 ref={ref}
                 id={formMessageId}
-                className={cn('text-sm font-medium text-destructive', className)}
+                className={cn('text-p-sm font-medium text-destructive', className)}
                 {...props}
             >
                 {body}
