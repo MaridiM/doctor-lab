@@ -44,7 +44,7 @@ export function Schedule() {
     const MAX_SLOT_HEIGHT = 160
 
     const [isOpenScheduleSettings, setIsOpenScheduleSettings] = useState(false)
-    const [operatingHours, setOperatingHours] = useState<6 | 8 | 12 | 16 | 24>(24)
+    const [operatingHours, setOperatingHours] = useState<6 | 8 | 12 | 16 | 24>(12)
     const [operatingHoursStart, setOperatingHoursStart] = useState<number>(8)
     const [operatingHoursMeridiemStart, setOperatingHoursMeridiemStart] = useState<'AM' | 'PM'>('AM')
     const [timeStep, setTimeStep] = useState<15 | 20 | 30 | 60>(15)
@@ -54,24 +54,36 @@ export function Schedule() {
     const stepsPerHour = 60 / timeStep
 
     useEffect(() => {
+        setOperatingHoursStart(operatingHours === 24 ? 0 : 8)
+    }, [operatingHours])
+
+    useEffect(() => {
         setSlotHeight(MAX_SLOT_HEIGHT / stepsPerHour)
     }, [stepsPerHour])
 
     const calculateTime = (idx: number) => {
-        const totalSteps = (operatingHours + 2) * stepsPerHour
-        const baseHour = -1
+        const startHour = getStartHour24()
+
+        const baseHour = startHour - 1
         const hour = baseHour + Math.floor(idx / stepsPerHour)
         const adjustedHour = (hour + 24) % 24
         const minute = (idx % stepsPerHour) * timeStep
 
-        if (idx === totalSteps - 1) {
-            return {
-                adjustedHour: (adjustedHour + 1) % 24,
-                minute: 0
-            }
-        }
-
         return { adjustedHour, minute }
+    }
+
+    const getStartHour24 = () => {
+        if (isTime24Format) return operatingHoursStart
+        return operatingHoursMeridiemStart === 'AM' ? operatingHoursStart % 12 : (operatingHoursStart % 12) + 12
+    }
+    const generateHours = () => {
+        return Array.from({ length: isTime24Format ? 24 : 12 }, (_, i) => {
+            const value = isTime24Format ? i : i % 12 || 12
+            return {
+                value: value,
+                label: `${value}:00`
+            }
+        })
     }
 
     const operatingHoursIcon = {
@@ -147,7 +159,7 @@ export function Schedule() {
                                 <DropdownMenuSubContent className='ml-2.5 min-w-[200px]'>
                                     <DropdownMenuItem className='flex flex-col' onSelect={e => e.preventDefault()}>
                                         <span className='w-full text-p-sm font-medium tracking-wider text-text-secondary'>
-                                        Start operating hours:
+                                            Start operating hours:
                                         </span>
                                         <div className='flex w-full items-center gap-1'>
                                             <Select
@@ -162,14 +174,11 @@ export function Schedule() {
                                                     <ScrollArea className='max-h-48'>
                                                         <div className='max-h-48'>
                                                             <SelectItem value={'auto'}>Auto</SelectItem>
-                                                            {Array.from(
-                                                                { length: isTime24Format ? 24 : 12 },
-                                                                (_, i) => (
-                                                                    <SelectItem key={i} value={i.toString()}>
-                                                                        {`${i}:00`}
-                                                                    </SelectItem>
-                                                                )
-                                                            )}
+                                                            {generateHours().map((_, i) => (
+                                                                <SelectItem key={i} value={i.toString()}>
+                                                                    {`${i}:00`}
+                                                                </SelectItem>
+                                                            ))}
                                                         </div>
                                                     </ScrollArea>
                                                 </SelectContent>
@@ -270,7 +279,7 @@ export function Schedule() {
                 <div className='flex'>
                     {/* Левая колонка с временной шкалой */}
                     <ul className='gap flex w-16 flex-col bg-card border-r-20'>
-                        {Array((operatingHours + 2) * stepsPerHour)
+                        {Array((operatingHours + 2) * stepsPerHour + 1)
                             .fill(null)
                             .map((_, idx) => {
                                 const { adjustedHour, minute } = calculateTime(idx)
@@ -315,12 +324,12 @@ export function Schedule() {
                     </ul>
                     {/* Правая колонка (сетка расписания) */}
                     <ul className='flex w-full flex-col'>
-                        {Array((operatingHours + 2) * stepsPerHour)
+                        {Array((operatingHours + 2) * stepsPerHour + 1)
                             .fill(null)
                             .map((_, idx) => {
                                 const { minute } = calculateTime(idx)
                                 const isMinuteZero = minute === 0
-                                const lastItem = idx === (operatingHours + 2) * stepsPerHour
+                                const lastItem = idx === (operatingHours + 2) * stepsPerHour + 1
                                 return (
                                     <li
                                         key={idx}

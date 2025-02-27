@@ -274,7 +274,7 @@ export function Patients() {
                                                 {patient.patientMedicalRecord.appointments[0].doctors[0].name}
                                             </span>
                                         </div>
-                                        <span className='text-label-lg tracking-wider text-text-tertiary'>
+                                        <span className='text-p-sm tracking-wider text-text-tertiary'>
                                             {patient.patientMedicalRecord.appointments[0].doctors[0].specialties.name}
                                         </span>
                                     </footer>
