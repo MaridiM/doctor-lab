@@ -39,8 +39,18 @@ import {
 import { PATHS } from '@/shared/config'
 import { cn } from '@/shared/utils'
 
+interface Appointment {
+    id: string
+    startHour: number
+    startMinute: number
+    duration: number
+}
+
 export function Schedule() {
     const t = useTranslations('dashboard')
+
+    //  Base configuration for schedule
+    // ----------------------------------------------------------------------------------------------
     const MAX_SLOT_HEIGHT = 160
 
     const [isOpenScheduleSettings, setIsOpenScheduleSettings] = useState(false)
@@ -74,7 +84,11 @@ export function Schedule() {
 
     const getStartHour24 = () => {
         if (isTime24Format) return operatingHoursStart
-        return operatingHoursMeridiemStart === 'AM' ? operatingHoursStart % 12 : (operatingHoursStart % 12) + 12
+        if (operatingHoursMeridiemStart === 'AM') {
+            return operatingHoursStart === 12 ? 0 : operatingHoursStart
+        } else {
+            return operatingHoursStart === 12 ? 12 : operatingHoursStart + 12
+        }
     }
     const generateHours = () => {
         return Array.from({ length: isTime24Format ? 24 : 12 }, (_, i) => {
@@ -99,6 +113,55 @@ export function Schedule() {
         30: <Clock6 />,
         60: <Clock12 />
     }
+
+    const SLOT_COUNT = Array((operatingHours + 2) * stepsPerHour + 1).fill(null)
+    // ----------------------------------------------------------------------------------------------
+
+    //  Base configuration for schedule
+    // ----------------------------------------------------------------------------------------------
+    const [appointments, setAppointments] = useState<Appointment[]>(
+        Array.from({ length: 1 }, (_, i) => ({
+            id: Date.now().toString() + i, // Генерация уникального id
+            startHour: 8,
+            startMinute: 0,
+            duration: 60 // Длительность 60 минут
+        }))
+    )
+
+    const calculateAppointmentPosition = (appointment: Appointment) => {
+        const startHour24 = getStartHour24()
+
+        // Рассчитываем общее время в минутах от начала графика (startHour24 - 1)
+        const baseMinutes = (startHour24 - 1) * 60
+        const appointmentStartMinutes = appointment.startHour * 60 + appointment.startMinute
+        const offsetMinutes = appointmentStartMinutes - baseMinutes
+
+        // Проверяем, находится ли встреча в пределах отображаемого диапазона
+        if (offsetMinutes < 0 || offsetMinutes > (operatingHours + 2) * 60) {
+            return { top: -1000, height: 0 } // Скрываем вне диапазона
+        }
+
+        const top = (offsetMinutes / timeStep) * slotHeight
+        const height = (appointment.duration / timeStep) * slotHeight
+
+        return { top, height }
+    }
+
+    function handleAddSlot() {
+        console.log('Add Slot')
+    }
+    function handleAddAppointment() {
+        const newAppointment: Appointment = {
+            id: Date.now().toString(),
+            startHour: 10, // пример начального времени
+            startMinute: 0,
+            duration: 60 // пример длительности
+        }
+        setAppointments([...appointments, newAppointment])
+    }
+
+    // ----------------------------------------------------------------------------------------------
+
     return (
         <section className='w-full overflow-hidden rounded-lg bg-card border-20'>
             <header className='flex h-14 items-center justify-between px-4 py-2 border-b-20'>
@@ -123,7 +186,7 @@ export function Schedule() {
                             align: 'center',
                             side: 'bottom'
                         }}
-                        onClick={() => console.log('Add appointment')}
+                        onClick={handleAddAppointment}
                     >
                         <CalendarPlus2 className='stroke-text-foreground' />
                     </Button>
@@ -153,13 +216,14 @@ export function Schedule() {
                                 <DropdownMenuSubTrigger className='gap-2'>
                                     {operatingHoursIcon[operatingHours]}
                                     <span className='w-full text-p-sm text-text'>
-                                        Operating hours - {operatingHours} hours
+                                        {t('schedule.header.operatingHours.label')}
+                                        {t(`schedule.header.operatingHours.durations.${operatingHours}`)}
                                     </span>
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent className='ml-2.5 min-w-[200px]'>
                                     <DropdownMenuItem className='flex flex-col' onSelect={e => e.preventDefault()}>
                                         <span className='w-full text-p-sm font-medium tracking-wider text-text-secondary'>
-                                            Start operating hours:
+                                            {t('schedule.header.operatingHours.startLabel')}
                                         </span>
                                         <div className='flex w-full items-center gap-1'>
                                             <Select
@@ -168,12 +232,17 @@ export function Schedule() {
                                                 }
                                             >
                                                 <SelectTrigger className='w-full bg-card'>
-                                                    <SelectValue placeholder='Auto' className='border-none bg-card' />
+                                                    <SelectValue
+                                                        placeholder={t('schedule.header.operatingHours.auto')}
+                                                        className='border-none bg-card'
+                                                    />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <ScrollArea className='max-h-48'>
                                                         <div className='max-h-48'>
-                                                            <SelectItem value={'auto'}>Auto</SelectItem>
+                                                            <SelectItem value='auto'>
+                                                                {t('schedule.header.operatingHours.auto')}
+                                                            </SelectItem>
                                                             {generateHours().map((_, i) => (
                                                                 <SelectItem key={i} value={i.toString()}>
                                                                     {`${i}:00`}
@@ -207,27 +276,37 @@ export function Schedule() {
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => setOperatingHours(6)}>
                                         <Clock6 />
-                                        <span className='w-full text-p-sm text-text'>6 hours</span>
+                                        <span className='w-full text-p-sm text-text'>
+                                            {t(`schedule.header.operatingHours.durations.6`)}
+                                        </span>
                                         {operatingHours === 6 && <Check />}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => setOperatingHours(8)}>
                                         <Clock8 />
-                                        <span className='w-full text-p-sm text-text'>8 hours</span>
+                                        <span className='w-full text-p-sm text-text'>
+                                            {t(`schedule.header.operatingHours.durations.8`)}
+                                        </span>
                                         {operatingHours === 8 && <Check />}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => setOperatingHours(12)}>
                                         <Clock12 />
-                                        <span className='w-full text-p-sm text-text'>12 hours</span>
+                                        <span className='w-full text-p-sm text-text'>
+                                            {t(`schedule.header.operatingHours.durations.12`)}
+                                        </span>
                                         {operatingHours === 12 && <Check />}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => setOperatingHours(16)}>
                                         <Clock4 />
-                                        <span className='w-full text-p-sm text-text'>16 hours</span>
+                                        <span className='w-full text-p-sm text-text'>
+                                            {t(`schedule.header.operatingHours.durations.16`)}
+                                        </span>
                                         {operatingHours === 16 && <Check />}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => setOperatingHours(24)}>
                                         <Clock12 />
-                                        <span className='w-full text-p-sm text-text'>24 hours</span>
+                                        <span className='w-full text-p-sm text-text'>
+                                            {t(`schedule.header.operatingHours.durations.24`)}
+                                        </span>
                                         {operatingHours === 24 && <Check />}
                                     </DropdownMenuItem>
                                 </DropdownMenuSubContent>
@@ -236,7 +315,7 @@ export function Schedule() {
                                 <DropdownMenuSubTrigger className='gap-2'>
                                     {stepTimeIcon[timeStep]}
                                     <span>
-                                        {t(`schedule.header.stepTime.title`)}{' '}
+                                        {t(`schedule.header.stepTime.title`)}
                                         {t(`schedule.header.stepTime.${timeStep}`)}
                                     </span>
                                 </DropdownMenuSubTrigger>
@@ -279,73 +358,97 @@ export function Schedule() {
                 <div className='flex'>
                     {/* Левая колонка с временной шкалой */}
                     <ul className='gap flex w-16 flex-col bg-card border-r-20'>
-                        {Array((operatingHours + 2) * stepsPerHour + 1)
-                            .fill(null)
-                            .map((_, idx) => {
-                                const { adjustedHour, minute } = calculateTime(idx)
-                                const isMinuteZero = minute === 0
-                                const displayHour = isTime24Format ? adjustedHour : adjustedHour % 12 || 12
-                                const timeMeridiem = adjustedHour < 12 ? 'AM' : 'PM'
+                        {SLOT_COUNT.map((_, idx) => {
+                            const { adjustedHour, minute } = calculateTime(idx)
+                            const isMinuteZero = minute === 0
+                            const displayHour = isTime24Format ? adjustedHour : adjustedHour % 12 || 12
+                            const timeMeridiem = adjustedHour < 12 ? 'AM' : 'PM'
 
-                                return (
-                                    <li
-                                        key={idx}
-                                        className='flex w-full items-center justify-end'
-                                        style={{ height: slotHeight }}
-                                    >
-                                        <div className={cn('flex h-6 items-start px-0.5')}>
-                                            {isMinuteZero && (
-                                                <span className='text-h4 leading-[20px] text-text-secondary'>
-                                                    {displayHour}
+                            return (
+                                <li
+                                    key={idx}
+                                    className='flex w-full items-center justify-end'
+                                    style={{ height: slotHeight }}
+                                >
+                                    <div className={cn('flex h-6 items-start px-0.5')}>
+                                        {isMinuteZero && (
+                                            <span className='text-h4 leading-[20px] text-text-secondary'>
+                                                {displayHour}
+                                            </span>
+                                        )}
+                                        <div
+                                            className={cn('flex h-full w-4 flex-col items-center', {
+                                                'justify-center': !isMinuteZero
+                                            })}
+                                        >
+                                            <span
+                                                className={cn(
+                                                    'flex w-full justify-center !text-label-md leading-[10px] text-text-secondary'
+                                                )}
+                                            >
+                                                {minute.toString().padStart(2, '0')}
+                                            </span>
+                                            {!isTime24Format && isMinuteZero && (
+                                                <span className='flex w-full justify-center !text-label-md uppercase leading-[10px] text-text-secondary'>
+                                                    {timeMeridiem}
                                                 </span>
                                             )}
-                                            <div
-                                                className={cn('flex h-full w-4 flex-col items-center', {
-                                                    'justify-center': !isMinuteZero
-                                                })}
-                                            >
-                                                <span
-                                                    className={cn(
-                                                        'flex w-full justify-center !text-label-md leading-[10px] text-text-secondary'
-                                                    )}
-                                                >
-                                                    {minute.toString().padStart(2, '0')}
-                                                </span>
-                                                {!isTime24Format && isMinuteZero && (
-                                                    <span className='flex w-full justify-center !text-label-md uppercase leading-[10px] text-text-secondary'>
-                                                        {timeMeridiem}
-                                                    </span>
-                                                )}
-                                            </div>
                                         </div>
-                                    </li>
-                                )
-                            })}
+                                    </div>
+                                </li>
+                            )
+                        })}
                     </ul>
                     {/* Правая колонка (сетка расписания) */}
-                    <ul className='flex w-full flex-col'>
-                        {Array((operatingHours + 2) * stepsPerHour + 1)
-                            .fill(null)
-                            .map((_, idx) => {
-                                const { minute } = calculateTime(idx)
-                                const isMinuteZero = minute === 0
-                                const lastItem = idx === (operatingHours + 2) * stepsPerHour + 1
-                                return (
-                                    <li
-                                        key={idx}
-                                        className={cn('flex items-center border-b-20', {
-                                            'border-b-none': lastItem,
-                                            '!border-dashed': !isMinuteZero
-                                        })}
-                                        style={{
-                                            height: lastItem || idx === 0 ? slotHeight / 2 : slotHeight
-                                        }}
-                                    ></li>
-                                )
-                            })}
+                    <ul className='relative flex w-full flex-col'>
+                        {SLOT_COUNT.map((_, idx) => {
+                            const { minute } = calculateTime(idx)
+                            const isMinuteZero = minute === 0
+                            const lastItem = idx === (operatingHours + 2) * stepsPerHour + 1
+                            return (
+                                <li
+                                    key={idx}
+                                    className={cn('flex items-center border-b-20', {
+                                        'border-b-none': lastItem,
+                                        '!border-dashed': !isMinuteZero
+                                    })}
+                                    style={{
+                                        height: lastItem || idx === 0 ? slotHeight / 2 : slotHeight
+                                    }}
+                                ></li>
+                            )
+                        })}
+                        {/* Рендерим плашки событий */}
+                        {appointments.map(appointment => {
+                            const { top, height } = calculateAppointmentPosition(appointment)
+                            const startHour = appointment.startHour
+                            const startMinute = appointment.startMinute.toString().padStart(2, '0')
+                            const endMinutes =
+                                appointment.startHour * 60 + appointment.startMinute + appointment.duration
+                            const endHour = Math.floor(endMinutes / 60) % 24
+                            const endMinute = (endMinutes % 60).toString().padStart(2, '0')
+
+                            return (
+                                <div
+                                    key={appointment.id}
+                                    className='border-blue-300 absolute left-0 right-0 rounded-md bg-blue-100 p-1 border'
+                                    style={{
+                                        top: `${slotHeight / 2 + top}px`,
+                                        height: `${height}px`
+                                    }}
+                                >
+                                    <div className='text-xs font-medium text-blue-800'>
+                                        {`${startHour}:${startMinute} - ${endHour}:${endMinute}`}
+                                    </div>
+                                </div>
+                            )
+                        })}
                     </ul>
                 </div>
-                <Button className='group mt-auto h-14 w-full gap-2 rounded-none bg-background border-y-20 hover:bg-hover'>
+                <Button
+                    className='group mt-auto h-14 w-full gap-2 rounded-none bg-background border-y-20 hover:bg-hover'
+                    onClick={handleAddSlot}
+                >
                     <CalendarClock className='size-5 stroke-text' />
                     <span className='pt-[2px] text-p-md text-text'>{t('schedule.addASlot')}</span>
                 </Button>

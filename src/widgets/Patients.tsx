@@ -37,9 +37,11 @@ import { cn, printTimeWithDuration } from '@/shared/utils'
 
 export function Patients() {
     const t = useTranslations('dashboard')
+
     const [isOpenPatientSettings, setIsOpenPaitentSettings] = useState(false)
-    const [isTime24Format, setIsTime24Format] = useState<boolean>(true)
+    const [isTime24Format] = useState<boolean>(true)
     const [patients, setPatients] = useState<any>([])
+    const [timeMeridiem] = useState<'AM' | 'PM'>('AM')
 
     useEffect(() => {
         const foundPatients: any[] = PATIENTS.filter(patient => {
@@ -61,6 +63,10 @@ export function Patients() {
 
     const { isDirty } = form.formState
 
+    function handlerAddPatient() {
+        console.log('Add New Patient')
+    }
+
     return (
         <section className='flex h-full w-full flex-col gap-2'>
             <section className='flex h-full max-h-[240px] w-full gap-2'>
@@ -73,12 +79,12 @@ export function Patients() {
                         <span className='rounded-md bg-primary p-1.5'>
                             <Users2 className='size-5 stroke-text-foreground' />
                         </span>
-                        <span className='text-h4 font-normal text-text'>Patients</span>
+                        <span className='text-h4 font-normal text-text'>{t('patients.title')}</span>
                     </div>
 
                     <div className='flex items-center gap-2'>
                         <Button variant='outline' size='sm' className='pt-px'>
-                            <Link href={PATHS.patients}>{t('tasks.header.all')}</Link>
+                            <Link href={PATHS.patients}>{t('patients.header.all')}</Link>
                         </Button>
 
                         <Button
@@ -86,17 +92,17 @@ export function Patients() {
                             icon='sm'
                             variant='primary'
                             tooltip={{
-                                children: 'Add new patient',
+                                children: t('patients.header.addPatient'),
                                 align: 'center',
                                 side: 'bottom'
                             }}
-                            onClick={() => console.log('Add patient')}
+                            onClick={handlerAddPatient}
                         >
                             <UserPlus2 className='stroke-text-foreground' />
                         </Button>
                     </div>
                 </header>
-                <SearchInput form={form} isDirty={isDirty} placeholder='Search patient' />
+                <SearchInput form={form} isDirty={isDirty} placeholder={t('patients.search')} />
                 <ScrollArea className='flex h-full max-h-[calc(100vh-442px)] w-full' type='auto'>
                     <ul className='flex flex-col gap-1 p-2'>
                         {patients.map((patient: any) => {
@@ -126,7 +132,7 @@ export function Patients() {
                                                 icon='xs'
                                                 variant='outline'
                                                 tooltip={{
-                                                    children: 'Call to patient',
+                                                    children: t('patients.actions.call'),
                                                     align: 'center',
                                                     side: 'bottom'
                                                 }}
@@ -139,7 +145,7 @@ export function Patients() {
                                                 icon='xs'
                                                 variant='outline'
                                                 tooltip={{
-                                                    children: 'Add new appointment',
+                                                    children: t('patients.actions.addAppointment'),
                                                     align: 'center',
                                                     side: 'bottom'
                                                 }}
@@ -160,25 +166,25 @@ export function Patients() {
                                                     <DropdownMenuItem>
                                                         <BellRing />
                                                         <span className='w-full text-p-sm text-text'>
-                                                            Notify patient of appointment
+                                                            {t('patients.actions.notify')}
                                                         </span>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem>
                                                         <CalendarClock />
                                                         <span className='w-full text-p-sm text-text'>
-                                                            Reschedule appointment
+                                                            {t('patients.actions.reschedule')}
                                                         </span>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem>
                                                         <CalendarX2 />
                                                         <span className='w-full text-p-sm text-text'>
-                                                            Cancel appointment
+                                                            {t('patients.actions.cancel')}
                                                         </span>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem>
                                                         <IdCard />
                                                         <span className='w-full text-p-sm text-text'>
-                                                            Patient chart
+                                                            {t('patients.actions.chart')}
                                                         </span>
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -248,7 +254,9 @@ export function Patients() {
                                                         </span>
                                                         {!isTime24Format && (
                                                             <span className='text-label-lg font-medium leading-3 text-text'>
-                                                                AM
+                                                                {t(
+                                                                    `patients.labels.time.${timeMeridiem.toLowerCase()}`
+                                                                )}
                                                             </span>
                                                         )}
                                                     </div>
@@ -263,18 +271,22 @@ export function Patients() {
                                                     ]
                                                 )}
                                             >
-                                                {patient.patientMedicalRecord.appointments[0].status.name}
+                                                {t(
+                                                    `patients.status.${patient.patientMedicalRecord.appointments[0].status.key}`
+                                                )}
                                             </Badge>
                                         </div>
                                     </div>
                                     <footer className='flex h-7 items-center justify-between gap-1 px-2 border-t-20'>
                                         <div className='flex h-full items-center gap-1'>
-                                            <span className='text-p-sm text-text-tertiary'>Doctor:</span>
+                                            <span className='text-p-sm text-text-tertiary'>
+                                                {t('patients.labels.doctor')}
+                                            </span>
                                             <span className='text-p-sm font-medium text-text-secondary'>
                                                 {patient.patientMedicalRecord.appointments[0].doctors[0].name}
                                             </span>
                                         </div>
-                                        <span className='text-p-sm tracking-wider text-text-tertiary'>
+                                        <span className='text-p-xs tracking-wider text-text-secondary'>
                                             {patient.patientMedicalRecord.appointments[0].doctors[0].specialties.name}
                                         </span>
                                     </footer>

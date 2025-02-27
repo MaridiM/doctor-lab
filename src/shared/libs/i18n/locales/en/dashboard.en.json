@@ -3,54 +3,109 @@
     "title": "Dashboard",
     "tasks": {
         "title": "Tasks",
-        "searchPlaceholder": "Search task",
+        "search": "Search tasks...",
         "header": {
-            "all": "All",
-            "sortBy": "Sort by:",
+            "all": "All tasks",
+            "generateTask": "Generate task with AI",
+            "addNewTask": "Add new task",
+            "taskSettings": "Task settings",
+            "sortBy": "Sort by",
             "newestOnTop": "Newest on top",
             "newestOnBottom": "Newest on bottom",
             "dateCreated": "Date created",
             "dateModified": "Date modified",
-            "showCompleted": "Show completed",
-            "addNewTask": "Add new task",
-            "generateTask": "Generate task",
-            "taskSettings": "Task settings"
+            "showCompleted": "Show completed tasks"
         },
         "task": {
+            "menu": "Task actions",
             "complete": "Mark as complete",
-            "incomplete": "Mark as incomplete",
+            "edit": "Edit task",
+            "pin": "Pin task",
+            "unpin": "Unpin task",
             "important": "Mark as important",
-            "unimportant": "Remove from important",
-            "pin": "Pin",
-            "unpin": "Unpin",
-            "edit": "Edit",
-            "archive": "Archive",
-            "delete": "Delete",
-            "menu": "Task menu"
+            "unimportant": "Mark as unimportant",
+            "incomplete": "Mark as incomplete",
+            "archive": "Archive task",
+            "delete": "Delete task"
         }
     },
     "schedule": {
         "title": "Schedule",
+        "addASlot": "Add a slot",
         "header": {
-            "all": "All",
+            "all": "All appointments",
             "addNewAppointment": "Add new appointment",
             "timeFormat": {
-                "24": "Use 24 time format",
-                "12": "Use 12 time format"
+                "24": "24-hour format",
+                "12": "12-hour format"
+            },
+            "operatingHours": {
+                "label": "Operating hours - ",
+                "startLabel": "Start operating hours:",
+                "auto": "Auto",
+                "durations": {
+                    "6": "6 hours",
+                    "8": "8 hours",
+                    "12": "12 hours",
+                    "16": "16 hours",
+                    "24": "24 hours"
+                }
             },
             "stepTime": {
-                "title": "Step time -",
-                "5": "5 min",
-                "10": "10 min",
-                "15": "15 min",
-                "20": "20 min",
-                "30": "30 min",
-                "60": "60 min"
+                "title": "Time step - ",
+                "15": "15 minutes",
+                "20": "20 minutes",
+                "30": "30 minutes",
+                "60": "60 minutes"
             }
         },
-        "slot": {
-            "hover": "Add new appointment"
+        "time": {
+            "am": "AM",
+            "pm": "PM",
+            "minutes": {
+                "00": "00",
+                "15": "15",
+                "30": "30",
+                "45": "45"
+            },
+            "durations": {
+                "15": "15 min",
+                "30": "30 min",
+                "45": "45 min",
+                "60": "1 hour",
+                "90": "1.5 hours",
+                "120": "2 hours"
+            }
+        }
+    },
+    "patients": {
+        "title": "Patients",
+        "search": "Search patient...",
+        "header": {
+            "all": "All patients",
+            "addPatient": "Add new patient"
         },
-        "addASlot": "Add a slot"
+        "actions": {
+            "call": "Call to patient",
+            "addAppointment": "Add new appointment",
+            "notify": "Notify patient of appointment",
+            "reschedule": "Reschedule appointment",
+            "cancel": "Cancel appointment",
+            "chart": "Patient chart"
+        },
+        "status": {
+            "SCHEDULED": "Scheduled",
+            "COMPLETED": "Completed",
+            "CANCELLED": "Cancelled",
+            "RESCHEDULED": "Rescheduled",
+            "NO_SHOW": "No Show"
+        },
+        "labels": {
+            "doctor": "Doctor:",
+            "time": {
+                "am": "AM",
+                "pm": "PM"
+            }
+        }
     }
 }

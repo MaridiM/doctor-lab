@@ -162,7 +162,7 @@ export function Tasks() {
                     </DropdownMenu>
                 </div>
             </header>
-            <SearchInput form={form} isDirty={isDirty} placeholder={t('tasks.searchPlaceholder')} />
+            <SearchInput form={form} isDirty={isDirty} placeholder={t('tasks.search')} />
             <ScrollArea className='h-full max-h-[calc(100vh-194px)] w-full' type='auto'>
                 <ul className='flex h-full w-full flex-col gap-1 p-2'>
                     {TASKS_MOCK.map(item => {
@@ -185,7 +185,7 @@ export function Tasks() {
                                                 size='icon'
                                                 icon='xs'
                                                 tooltip={{
-                                                    children: 'Mark as incomplete',
+                                                    children: t('tasks.task.incomplete'),
                                                     align: 'center',
                                                     side: 'bottom'
                                                 }}
@@ -203,8 +203,8 @@ export function Tasks() {
                                             icon='xs'
                                             tooltip={{
                                                 children: item.important
-                                                    ? 'Remove from important'
-                                                    : 'Mark as important',
+                                                    ? t('tasks.task.unimportant')
+                                                    : t('tasks.task.important'),
                                                 align: 'center',
                                                 side: 'bottom'
                                             }}
@@ -222,7 +222,7 @@ export function Tasks() {
                                                 icon='xs'
                                                 className='pt-px'
                                                 tooltip={{
-                                                    children: 'Unpin',
+                                                    children: t('tasks.task.unpin'),
                                                     align: 'center',
                                                     side: 'bottom'
                                                 }}
