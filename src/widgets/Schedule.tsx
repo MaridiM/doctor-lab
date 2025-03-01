@@ -16,13 +16,15 @@ import {
     FilePenLine,
     IdCard,
     ListTodo,
-    Settings
+    Settings,
+    SquarePlus,
+    UserPen
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-import { Appointment, PATIENTS, User } from '@/entities/api'
+import { APPOINTMENT_STATUSES, Appointment, PATIENTS, User } from '@/entities/api'
 
 import {
     Badge,
@@ -30,6 +32,7 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuSub,
     DropdownMenuSubContent,
     DropdownMenuSubTrigger,
@@ -52,6 +55,7 @@ export function Schedule() {
     const t = useTranslations('dashboard')
 
     const [isOpenAppointmentSettings, setIsOpenAppointmentSettings] = useState(false)
+    const [isOpenStatusMenu, setIsOpenStatusMenu] = useState(false)
 
     //  Base configuration for schedule
     // ----------------------------------------------------------------------------------------------
@@ -424,16 +428,7 @@ export function Schedule() {
                         {/* Рендерим плашки событий */}
                         {patients.map(patient => {
                             const appointment = patient.medicalRecord.appointments[0]
-
                             const { top, height } = calculateAppointmentPosition(appointment)
-
-                            const statusColorStyle: Record<string, string> = {
-                                SCHEDULED: '!border-50-primary bg-primary-50 text-primary',
-                                COMPLETED: '!border-50-secondary bg-secondary-50 text-secondary',
-                                CANCELLED: '!border-50-negative bg-negative-50 text-negative',
-                                RESCHEDULED: '!border-50-ettention bg-ettention-50 text-ettention',
-                                NO_SHOW: '!border-50-gray bg-gray-50 text-text-secondary'
-                            }
 
                             return (
                                 <div
@@ -462,7 +457,7 @@ export function Schedule() {
                                             <div className='flex h-full flex-1 gap-1'>
                                                 <div
                                                     className={cn('flex flex-1 flex-col gap-1', {
-                                                        'gap-0.5': height === 48
+                                                        'gap-0': height === 48
                                                     })}
                                                 >
                                                     <div className='flex w-full items-center gap-1'>
@@ -476,16 +471,151 @@ export function Schedule() {
                                                         >
                                                             {patient.personalInfo.fullName}
                                                         </span>
-                                                        <Badge
-                                                            variant='outline'
-                                                            className={cn(
-                                                                'min-w-fit cursor-pointer rounded-md tracking-wider',
-                                                                { 'translate-y-px': height === 48 },
-                                                                statusColorStyle[appointment.status.key]
-                                                            )}
+
+                                                        <DropdownMenu
+                                                            open={isOpenStatusMenu}
+                                                            onOpenChange={() => setIsOpenStatusMenu(!isOpenStatusMenu)}
                                                         >
-                                                            {t(`patients.status.${appointment.status.key}`)}
-                                                        </Badge>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Badge
+                                                                    variant='outline'
+                                                                    className='bg min-w-fit cursor-pointer rounded-md tracking-wider'
+                                                                    style={{
+                                                                        backgroundColor:
+                                                                            appointment.status.backgroundColor,
+                                                                        color: appointment.status.textColor
+                                                                    }}
+                                                                >
+                                                                    {t(`status.labels.${appointment.status.key}`)}
+                                                                </Badge>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align='end' className='min-w-[280px]'>
+                                                                <DropdownMenuItem>
+                                                                    <SquarePlus />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('status.labels.custom')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem>
+                                                                    <span
+                                                                        className='size-4'
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                APPOINTMENT_STATUSES[0].backgroundColor,
+                                                                            color: APPOINTMENT_STATUSES[0].textColor
+                                                                        }}
+                                                                    />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('status.labels.SCHEDULED')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <span
+                                                                        className='size-4'
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                APPOINTMENT_STATUSES[1].backgroundColor,
+                                                                            color: APPOINTMENT_STATUSES[1].textColor
+                                                                        }}
+                                                                    />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('status.labels.CONFIRMED')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <span
+                                                                        className='size-4'
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                APPOINTMENT_STATUSES[2].backgroundColor,
+                                                                            color: APPOINTMENT_STATUSES[2].textColor
+                                                                        }}
+                                                                    />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('status.labels.UPDATED')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <span
+                                                                        className='size-4'
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                APPOINTMENT_STATUSES[3].backgroundColor,
+                                                                            color: APPOINTMENT_STATUSES[3].textColor
+                                                                        }}
+                                                                    />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('status.labels.MISSED')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <span
+                                                                        className='size-4'
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                APPOINTMENT_STATUSES[4].backgroundColor,
+                                                                            color: APPOINTMENT_STATUSES[4].textColor
+                                                                        }}
+                                                                    />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('status.labels.RESCHEDULED')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <span
+                                                                        className='size-4'
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                APPOINTMENT_STATUSES[5].backgroundColor,
+                                                                            color: APPOINTMENT_STATUSES[5].textColor
+                                                                        }}
+                                                                    />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('status.labels.UNABLE_TO_REACH')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <span
+                                                                        className='size-4'
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                APPOINTMENT_STATUSES[6].backgroundColor,
+                                                                            color: APPOINTMENT_STATUSES[6].textColor
+                                                                        }}
+                                                                    />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('status.labels.RUNNING_LATE')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <span
+                                                                        className='size-4'
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                APPOINTMENT_STATUSES[7].backgroundColor,
+                                                                            color: APPOINTMENT_STATUSES[7].textColor
+                                                                        }}
+                                                                    />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('status.labels.IN_MEDICAL_APPOINTMENT')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <span
+                                                                        className='size-4'
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                APPOINTMENT_STATUSES[8].backgroundColor,
+                                                                            color: APPOINTMENT_STATUSES[8].textColor
+                                                                        }}
+                                                                    />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('status.labels.CANCELED')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
                                                         <DropdownMenu
                                                             open={isOpenAppointmentSettings}
                                                             onOpenChange={() =>

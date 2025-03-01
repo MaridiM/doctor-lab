@@ -106,13 +106,6 @@ export function Patients() {
                     <ul className='flex flex-col gap-1 p-2'>
                         {patients.map((patient: any) => {
                             const appointment = patient.medicalRecord.appointments[0]
-                            const statusColorStyle: Record<string, string> = {
-                                SCHEDULED: '!border-50-primary bg-primary-50 text-primary',
-                                COMPLETED: '!border-50-secondary bg-secondary-50 text-secondary',
-                                CANCELLED: '!border-50-negative bg-negative-50 text-negative',
-                                RESCHEDULED: '!border-50-ettention bg-ettention-50 text-ettention',
-                                NO_SHOW: '!border-50-gray bg-gray-50 text-text-secondary'
-                            }
 
                             return (
                                 <li
@@ -204,73 +197,81 @@ export function Patients() {
                                             src={patient.personalInfo.avatar}
                                             fullName='Robert Traram'
                                         />
-                                        <div className='flex w-full flex-col gap-[2px]'>
-                                            <h4 className='text-p-lg font-medium text-text'>
-                                                {patient.personalInfo.fullName}
-                                            </h4>
-                                            <span className='line-clamp-2 text-p-sm text-text-secondary'>
-                                                {appointment.service.name}
-                                            </span>
+                                        <div className='flex w-full flex-col'>
+                                            <div className='flex gap-2'>
+                                                <div className='flex w-full flex-col gap-[2px]'>
+                                                    <h4 className='text-p-lg font-medium text-text'>
+                                                        {patient.personalInfo.fullName}
+                                                    </h4>
+                                                    <span className='line-clamp-2 text-p-sm text-text-secondary'>
+                                                        {appointment.service.name}
+                                                    </span>
+                                                </div>
+                                                <div className='flex w-full items-start justify-end'>
+                                                    <div className='flex w-full max-w-[120px] items-center justify-end gap-2 pt-1'>
+                                                        <div className='flex items-start'>
+                                                            <span className='text-h3 font-medium leading-[24px] text-text'>
+                                                                {appointment.startHour}
+                                                            </span>
+                                                            <div className='flex flex-col items-center text-text'>
+                                                                <span className='text-label-lg font-medium leading-3 text-text'>
+                                                                    {appointment.startMinute
+                                                                        .toString()
+                                                                        .padStart(2, '0')}
+                                                                </span>
+                                                                {!isTime24Format && (
+                                                                    <span className='text-label-lg font-medium leading-3 text-text'>
+                                                                        {appointment.startMiridiem}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <span className='h-[2px] w-3 bg-text-secondary' />
+                                                        <div className='flex items-start'>
+                                                            <span className='text-h3 font-medium leading-[24px] text-text'>
+                                                                {appointment.endHour}
+                                                            </span>
+                                                            <div className='flex flex-col items-center text-text'>
+                                                                <span className='text-label-lg font-medium leading-3 text-text'>
+                                                                    {appointment.endMinute.toString().padStart(2, '0')}
+                                                                </span>
+                                                                {!isTime24Format && (
+                                                                    <span className='text-label-lg font-medium leading-3 text-text'>
+                                                                        {appointment.startMiridiem}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div className='flex gap-1'>
+                                                <div className='flex gap-1 w-full'>
+                                                    <Badge
+                                                        variant='outline'
+                                                        className='min-w-fit cursor-pointer rounded-md tracking-wider'
+                                                    >
+                                                        {appointment.service.duration}{' '}
+                                                        {t(`patients.labels.time.minutes`)}
+                                                    </Badge>
+                                                    <Badge
+                                                        variant='outline'
+                                                        className='min-w-fit cursor-pointer rounded-md tracking-wider'
+                                                    >
+                                                        {appointment.room} {t(`patients.labels.room`)}
+                                                    </Badge>
+                                                </div>
                                                 <Badge
                                                     variant='outline'
                                                     className='min-w-fit cursor-pointer rounded-md tracking-wider'
+                                                    style={{
+                                                        backgroundColor: appointment.status.backgroundColor,
+                                                        color: appointment.status.textColor
+                                                    }}
                                                 >
-                                                    {appointment.service.duration} {t(`patients.labels.time.minutes`)}
-                                                </Badge>
-                                                <Badge
-                                                    variant='outline'
-                                                    className='min-w-fit cursor-pointer rounded-md tracking-wider'
-                                                >
-                                                    {appointment.room} {t(`patients.labels.room`)}
+                                                    {t(`status.labels.${appointment.status.key}`)}
                                                 </Badge>
                                             </div>
-                                        </div>
-                                        <div className='flex flex-col items-end justify-between'>
-                                            <div className='flex w-full max-w-[120px] items-center gap-2 pt-1'>
-                                                <div className='flex items-start'>
-                                                    <span className='text-h3 font-medium leading-[24px] text-text'>
-                                                        {appointment.startHour}
-                                                    </span>
-                                                    <div className='flex flex-col items-center text-text'>
-                                                        <span className='text-label-lg font-medium leading-3 text-text'>
-                                                            {appointment.startMinute !== 0
-                                                                ? appointment.startMinute
-                                                                : '00'}
-                                                        </span>
-                                                        {!isTime24Format && (
-                                                            <span className='text-label-lg font-medium leading-3 text-text'>
-                                                                {appointment.startMiridiem}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <span className='h-[2px] w-3 bg-text-secondary' />
-                                                <div className='flex items-start'>
-                                                    <span className='text-h3 font-medium leading-[24px] text-text'>
-                                                        {appointment.endHour}
-                                                    </span>
-                                                    <div className='flex flex-col items-center text-text'>
-                                                        <span className='text-label-lg font-medium leading-3 text-text'>
-                                                            {appointment.endMinute !== 0 ? appointment.endMinute : '00'}
-                                                        </span>
-                                                        {!isTime24Format && (
-                                                            <span className='text-label-lg font-medium leading-3 text-text'>
-                                                                {appointment.startMiridiem}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <Badge
-                                                variant='outline'
-                                                className={cn(
-                                                    'min-w-fit cursor-pointer rounded-md tracking-wider',
-                                                    statusColorStyle[appointment.status.key]
-                                                )}
-                                            >
-                                                {t(`patients.status.${appointment.status.key}`)}
-                                            </Badge>
                                         </div>
                                     </div>
                                     <footer className='flex h-7 items-center justify-between gap-1 px-2 border-t-20'>

@@ -46,6 +46,8 @@ export interface Status {
     key: string
     name: string
     description: string
+    backgroundColor: string
+    textColor: string
 }
 
 export interface Appointment {
@@ -140,7 +142,9 @@ export const PATIENTS = [
                         id: '46d0aae7-4608-44ea-baa3-1ea4ccae583c',
                         key: 'SCHEDULED',
                         name: 'Scheduled',
-                        description: 'The appointment is scheduled and confirmed.'
+                        description: 'The appointment is scheduled and confirmed.',
+                        backgroundColor: '#D32F2F',
+                        textColor: '#FFFFFF'
                     },
                     notes: 'Initial consultation for general check-up.'
                 }
@@ -205,10 +209,12 @@ export const PATIENTS = [
                         duration: 90
                     },
                     status: {
-                        id: '47536f08-b0bb-49ce-adef-1f2c38a3cce6',
-                        key: 'NO_SHOW',
-                        name: 'No Show',
-                        description: 'The patient did not show up for the scheduled appointment.'
+                        id: '45fe64d7-39b2-49e1-9c65-07c07b804768',
+                        key: 'CONFIRMED',
+                        name: 'Confirmed',
+                        description: 'The appointment has been confirmed.',
+                        backgroundColor: '#4CAF50',
+                        textColor: '#FFFFFF'
                     },
                     notes: 'Initial consultation for general check-up.'
                 }
@@ -273,10 +279,12 @@ export const PATIENTS = [
                         duration: 45
                     },
                     status: {
-                        id: '45fe64d7-39b2-49e1-9c65-07c07b804768',
-                        key: 'COMPLETED',
-                        name: 'Completed',
-                        description: 'The appointment has been successfully completed.'
+                        id: '47536f08-b0bb-49ce-adef-1f2c38a3cce6',
+                        key: 'RESCHEDULED',
+                        name: 'Rescheduled',
+                        description: 'The appointment has been rescheduled.',
+                        backgroundColor: '#B71C1C',
+                        textColor: '#FFFFFF'
                     },
                     notes: 'Initial consultation for general check-up.'
                 }
@@ -341,10 +349,12 @@ export const PATIENTS = [
                         duration: 15
                     },
                     status: {
-                        id: '619ab33b-3b2f-475a-bc74-2faf2d529d23',
-                        key: 'CANCELLED',
-                        name: 'Cancelled',
-                        description: 'The appointment has been cancelled by the patient or the clinic.'
+                        id: 'b5a4c6d8-7f98-4b11-a23d-5c6b7f8d9e12',
+                        key: 'RUNNING_LATE',
+                        name: 'Running late',
+                        description: 'The patient is running late for the appointment.',
+                        backgroundColor: '#1A237E',
+                        textColor: '#FFFFFF'
                     },
                     notes: 'Initial consultation for general check-up.'
                 }
@@ -409,10 +419,12 @@ export const PATIENTS = [
                         duration: 30
                     },
                     status: {
-                        id: 'd872c318-c16d-4b04-b370-be32cedcaeb1',
-                        key: 'RESCHEDULED',
-                        name: 'Rescheduled',
-                        description: 'The appointment has been rescheduled to a new date or time.'
+                        id: 'c6d7e8f9-4a56-4b12-b34d-6e7f8g9h0i13',
+                        key: 'IN_MEDICAL_APPOINTMENT',
+                        name: 'In a medical appointment',
+                        description: 'The patient is currently in a medical appointment.',
+                        backgroundColor: '#0288D1',
+                        textColor: '#FFFFFF'
                     },
                     notes: 'Initial consultation for general check-up.'
                 }

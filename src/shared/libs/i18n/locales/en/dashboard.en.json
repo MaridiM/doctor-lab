@@ -102,13 +102,6 @@
             "cancel": "Cancel appointment",
             "chart": "Patient chart"
         },
-        "status": {
-            "SCHEDULED": "Scheduled",
-            "COMPLETED": "Completed",
-            "CANCELLED": "Cancelled",
-            "RESCHEDULED": "Rescheduled",
-            "NO_SHOW": "No Show"
-        },
         "labels": {
             "room": "Room",
             "service": "Service:",
@@ -119,6 +112,31 @@
                 "am": "AM",
                 "pm": "PM"
             }
+        }
+    },
+    "status": {
+        "labels": {
+            "custom": "Custom",
+            "SCHEDULED": "Scheduled",
+            "CONFIRMED": "Confirmed",
+            "UPDATED": "Updated",
+            "MISSED": "Missed",
+            "RESCHEDULED": "Rescheduled",
+            "UNABLE_TO_REACH": "Unable to reach via phone",
+            "RUNNING_LATE": "Running late",
+            "IN_MEDICAL_APPOINTMENT": "In a medical appointment",
+            "CANCELED": "Canceled"
+        },
+        "descriptions": {
+            "SCHEDULED": "The appointment is scheduled and confirmed.",
+            "CONFIRMED": "The appointment has been confirmed.",
+            "UPDATED": "The appointment details have been updated.",
+            "MISSED": "The appointment was missed.",
+            "RESCHEDULED": "The appointment has been rescheduled.",
+            "UNABLE_TO_REACH": "The patient could not be reached via phone.",
+            "RUNNING_LATE": "The patient is running late for the appointment.",
+            "IN_MEDICAL_APPOINTMENT": "The patient is currently in a medical appointment.",
+            "CANCELED": "The appointment has been canceled."
         }
     }
 }
