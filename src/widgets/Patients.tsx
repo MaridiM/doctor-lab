@@ -10,6 +10,7 @@ import {
     IdCard,
     MessagesSquare,
     Phone,
+    UserPen,
     UserPlus2,
     Users2
 } from 'lucide-react'
@@ -18,7 +19,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { PATIENTS } from '@/entities/api'
+import { PATIENTS, User } from '@/entities/api'
 
 import {
     Badge,
@@ -33,19 +34,18 @@ import {
 } from '@/shared/components'
 import { PATHS } from '@/shared/config'
 import { TSearch, searchSchema } from '@/shared/schemas'
-import { cn, printTimeWithDuration } from '@/shared/utils'
+import { cn } from '@/shared/utils'
 
 export function Patients() {
     const t = useTranslations('dashboard')
 
     const [isOpenPatientSettings, setIsOpenPaitentSettings] = useState(false)
     const [isTime24Format] = useState<boolean>(true)
-    const [patients, setPatients] = useState<any>([])
-    const [timeMeridiem] = useState<'AM' | 'PM'>('AM')
+    const [patients, setPatients] = useState<User[]>([])
 
     useEffect(() => {
         const foundPatients: any[] = PATIENTS.filter(patient => {
-            const appointments = patient.patientMedicalRecord.appointments.filter(appointment => {
+            const appointments = patient.medicalRecord.appointments.filter(appointment => {
                 return format('2025-03-02T11:00:00.000Z', 'dd-MM-yyyy') === format(appointment.date, 'dd-MM-yyyy')
             })
             return appointments
@@ -71,7 +71,6 @@ export function Patients() {
         <section className='flex h-full w-full flex-col gap-2'>
             <section className='flex h-full max-h-[240px] w-full gap-2'>
                 <div className='w-full rounded-lg bg-card p-4 border-20'>Widgets 1</div>
-                <div className='w-full rounded-lg bg-card p-4 border-20'>Widgets 2</div>
             </section>
             <section className='h-full w-full overflow-hidden rounded-lg bg-background border-20'>
                 <header className='flex h-14 items-center justify-between bg-card px-4 py-2 border-b-20'>
@@ -106,6 +105,7 @@ export function Patients() {
                 <ScrollArea className='flex h-full max-h-[calc(100vh-442px)] w-full' type='auto'>
                     <ul className='flex flex-col gap-1 p-2'>
                         {patients.map((patient: any) => {
+                            const appointment = patient.medicalRecord.appointments[0]
                             const statusColorStyle: Record<string, string> = {
                                 SCHEDULED: '!border-50-primary bg-primary-50 text-primary',
                                 COMPLETED: '!border-50-secondary bg-secondary-50 text-secondary',
@@ -117,13 +117,13 @@ export function Patients() {
                             return (
                                 <li
                                     key={patient.id}
-                                    className='min-h-[96px] w-full rounded-md bg-card border-20 hover:border-40'
+                                    className='min-h-[96px] w-full rounded-md bg-card shadow border-20 hover:border-40'
                                 >
                                     <header className='flex h-7 items-center justify-between px-2 border-b-20'>
                                         <div className='flex items-center gap-2'>
                                             <IdCard className='size-5 stroke-text-secondary stroke-[2px]' />
                                             <span className='pt-[2px] text-p-sm font-medium text-text'>
-                                                {patient.patientMedicalRecord.appointments[0].clinic.name}
+                                                {appointment.clinic.name}
                                             </span>
                                         </div>
                                         <div className='flex gap-2'>
@@ -170,6 +170,12 @@ export function Patients() {
                                                         </span>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem>
+                                                        <UserPen />
+                                                        <span className='w-full text-p-sm text-text'>
+                                                            {t('patients.actions.edit')}
+                                                        </span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem>
                                                         <CalendarClock />
                                                         <span className='w-full text-p-sm text-text'>
                                                             {t('patients.actions.reschedule')}
@@ -195,36 +201,46 @@ export function Patients() {
                                         <UserAvatar
                                             className='size-16 border-20'
                                             radius='rounded-md'
-                                            src={patient.patientMedicalRecord.avatar}
+                                            src={patient.personalInfo.avatar}
                                             fullName='Robert Traram'
                                         />
                                         <div className='flex w-full flex-col gap-[2px]'>
                                             <h4 className='text-p-lg font-medium text-text'>
-                                                {patient.patientMedicalRecord.fullName}
+                                                {patient.personalInfo.fullName}
                                             </h4>
                                             <span className='line-clamp-2 text-p-sm text-text-secondary'>
-                                                {patient.patientMedicalRecord.appointments[0].service.name}
+                                                {appointment.service.name}
                                             </span>
+                                            <div className='flex gap-1'>
+                                                <Badge
+                                                    variant='outline'
+                                                    className='min-w-fit cursor-pointer rounded-md tracking-wider'
+                                                >
+                                                    {appointment.service.duration} {t(`patients.labels.time.minutes`)}
+                                                </Badge>
+                                                <Badge
+                                                    variant='outline'
+                                                    className='min-w-fit cursor-pointer rounded-md tracking-wider'
+                                                >
+                                                    {appointment.room} {t(`patients.labels.room`)}
+                                                </Badge>
+                                            </div>
                                         </div>
-                                        <div className='flex flex-col items-end justify-between py-1'>
-                                            <div className='flex w-full max-w-[120px] items-center gap-2'>
+                                        <div className='flex flex-col items-end justify-between'>
+                                            <div className='flex w-full max-w-[120px] items-center gap-2 pt-1'>
                                                 <div className='flex items-start'>
                                                     <span className='text-h3 font-medium leading-[24px] text-text'>
-                                                        {format(
-                                                            patient.patientMedicalRecord.appointments[0].time,
-                                                            isTime24Format ? 'HH' : 'hh'
-                                                        )}
+                                                        {appointment.startHour}
                                                     </span>
                                                     <div className='flex flex-col items-center text-text'>
                                                         <span className='text-label-lg font-medium leading-3 text-text'>
-                                                            {format(
-                                                                patient.patientMedicalRecord.appointments[0].time,
-                                                                'mm'
-                                                            )}
+                                                            {appointment.startMinute !== 0
+                                                                ? appointment.startMinute
+                                                                : '00'}
                                                         </span>
                                                         {!isTime24Format && (
                                                             <span className='text-label-lg font-medium leading-3 text-text'>
-                                                                AM
+                                                                {appointment.startMiridiem}
                                                             </span>
                                                         )}
                                                     </div>
@@ -232,31 +248,15 @@ export function Patients() {
                                                 <span className='h-[2px] w-3 bg-text-secondary' />
                                                 <div className='flex items-start'>
                                                     <span className='text-h3 font-medium leading-[24px] text-text'>
-                                                        {format(
-                                                            printTimeWithDuration(
-                                                                patient.patientMedicalRecord.appointments[0].time,
-                                                                patient.patientMedicalRecord.appointments[0].service
-                                                                    .duration
-                                                            ),
-                                                            isTime24Format ? 'HH' : 'hh'
-                                                        )}
+                                                        {appointment.endHour}
                                                     </span>
                                                     <div className='flex flex-col items-center text-text'>
                                                         <span className='text-label-lg font-medium leading-3 text-text'>
-                                                            {format(
-                                                                printTimeWithDuration(
-                                                                    patient.patientMedicalRecord.appointments[0].time,
-                                                                    patient.patientMedicalRecord.appointments[0].service
-                                                                        .duration
-                                                                ),
-                                                                'mm'
-                                                            )}
+                                                            {appointment.endMinute !== 0 ? appointment.endMinute : '00'}
                                                         </span>
                                                         {!isTime24Format && (
                                                             <span className='text-label-lg font-medium leading-3 text-text'>
-                                                                {t(
-                                                                    `patients.labels.time.${timeMeridiem.toLowerCase()}`
-                                                                )}
+                                                                {appointment.startMiridiem}
                                                             </span>
                                                         )}
                                                     </div>
@@ -265,15 +265,11 @@ export function Patients() {
                                             <Badge
                                                 variant='outline'
                                                 className={cn(
-                                                    'rounded-md tracking-wider',
-                                                    statusColorStyle[
-                                                        patient.patientMedicalRecord.appointments[0].status.key
-                                                    ]
+                                                    'min-w-fit cursor-pointer rounded-md tracking-wider',
+                                                    statusColorStyle[appointment.status.key]
                                                 )}
                                             >
-                                                {t(
-                                                    `patients.status.${patient.patientMedicalRecord.appointments[0].status.key}`
-                                                )}
+                                                {t(`patients.status.${appointment.status.key}`)}
                                             </Badge>
                                         </div>
                                     </div>
@@ -283,11 +279,11 @@ export function Patients() {
                                                 {t('patients.labels.doctor')}
                                             </span>
                                             <span className='text-p-sm font-medium text-text-secondary'>
-                                                {patient.patientMedicalRecord.appointments[0].doctors[0].name}
+                                                {appointment.doctors[0].name}
                                             </span>
                                         </div>
                                         <span className='text-p-xs tracking-wider text-text-secondary'>
-                                            {patient.patientMedicalRecord.appointments[0].doctors[0].specialties.name}
+                                            {appointment.doctors[0].specialties.name}
                                         </span>
                                     </footer>
                                 </li>

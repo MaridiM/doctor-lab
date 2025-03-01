@@ -31,10 +31,11 @@
     },
     "schedule": {
         "title": "Schedule",
-        "addASlot": "Add a slot",
+        "addASlot": "Add time slot",
         "header": {
             "all": "All appointments",
             "addNewAppointment": "Add new appointment",
+
             "timeFormat": {
                 "24": "24-hour format",
                 "12": "12-hour format"
@@ -58,6 +59,13 @@
                 "30": "30 minutes",
                 "60": "60 minutes"
             }
+        },
+        "actions": {
+            "notify": "Notify patient of appointment",
+            "edit": "Edit appointment",
+            "reschedule": "Reschedule appointment",
+            "cancel": "Cancel appointment",
+            "chart": "Appointment chart"
         },
         "time": {
             "am": "AM",
@@ -89,6 +97,7 @@
             "call": "Call to patient",
             "addAppointment": "Add new appointment",
             "notify": "Notify patient of appointment",
+            "edit": "Edit appointment",
             "reschedule": "Reschedule appointment",
             "cancel": "Cancel appointment",
             "chart": "Patient chart"
@@ -101,8 +110,12 @@
             "NO_SHOW": "No Show"
         },
         "labels": {
+            "room": "Room",
+            "service": "Service:",
+            "notes": "Notes:",
             "doctor": "Doctor:",
             "time": {
+                "minutes": "min",
                 "am": "AM",
                 "pm": "PM"
             }

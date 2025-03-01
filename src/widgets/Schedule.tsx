@@ -1,14 +1,20 @@
 'use client'
 
+import { format } from 'date-fns'
 import {
+    BellRing,
     CalendarClock,
     CalendarPlus2,
+    CalendarX2,
     Check,
     Clock3,
     Clock4,
     Clock6,
     Clock8,
     Clock12,
+    EllipsisVertical,
+    FilePenLine,
+    IdCard,
     ListTodo,
     Settings
 } from 'lucide-react'
@@ -16,7 +22,10 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
+import { Appointment, PATIENTS, User } from '@/entities/api'
+
 import {
+    Badge,
     Button,
     DropdownMenu,
     DropdownMenuContent,
@@ -31,27 +40,22 @@ import {
     SelectContent,
     SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
     SelectValue,
-    Switch
+    Switch,
+    UserAvatar
 } from '@/shared/components'
 import { PATHS } from '@/shared/config'
 import { cn } from '@/shared/utils'
 
-interface Appointment {
-    id: string
-    startHour: number
-    startMinute: number
-    duration: number
-}
-
 export function Schedule() {
     const t = useTranslations('dashboard')
 
+    const [isOpenAppointmentSettings, setIsOpenAppointmentSettings] = useState(false)
+
     //  Base configuration for schedule
     // ----------------------------------------------------------------------------------------------
-    const MAX_SLOT_HEIGHT = 160
+    const MAX_SLOT_HEIGHT = 192
 
     const [isOpenScheduleSettings, setIsOpenScheduleSettings] = useState(false)
     const [operatingHours, setOperatingHours] = useState<6 | 8 | 12 | 16 | 24>(12)
@@ -119,14 +123,7 @@ export function Schedule() {
 
     //  Base configuration for schedule
     // ----------------------------------------------------------------------------------------------
-    const [appointments, setAppointments] = useState<Appointment[]>(
-        Array.from({ length: 1 }, (_, i) => ({
-            id: Date.now().toString() + i, // Генерация уникального id
-            startHour: 8,
-            startMinute: 0,
-            duration: 60 // Длительность 60 минут
-        }))
-    )
+    const [patients, setPatients] = useState<User[]>([])
 
     const calculateAppointmentPosition = (appointment: Appointment) => {
         const startHour24 = getStartHour24()
@@ -142,7 +139,7 @@ export function Schedule() {
         }
 
         const top = (offsetMinutes / timeStep) * slotHeight
-        const height = (appointment.duration / timeStep) * slotHeight
+        const height = (appointment.service.duration / timeStep) * slotHeight
 
         return { top, height }
     }
@@ -151,14 +148,20 @@ export function Schedule() {
         console.log('Add Slot')
     }
     function handleAddAppointment() {
-        const newAppointment: Appointment = {
-            id: Date.now().toString(),
-            startHour: 10, // пример начального времени
-            startMinute: 0,
-            duration: 60 // пример длительности
-        }
-        setAppointments([...appointments, newAppointment])
+        console.log('Add new Appointment')
+        // setAppointments([...appointments, newAppointment])
     }
+
+    useEffect(() => {
+        const foundPatients: any[] = PATIENTS.filter(patient => {
+            const appointments = patient.medicalRecord.appointments.filter(appointment => {
+                return format('2025-03-02T11:00:00.000Z', 'dd-MM-yyyy') === format(appointment.date, 'dd-MM-yyyy')
+            })
+            return appointments
+        })
+
+        setPatients(foundPatients)
+    }, [])
 
     // ----------------------------------------------------------------------------------------------
 
@@ -357,7 +360,7 @@ export function Schedule() {
             <ScrollArea className='flex h-full max-h-[calc(100vh-138px)] w-full bg-background' type='auto'>
                 <div className='flex'>
                     {/* Левая колонка с временной шкалой */}
-                    <ul className='gap flex w-16 flex-col bg-card border-r-20'>
+                    <ul className='gap relative flex w-16 flex-col bg-card border-r-20'>
                         {SLOT_COUNT.map((_, idx) => {
                             const { adjustedHour, minute } = calculateTime(idx)
                             const isMinuteZero = minute === 0
@@ -367,10 +370,10 @@ export function Schedule() {
                             return (
                                 <li
                                     key={idx}
-                                    className='flex w-full items-center justify-end'
+                                    className='flex w-full items-center justify-end pr-1'
                                     style={{ height: slotHeight }}
                                 >
-                                    <div className={cn('flex h-6 items-start px-0.5')}>
+                                    <div className={cn('flex h-6 items-start')}>
                                         {isMinuteZero && (
                                             <span className='text-h4 leading-[20px] text-text-secondary'>
                                                 {displayHour}
@@ -419,26 +422,166 @@ export function Schedule() {
                             )
                         })}
                         {/* Рендерим плашки событий */}
-                        {appointments.map(appointment => {
+                        {patients.map(patient => {
+                            const appointment = patient.medicalRecord.appointments[0]
+
                             const { top, height } = calculateAppointmentPosition(appointment)
-                            const startHour = appointment.startHour
-                            const startMinute = appointment.startMinute.toString().padStart(2, '0')
-                            const endMinutes =
-                                appointment.startHour * 60 + appointment.startMinute + appointment.duration
-                            const endHour = Math.floor(endMinutes / 60) % 24
-                            const endMinute = (endMinutes % 60).toString().padStart(2, '0')
+
+                            const statusColorStyle: Record<string, string> = {
+                                SCHEDULED: '!border-50-primary bg-primary-50 text-primary',
+                                COMPLETED: '!border-50-secondary bg-secondary-50 text-secondary',
+                                CANCELLED: '!border-50-negative bg-negative-50 text-negative',
+                                RESCHEDULED: '!border-50-ettention bg-ettention-50 text-ettention',
+                                NO_SHOW: '!border-50-gray bg-gray-50 text-text-secondary'
+                            }
 
                             return (
                                 <div
                                     key={appointment.id}
-                                    className='border-blue-300 absolute left-0 right-0 rounded-md bg-blue-100 p-1 border'
+                                    className='absolute left-0 right-0 cursor-grab rounded-md pb-[2px] pl-px pr-1 pt-px'
                                     style={{
-                                        top: `${slotHeight / 2 + top}px`,
-                                        height: `${height}px`
+                                        top: slotHeight / 2 + top,
+                                        height: '100%',
+                                        minHeight: 48,
+                                        maxHeight: height
                                     }}
+                                    draggable
                                 >
-                                    <div className='text-xs font-medium text-blue-800'>
-                                        {`${startHour}:${startMinute} - ${endHour}:${endMinute}`}
+                                    <div className='flex h-full w-full flex-col gap-1 overflow-hidden rounded-md bg-card shadow border-20 hover:border-40'>
+                                        <div className='flex w-full gap-2 pb-1 border-b-20'>
+                                            {height >= 48 && (
+                                                <UserAvatar
+                                                    className={cn('size-16', { 'size-[45px]': height === 48 })}
+                                                    radius={cn('rounded-none rounded-br-md border-br-20', {
+                                                        'border-b-none rounded-none': height === 48
+                                                    })}
+                                                    src={patient.personalInfo.avatar}
+                                                    fullName={patient.personalInfo.fullName}
+                                                />
+                                            )}
+                                            <div className='flex h-full flex-1 gap-1'>
+                                                <div
+                                                    className={cn('flex flex-1 flex-col gap-1', {
+                                                        'gap-0.5': height === 48
+                                                    })}
+                                                >
+                                                    <div className='flex w-full items-center gap-1'>
+                                                        <span
+                                                            className={cn(
+                                                                'w-full text-h5 font-medium tracking-wider text-text',
+                                                                {
+                                                                    'leading-5': height === 48
+                                                                }
+                                                            )}
+                                                        >
+                                                            {patient.personalInfo.fullName}
+                                                        </span>
+                                                        <Badge
+                                                            variant='outline'
+                                                            className={cn(
+                                                                'min-w-fit cursor-pointer rounded-md tracking-wider',
+                                                                { 'translate-y-px': height === 48 },
+                                                                statusColorStyle[appointment.status.key]
+                                                            )}
+                                                        >
+                                                            {t(`patients.status.${appointment.status.key}`)}
+                                                        </Badge>
+                                                        <DropdownMenu
+                                                            open={isOpenAppointmentSettings}
+                                                            onOpenChange={() =>
+                                                                setIsOpenAppointmentSettings(!isOpenAppointmentSettings)
+                                                            }
+                                                        >
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button
+                                                                    variant='outline'
+                                                                    size='icon'
+                                                                    icon='xs'
+                                                                    className='min-h-6 min-w-6'
+                                                                >
+                                                                    <EllipsisVertical className='stroke-[2px]' />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align='end' className='min-w-[280px]'>
+                                                                <DropdownMenuItem>
+                                                                    <IdCard />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('schedule.actions.chart')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <BellRing />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('schedule.actions.notify')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <FilePenLine />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('schedule.actions.edit')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <CalendarClock />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('schedule.actions.reschedule')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <CalendarX2 />
+                                                                    <span className='w-full text-p-sm text-text'>
+                                                                        {t('schedule.actions.cancel')}
+                                                                    </span>
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
+                                                    <div className='flex w-full gap-1 pr-2'>
+                                                        <p
+                                                            className={cn(
+                                                                'line-clamp-2 w-full !text-p-sm !leading-4 text-text-secondary',
+                                                                { 'line-clamp-1': height === 48 }
+                                                            )}
+                                                        >
+                                                            <span
+                                                                className={cn(
+                                                                    '!text-p-xs font-medium !leading-4 tracking-wider text-text'
+                                                                )}
+                                                            >
+                                                                {t('patients.labels.service')}
+                                                            </span>{' '}
+                                                            {appointment.service.name}
+                                                        </p>
+                                                        <Badge
+                                                            variant='outline'
+                                                            className='border-0 min-w-fit cursor-pointer rounded-md p-0 tracking-wider'
+                                                        >
+                                                            {appointment.service.duration}{' '}
+                                                            {t(`patients.labels.time.minutes`)}
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {height > 48 && (
+                                            <div className='w-full px-1 pb-1'>
+                                                <span
+                                                    className={cn(
+                                                        'line-clamp-2 !text-p-xs font-normal text-text-secondary',
+                                                        { 'line-clamp-1': height <= 96 }
+                                                    )}
+                                                >
+                                                    <span
+                                                        className={cn(
+                                                            '!text-p-xs font-medium tracking-wider text-text'
+                                                        )}
+                                                    >
+                                                        {t('patients.labels.notes')}
+                                                    </span>{' '}
+                                                    {appointment.notes}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )

@@ -173,7 +173,7 @@ export function Tasks() {
                                 onMouseEnter={() => setIsHoverTask(item.id)}
                                 onMouseLeave={() => setIsHoverTask(null)}
                                 onClick={() => setIsSelectedTask(item.id)}
-                                className={cn('rounded-md bg-card border-20 hover:border-40', {
+                                className={cn('rounded-md bg-card shadow border-20 hover:border-40', {
                                     'bg-primary-50 border-sm-primary hover:border-sm-primary': isSelect
                                 })}
                             >
@@ -302,7 +302,7 @@ export function Tasks() {
                                 </header>
 
                                 <p
-                                    className={cn('line-clamp-3 px-2 py-1 text-p-sm text-text', {
+                                    className={cn('line-clamp-3 px-2 py-1 !text-p-sm text-text', {
                                         'text-text-tertiary line-through': item.done
                                     })}
                                 >

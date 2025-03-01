@@ -37,7 +37,7 @@ export function NavMain({ items }: IProps) {
                             >
                                 <Link href={item.url} className='flex gap-2 group-data-[collapsible=icon]:!pl-2.5'>
                                     <item.icon
-                                        className={cn('stroke-text text-p-md group-data-[collapsible=icon]:size-4', {
+                                        className={cn('stroke-text !text-p-md group-data-[collapsible=icon]:size-4', {
                                             'stroke-text-foreground': isActive
                                         })}
                                     />
@@ -52,7 +52,7 @@ export function NavMain({ items }: IProps) {
                             </SidebarMenuButton>
                             {item.badge && (
                                 <SidebarMenuBadge
-                                    className={cn('text-p-md text-text group-hover:text-text', {
+                                    className={cn('!text-p-xs font-normal text-text group-hover:text-text', {
                                         'bg-card': isActive
                                     })}
                                 >
