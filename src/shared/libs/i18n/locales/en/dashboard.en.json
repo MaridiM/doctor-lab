@@ -116,7 +116,7 @@
     },
     "status": {
         "labels": {
-            "custom": "Custom",
+            "CUSTOM": "Custom",
             "SCHEDULED": "Scheduled",
             "CONFIRMED": "Confirmed",
             "UPDATED": "Updated",

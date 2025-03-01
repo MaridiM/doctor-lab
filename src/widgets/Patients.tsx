@@ -246,7 +246,7 @@ export function Patients() {
                                                 </div>
                                             </div>
                                             <div className='flex gap-1'>
-                                                <div className='flex gap-1 w-full'>
+                                                <div className='flex w-full gap-1'>
                                                     <Badge
                                                         variant='outline'
                                                         className='min-w-fit cursor-pointer rounded-md tracking-wider'
@@ -276,14 +276,14 @@ export function Patients() {
                                     </div>
                                     <footer className='flex h-7 items-center justify-between gap-1 px-2 border-t-20'>
                                         <div className='flex h-full items-center gap-1'>
-                                            <span className='text-p-sm text-text-tertiary'>
+                                            <span className='text-p-xs font-medium tracking-wider text-text'>
                                                 {t('patients.labels.doctor')}
                                             </span>
-                                            <span className='text-p-sm font-medium text-text-secondary'>
+                                            <span className='text-p-xs text-text-secondary'>
                                                 {appointment.doctors[0].name}
                                             </span>
                                         </div>
-                                        <span className='text-p-xs tracking-wider text-text-secondary'>
+                                        <span className='text-p-xs font-medium tracking-wider text-text-secondary'>
                                             {appointment.doctors[0].specialties.name}
                                         </span>
                                     </footer>

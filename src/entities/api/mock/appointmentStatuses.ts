@@ -1,4 +1,25 @@
-export const APPOINTMENT_STATUSES = [
+export type TAppointmentStatusKey =
+    | 'CUSTOM'
+    | 'SCHEDULED'
+    | 'CONFIRMED'
+    | 'UPDATED'
+    | 'MISSED'
+    | 'RESCHEDULED'
+    | 'UNABLE_TO_REACH'
+    | 'RUNNING_LATE'
+    | 'IN_MEDICAL_APPOINTMENT'
+    | 'CANCELED'
+
+export interface IAppointmentStatus {
+    id: string
+    key: TAppointmentStatusKey
+    name: string
+    description: string
+    backgroundColor: string
+    textColor: string
+}
+
+export const APPOINTMENT_STATUSES: IAppointmentStatus[] = [
     {
         id: '46d0aae7-4608-44ea-baa3-1ea4ccae583c',
         key: 'SCHEDULED',
@@ -71,4 +92,4 @@ export const APPOINTMENT_STATUSES = [
         backgroundColor: '#004D40',
         textColor: '#FFFFFF'
     }
-];
+]
