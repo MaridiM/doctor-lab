@@ -1,3 +1,15 @@
+export type TStatusKey =
+    | 'CUSTOM'
+    | 'SCHEDULED'
+    | 'CONFIRMED'
+    | 'UPDATED'
+    | 'MISSED'
+    | 'RESCHEDULED'
+    | 'UNABLE_TO_REACH'
+    | 'RUNNING_LATE'
+    | 'IN_MEDICAL_APPOINTMENT'
+    | 'CANCELED'
+
 export interface Contacts {
     phone: string
     email: string
@@ -10,7 +22,7 @@ export interface PersonalInfo {
     middleName: string
     fullName: string
     avatar: string
-    contacts: Contacts
+    contacts?: Contacts
 }
 
 export interface Clinic {
@@ -53,11 +65,6 @@ export interface Status {
 export interface Appointment {
     id: string
     date: string
-    startHour: number
-    startMinute: number
-    endHour: number
-    endMinute: number
-    startMeridiem: string | null
     room: number
     color: string
     clinic: Clinic
@@ -105,11 +112,7 @@ export const PATIENTS = [
             appointments: [
                 {
                     id: 'c0dbda3e-6f81-454b-b562-4d29fd9dea54',
-                    date: '2025-03-02T11:00:00.000Z',
-                    startHour: 8,
-                    startMinute: 0,
-                    endHour: 8,
-                    endMinute: 30,
+                    date: '2025-03-02T08:30:00.000Z',
                     startMiridiem: null,
                     room: 1,
                     color: '#4CAF50',
@@ -175,11 +178,7 @@ export const PATIENTS = [
             appointments: [
                 {
                     id: 'c1dbda3e-6f81-454b-b592-4d29fd9dea55',
-                    date: '2025-03-02T11:00:00.000Z',
-                    startHour: 11,
-                    startMinute: 20,
-                    endHour: 12,
-                    endMinute: 50,
+                    date: '2025-03-02T09:00:00.000Z',
                     startMiridiem: null,
                     room: 1,
                     color: '#4CAF50',
@@ -246,10 +245,6 @@ export const PATIENTS = [
                 {
                     id: 'c2dbda3e-6f81-454b-b592-4d29fd9dea56',
                     date: '2025-03-02T11:00:00.000Z',
-                    startHour: 10,
-                    startMinute: 0,
-                    endHour: 10,
-                    endMinute: 45,
                     startMiridiem: null,
                     room: 1,
                     color: '#4CAF50',
@@ -315,11 +310,7 @@ export const PATIENTS = [
             appointments: [
                 {
                     id: 'c3dbda3e-6f81-454b-b592-4d29fd9dea57',
-                    date: '2025-03-02T11:00:00.000Z',
-                    startHour: 9,
-                    startMinute: 20,
-                    endHour: 9,
-                    endMinute: 35,
+                    date: '2025-03-02T12:00:00.000Z',
                     startMiridiem: null,
                     room: 1,
                     color: '#4CAF50',
@@ -385,11 +376,7 @@ export const PATIENTS = [
             appointments: [
                 {
                     id: 'c4dbda3e-6f81-454b-b592-4d29fd9dea58',
-                    date: '2025-03-02T11:00:00.000Z',
-                    startHour: 8,
-                    startMinute: 0,
-                    endHour: 8,
-                    endMinute: 30,
+                    date: '2025-03-02T12:30:00.000Z',
                     startMiridiem: null,
                     room: 1,
                     color: '#4CAF50',

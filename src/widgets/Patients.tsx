@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { PATIENTS, User } from '@/entities/api'
@@ -34,7 +34,7 @@ import {
 } from '@/shared/components'
 import { PATHS } from '@/shared/config'
 import { TSearch, searchSchema } from '@/shared/schemas'
-import { cn } from '@/shared/utils'
+import { parseISOWithDurationNumeric } from '@/shared/utils'
 
 export function Patients() {
     const t = useTranslations('dashboard')
@@ -67,6 +67,16 @@ export function Patients() {
         console.log('Add New Patient')
     }
 
+    const patientMenuItems = useMemo(
+        () => [
+            { icon: BellRing, label: 'notify' },
+            { icon: UserPen, label: 'edit' },
+            { icon: CalendarClock, label: 'reschedule' },
+            { icon: CalendarX2, label: 'cancel' },
+            { icon: IdCard, label: 'chart' }
+        ],
+        []
+    )
     return (
         <section className='flex h-full w-full flex-col gap-2'>
             <section className='flex h-full max-h-[240px] w-full gap-2'>
@@ -106,6 +116,10 @@ export function Patients() {
                     <ul className='flex flex-col gap-1 p-2'>
                         {patients.map((patient: any) => {
                             const appointment = patient.medicalRecord.appointments[0]
+                            const { startHour, startMinute, endHour, endMinute } = parseISOWithDurationNumeric(
+                                appointment.date,
+                                appointment.service.duration
+                            )
 
                             return (
                                 <li
@@ -156,36 +170,17 @@ export function Patients() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align='end' className='min-w-[280px]'>
-                                                    <DropdownMenuItem>
-                                                        <BellRing />
-                                                        <span className='w-full text-p-sm text-text'>
-                                                            {t('patients.actions.notify')}
-                                                        </span>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem>
-                                                        <UserPen />
-                                                        <span className='w-full text-p-sm text-text'>
-                                                            {t('patients.actions.edit')}
-                                                        </span>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem>
-                                                        <CalendarClock />
-                                                        <span className='w-full text-p-sm text-text'>
-                                                            {t('patients.actions.reschedule')}
-                                                        </span>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem>
-                                                        <CalendarX2 />
-                                                        <span className='w-full text-p-sm text-text'>
-                                                            {t('patients.actions.cancel')}
-                                                        </span>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem>
-                                                        <IdCard />
-                                                        <span className='w-full text-p-sm text-text'>
-                                                            {t('patients.actions.chart')}
-                                                        </span>
-                                                    </DropdownMenuItem>
+                                                    {patientMenuItems.map((item, idx) => (
+                                                        <DropdownMenuItem
+                                                            key={idx}
+                                                            onSelect={() => console.log('Patient action:', item.label)}
+                                                        >
+                                                            <item.icon className='size-4' />
+                                                            <span className='w-full text-p-sm text-text'>
+                                                                {t(`schedule.actions.${item.label}`)}
+                                                            </span>
+                                                        </DropdownMenuItem>
+                                                    ))}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </div>
@@ -211,13 +206,11 @@ export function Patients() {
                                                     <div className='flex w-full max-w-[120px] items-center justify-end gap-2 pt-1'>
                                                         <div className='flex items-start'>
                                                             <span className='text-h3 font-medium leading-[24px] text-text'>
-                                                                {appointment.startHour}
+                                                                {startHour}
                                                             </span>
                                                             <div className='flex flex-col items-center text-text'>
                                                                 <span className='text-label-lg font-medium leading-3 text-text'>
-                                                                    {appointment.startMinute
-                                                                        .toString()
-                                                                        .padStart(2, '0')}
+                                                                    {startMinute.toString().padStart(2, '0')}
                                                                 </span>
                                                                 {!isTime24Format && (
                                                                     <span className='text-label-lg font-medium leading-3 text-text'>
@@ -229,11 +222,11 @@ export function Patients() {
                                                         <span className='h-[2px] w-3 bg-text-secondary' />
                                                         <div className='flex items-start'>
                                                             <span className='text-h3 font-medium leading-[24px] text-text'>
-                                                                {appointment.endHour}
+                                                                {endHour}
                                                             </span>
                                                             <div className='flex flex-col items-center text-text'>
                                                                 <span className='text-label-lg font-medium leading-3 text-text'>
-                                                                    {appointment.endMinute.toString().padStart(2, '0')}
+                                                                    {endMinute.toString().padStart(2, '0')}
                                                                 </span>
                                                                 {!isTime24Format && (
                                                                     <span className='text-label-lg font-medium leading-3 text-text'>

@@ -1,25 +1,6 @@
-export type TAppointmentStatusKey =
-    | 'CUSTOM'
-    | 'SCHEDULED'
-    | 'CONFIRMED'
-    | 'UPDATED'
-    | 'MISSED'
-    | 'RESCHEDULED'
-    | 'UNABLE_TO_REACH'
-    | 'RUNNING_LATE'
-    | 'IN_MEDICAL_APPOINTMENT'
-    | 'CANCELED'
+import { Status } from "./patients.mock"
 
-export interface IAppointmentStatus {
-    id: string
-    key: TAppointmentStatusKey
-    name: string
-    description: string
-    backgroundColor: string
-    textColor: string
-}
-
-export const APPOINTMENT_STATUSES: IAppointmentStatus[] = [
+export const APPOINTMENT_STATUSES: Status[] = [
     {
         id: '46d0aae7-4608-44ea-baa3-1ea4ccae583c',
         key: 'SCHEDULED',
