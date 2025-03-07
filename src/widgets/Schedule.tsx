@@ -1,6 +1,19 @@
 'use client'
 
-import { DndContext, type DragEndEvent, DragOverlay, DragStartEvent, closestCenter } from '@dnd-kit/core'
+import {
+    DndContext,
+    type DragEndEvent,
+    DragMoveEvent,
+    DragOverEvent,
+    DragOverlay,
+    DragStartEvent,
+    KeyboardSensor,
+    MouseSensor,
+    TouchSensor,
+    closestCenter,
+    useSensor,
+    useSensors
+} from '@dnd-kit/core'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { format } from 'date-fns'
 import {
@@ -18,7 +31,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Appointment, PATIENTS, User } from '@/entities/api'
 
@@ -133,16 +146,17 @@ export function Schedule() {
                 appointment.service.duration
             )
 
-            // const appointmentStartMinutes = appointment.startHour * 60 + appointment.startMinute
+            const appointmentStart = startHour * 60 + startMinute
+            const appointmentEnd = appointmentStart + appointment.service.duration
+
+            // Проверка на выход за границы
+            const isVisible =
+                appointmentStart >= baseMinutes && appointmentEnd <= baseMinutes + (operatingHours + 2) * 60
+
             const appointmentStartMinutes = startHour * 60 + startMinute
             const offsetMinutes = appointmentStartMinutes - baseMinutes
-
-            if (offsetMinutes < 0 || offsetMinutes > (operatingHours + 2) * 60) {
-                return { top: -1000, height: 0 }
-            }
-
             return {
-                top: (offsetMinutes / timeStep) * slotHeight,
+                top: isVisible ? ((appointmentStart - baseMinutes) / timeStep) * slotHeight : -1000,
                 height: (appointment.service.duration / timeStep) * slotHeight
             }
         },
@@ -166,6 +180,15 @@ export function Schedule() {
 
     const [dragAppointment, setDragAppointment] = useState<DraggableData | null>(null)
 
+    function getStartHour24() {
+        if (isTime24Format) return operatingHoursStart
+        if (operatingHoursMeridiemStart === 'AM') {
+            return operatingHoursStart === 12 ? 0 : operatingHoursStart
+        } else {
+            return operatingHoursStart === 12 ? 12 : operatingHoursStart + 12
+        }
+    }
+
     const handleDragStart = useCallback(
         ({ active }: DragStartEvent) => {
             const patient = patients.find(p => p.medicalRecord.appointments.some(a => a.id === active.id))
@@ -176,14 +199,10 @@ export function Schedule() {
         [patients]
     )
 
-    function getStartHour24() {
-        if (isTime24Format) return operatingHoursStart
-        if (operatingHoursMeridiemStart === 'AM') {
-            return operatingHoursStart === 12 ? 0 : operatingHoursStart
-        } else {
-            return operatingHoursStart === 12 ? 12 : operatingHoursStart + 12
-        }
-    }
+    const handleDragOver = useCallback((event: DragOverEvent) => {
+        // console.log('handleDragOver', event)
+    }, [])
+
     const handleDragEnd = useCallback(
         ({ over, delta }: DragEndEvent) => {
             if (!dragAppointment || !over) {
@@ -191,142 +210,187 @@ export function Schedule() {
                 return
             }
 
-            // 1. Получаем базовые параметры
+            // 1. Get base parameters
             const startHour24 = getStartHour24()
+            const endHour24 = startHour24 + operatingHours
+            const minMinutes = (startHour24 - 1) * 60
+            const maxMinutes = (endHour24 + 1) * 60
+            const duration = dragAppointment.appointment.service.duration
+
+            // 2. Calculate new position
             const initialTop = calculateAppointmentPosition(dragAppointment.appointment).top
+            const newTop = Math.max(
+                0,
+                Math.min(initialTop + delta.y, ((maxMinutes - minMinutes - duration) * slotHeight) / timeStep)
+            )
 
-            // 2. Рассчитываем абсолютное смещение
-            const newTop = initialTop + delta.y
+            // 3. Calculate new time
             const totalMinutes = (newTop / slotHeight) * timeStep
+            const adjustedMinutes = Math.round((minMinutes + totalMinutes) / timeStep) * timeStep
 
-            // 3. Вычисляем время относительно начала графика
-            const startDayMinutes = (startHour24 - 1) * 60 // Минуты начала дня
-            const totalTimeMinutes = startDayMinutes + totalMinutes
+            const newStart = adjustedMinutes
+            const newEnd = newStart + duration
 
-            // 4. Округление до 5 минут или к шагу
-            const roundedTotal = Math.round(totalTimeMinutes / timeStep) * timeStep
-            const hours = Math.floor(roundedTotal / 60)
-            const minutes = roundedTotal % 60
+            // 4. Check for conflicts with other appointments
+            const allOtherAppointments = patients.flatMap(patient =>
+                patient.medicalRecord.appointments.filter(a => a.id !== dragAppointment.appointment.id)
+            )
 
-            // 5. Корректировка выхода за 60 минут
-            const finalHours = hours + Math.floor(minutes / 60)
-            const finalMinutes = minutes % 60
+            const hasConflict = allOtherAppointments.some(app => {
+                const { startHour, startMinute } = parseISOWithDurationNumeric(app.date, 0)
+                const appStart = startHour * 60 + startMinute
+                const appEnd = appStart + app.service.duration
 
-            // 6. Форматирование результата
-            const formattedTime = `${finalHours}:${finalMinutes.toString().padStart(2, '0')}`
-            console.log('Новое время:', formattedTime)
+                return newStart < appEnd && newEnd > appStart
+            })
 
-            dragAppointment.appointment.date = adjustTime(finalHours, finalMinutes)
+            if (hasConflict) {
+                setDragAppointment(null)
+                return
+            }
+
+            // 5. Update state if no conflicts
+            const hours = Math.floor(adjustedMinutes / 60)
+            const minutes = adjustedMinutes % 60
+
+            setPatients(prevPatients =>
+                prevPatients.map(patient => {
+                    const appointmentIndex = patient.medicalRecord.appointments.findIndex(
+                        a => a.id === dragAppointment.appointment.id
+                    )
+
+                    if (appointmentIndex === -1) return patient
+
+                    const updatedAppointment = {
+                        ...dragAppointment.appointment,
+                        date: adjustTime(dragAppointment.appointment.date, hours, minutes)
+                    }
+
+                    return {
+                        ...patient,
+                        medicalRecord: {
+                            ...patient.medicalRecord,
+                            appointments: [
+                                ...patient.medicalRecord.appointments.slice(0, appointmentIndex),
+                                updatedAppointment,
+                                ...patient.medicalRecord.appointments.slice(appointmentIndex + 1)
+                            ]
+                        }
+                    }
+                })
+            )
 
             setDragAppointment(null)
         },
-        [dragAppointment, slotHeight, timeStep, getStartHour24, calculateAppointmentPosition]
+        [dragAppointment, slotHeight, timeStep, operatingHours, patients, calculateAppointmentPosition, getStartHour24]
     )
-
-    // ----------------------------------------------------------------------------------------------
 
     return (
         <section className='w-full overflow-hidden rounded-lg bg-card border-20'>
-            <header className='flex h-14 items-center justify-between px-4 py-2 border-b-20'>
-                <div className='flex items-center gap-2'>
-                    <span className='rounded-md bg-primary p-1.5'>
-                        <ListTodo className='size-5 stroke-text-foreground' />
-                    </span>
-                    <span className='text-h4 font-normal text-text'>{t('schedule.title')}</span>
-                </div>
-
-                <div className='flex items-center gap-2'>
-                    <Button variant='outline' size='sm' className='pt-px'>
-                        <Link href={PATHS.appointments}>{t('schedule.header.all')}</Link>
-                    </Button>
-
-                    <Button
-                        size='icon'
-                        icon='sm'
-                        variant='primary'
-                        tooltip={{
-                            children: t('schedule.header.addNewAppointment'),
-                            align: 'center',
-                            side: 'bottom'
-                        }}
-                        onClick={() => console.log('Add new Appointment')}
-                    >
-                        <CalendarPlus2 className='stroke-text-foreground' />
-                    </Button>
-
-                    <DropdownMenu
-                        open={isOpenScheduleSettings}
-                        onOpenChange={() => setIsOpenScheduleSettings(!isOpenScheduleSettings)}
-                    >
-                        <DropdownMenuTrigger asChild>
-                            <Button variant='outline' size='icon' icon='sm'>
-                                <Settings className='stroke-[1.5px]' />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align='end' className='min-w-[280px]'>
-                            <DropdownMenuItem onSelect={e => e.preventDefault()}>
-                                <CalendarClock />
-                                <span className='w-full text-p-sm text-text'>
-                                    {t(`schedule.header.timeFormat.${isTime24Format ? '24' : '12'}`)}
-                                </span>
-                                <Switch checked={isTime24Format} onCheckedChange={setIsTime24Format} />
-                            </DropdownMenuItem>
-                            <DropdownMenuSub>
-                                <DropdownMenuSubTrigger className='gap-2'>
-                                    {operatingHoursIcon[operatingHours]}
-                                    <span className='w-full text-p-sm text-text'>
-                                        {t('schedule.header.operatingHours.label')}
-                                        {t(`schedule.header.operatingHours.durations.${operatingHours}`)}
-                                    </span>
-                                </DropdownMenuSubTrigger>
-                                <DropdownMenuSubContent className='ml-2.5 min-w-[200px]'>
-                                    {[6, 8, 12, 16, 24].map(hours => (
-                                        <DropdownMenuItem key={hours} onSelect={() => setOperatingHours(hours as any)}>
-                                            {operatingHoursIcon[hours as keyof typeof operatingHoursIcon]}
-                                            <span className='w-full text-p-sm text-text'>
-                                                {t(`schedule.header.operatingHours.durations.${hours}`)}
-                                            </span>
-                                            {operatingHours === hours && <Check />}
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuSubContent>
-                            </DropdownMenuSub>
-
-                            <DropdownMenuSub>
-                                <DropdownMenuSubTrigger className='gap-2'>
-                                    {stepTimeIcon[timeStep]}
-                                    <span>
-                                        {t(`schedule.header.stepTime.title`)}
-                                        {t(`schedule.header.stepTime.${timeStep}`)}
-                                    </span>
-                                </DropdownMenuSubTrigger>
-                                <DropdownMenuSubContent className='ml-2.5 min-w-[200px]'>
-                                    {[15, 20, 30, 60].map(step => (
-                                        <DropdownMenuItem key={step} onClick={() => setTimeStep(step as any)}>
-                                            {stepTimeIcon[step as keyof typeof stepTimeIcon]}
-                                            <span className='w-full text-p-sm text-text'>
-                                                {t(`schedule.header.stepTime.${step}`)}
-                                            </span>
-                                            {timeStep === step && <Check />}
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuSubContent>
-                            </DropdownMenuSub>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </header>
-
             <DndContext
-                modifiers={[restrictToVerticalAxis]}
+                // modifiers={[restrictToVerticalAxis]}
                 collisionDetection={closestCenter}
                 onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
                 onDragEnd={handleDragEnd}
             >
+                <header className='z-20 flex h-14 items-center justify-between px-4 py-2 border-b-20'>
+                    <div className='flex items-center gap-2'>
+                        <span className='rounded-md bg-primary p-1.5'>
+                            <ListTodo className='size-5 stroke-text-foreground' />
+                        </span>
+                        <span className='text-h4 font-normal text-text'>{t('schedule.title')}</span>
+                    </div>
+
+                    <div className='flex items-center gap-2'>
+                        <Button variant='outline' size='sm' className='pt-px'>
+                            <Link href={PATHS.appointments}>{t('schedule.header.all')}</Link>
+                        </Button>
+
+                        <Button
+                            size='icon'
+                            icon='sm'
+                            variant='primary'
+                            tooltip={{
+                                children: t('schedule.header.addNewAppointment'),
+                                align: 'center',
+                                side: 'bottom'
+                            }}
+                            onClick={() => console.log('Add new Appointment')}
+                        >
+                            <CalendarPlus2 className='stroke-text-foreground' />
+                        </Button>
+
+                        <DropdownMenu
+                            open={isOpenScheduleSettings}
+                            onOpenChange={() => setIsOpenScheduleSettings(!isOpenScheduleSettings)}
+                        >
+                            <DropdownMenuTrigger asChild>
+                                <Button variant='outline' size='icon' icon='sm'>
+                                    <Settings className='stroke-[1.5px]' />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align='end' className='min-w-[280px]'>
+                                <DropdownMenuItem onSelect={e => e.preventDefault()}>
+                                    <CalendarClock />
+                                    <span className='w-full text-p-sm text-text'>
+                                        {t(`schedule.header.timeFormat.${isTime24Format ? '24' : '12'}`)}
+                                    </span>
+                                    <Switch checked={isTime24Format} onCheckedChange={setIsTime24Format} />
+                                </DropdownMenuItem>
+                                <DropdownMenuSub>
+                                    <DropdownMenuSubTrigger className='gap-2'>
+                                        {operatingHoursIcon[operatingHours]}
+                                        <span className='w-full text-p-sm text-text'>
+                                            {t('schedule.header.operatingHours.label')}
+                                            {t(`schedule.header.operatingHours.durations.${operatingHours}`)}
+                                        </span>
+                                    </DropdownMenuSubTrigger>
+                                    <DropdownMenuSubContent className='ml-2.5 min-w-[200px]'>
+                                        {[6, 8, 12, 16, 24].map(hours => (
+                                            <DropdownMenuItem
+                                                key={hours}
+                                                onSelect={() => setOperatingHours(hours as any)}
+                                            >
+                                                {operatingHoursIcon[hours as keyof typeof operatingHoursIcon]}
+                                                <span className='w-full text-p-sm text-text'>
+                                                    {t(`schedule.header.operatingHours.durations.${hours}`)}
+                                                </span>
+                                                {operatingHours === hours && <Check />}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuSubContent>
+                                </DropdownMenuSub>
+
+                                <DropdownMenuSub>
+                                    <DropdownMenuSubTrigger className='gap-2'>
+                                        {stepTimeIcon[timeStep]}
+                                        <span>
+                                            {t(`schedule.header.stepTime.title`)}
+                                            {t(`schedule.header.stepTime.${timeStep}`)}
+                                        </span>
+                                    </DropdownMenuSubTrigger>
+                                    <DropdownMenuSubContent className='ml-2.5 min-w-[200px]'>
+                                        {[15, 20, 30, 60].map(step => (
+                                            <DropdownMenuItem key={step} onClick={() => setTimeStep(step as any)}>
+                                                {stepTimeIcon[step as keyof typeof stepTimeIcon]}
+                                                <span className='w-full text-p-sm text-text'>
+                                                    {t(`schedule.header.stepTime.${step}`)}
+                                                </span>
+                                                {timeStep === step && <Check />}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuSubContent>
+                                </DropdownMenuSub>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </header>
+
                 <ScrollArea className='flex h-full max-h-[calc(100vh-138px)] w-full bg-background' type='auto'>
                     <div className='flex'>
                         {/* Левая колонка с временной шкалой */}
-                        <ul className='gap relative flex w-16 flex-col bg-card border-r-20'>
+                        <ul className='gap relative flex w-16 flex-col overflow-hidden bg-card border-r-20'>
                             {SLOT_COUNT.map((_, idx) => {
                                 const { adjustedHour, minute } = calculateTime(idx)
                                 const isMinuteZero = minute === 0
@@ -402,6 +466,7 @@ export function Schedule() {
                                 const appointment = patient.medicalRecord.appointments[0]
                                 const { top, height } = calculateAppointmentPosition(appointment)
 
+                                if (dragAppointment?.appointment.id === appointment.id) return
                                 return (
                                     <AppointmentCard
                                         key={appointment.id}

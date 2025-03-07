@@ -1,11 +1,6 @@
-export function adjustTime(newHours: number, newMinutes: number) {
-    const date = new Date()
-
-    // Устанавливаем новое время в UTC
-    date.setUTCHours(newHours)
-    date.setUTCMinutes(newMinutes)
-    date.setUTCSeconds(0)
-    date.setUTCMilliseconds(0)
-
+export const adjustTime = (originalDate: string, hours: number, minutes: number) => {
+    const date = new Date(originalDate)
+    date.setUTCHours(hours)
+    date.setUTCMinutes(minutes)
     return date.toISOString()
 }

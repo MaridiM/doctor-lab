@@ -1,12 +1,21 @@
 'use client'
 
-import { useDndMonitor, useDraggable } from '@dnd-kit/core'
-import { CSS, Transform } from '@dnd-kit/utilities'
-import { BellRing, CalendarClock, CalendarX2, Check, EllipsisVertical, FilePenLine, IdCard, SquarePlus } from 'lucide-react'
+import { useDraggable } from '@dnd-kit/core'
+import { CSS } from '@dnd-kit/utilities'
+import {
+    BellRing,
+    CalendarClock,
+    CalendarX2,
+    Check,
+    EllipsisVertical,
+    FilePenLine,
+    IdCard,
+    SquarePlus
+} from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 
-import { APPOINTMENT_STATUSES, Appointment, PersonalInfo, Status, User } from '@/entities/api'
+import { APPOINTMENT_STATUSES, Appointment, Status, User } from '@/entities/api'
 
 import {
     Badge,
@@ -36,12 +45,10 @@ export function AppointmentCard({ appointment, top, height, patient, className }
     const [isOpenAppointmentSettings, setIsOpenAppointmentSettings] = useState(false)
     const [isOpenStatusMenu, setIsOpenStatusMenu] = useState(false)
     const [appointmentStatus, setAppointmentStatus] = useState(appointment.status)
-    const [appointmentTransform, setAppointmentTransform] = useState<Transform | null>(null)
 
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: appointment.id,
         data: {
-            transform: appointmentTransform,
             patient,
             appointment
         }
@@ -52,17 +59,13 @@ export function AppointmentCard({ appointment, top, height, patient, className }
         setIsOpenStatusMenu(false)
     }, [])
 
-    useEffect(() => {
-        setAppointmentTransform(transform)
-    }, [transform])
-
     const appointmentMenuItems = useMemo(
         () => [
-            { icon: IdCard, label: 'chart' },
-            { icon: BellRing, label: 'notify' },
-            { icon: FilePenLine, label: 'edit' },
-            { icon: CalendarClock, label: 'reschedule' },
-            { icon: CalendarX2, label: 'cancel' }
+            { id: 1, icon: IdCard, label: 'chart' },
+            { id: 2, icon: BellRing, label: 'notify' },
+            { id: 3, icon: FilePenLine, label: 'edit' },
+            { id: 4, icon: CalendarClock, label: 'reschedule' },
+            { id: 5, icon: CalendarX2, label: 'cancel' }
         ],
         []
     )
@@ -76,18 +79,17 @@ export function AppointmentCard({ appointment, top, height, patient, className }
                     onPointerDown={e => e.stopPropagation()}
                 >
                     <span
-                        className='size-4 rounded-sm'
+                        className='size-4 min-w-4 rounded-sm'
                         style={{
                             backgroundColor: status.backgroundColor,
                             color: status.textColor
                         }}
                     />
                     <span className='w-full text-p-sm text-text'>{t(`status.labels.${status.key}`)}</span>
-                    {appointmentStatus.key === status.key && <Check />}
-
+                    {appointmentStatus.key === status.key && <Check className='ml-2' />}
                 </DropdownMenuItem>
             )),
-        [handleChangeAppointmentStatus, t]
+        [handleChangeAppointmentStatus, t, appointmentStatus.key]
     )
 
     return (
@@ -104,7 +106,7 @@ export function AppointmentCard({ appointment, top, height, patient, className }
                 minHeight: 48,
                 maxHeight: height,
                 transform: CSS.Translate.toString(transform),
-                zIndex: transform ? 9999 : 'auto'
+                zIndex: transform ? 10 : 'auto'
             }}
             {...listeners}
             {...attributes}
@@ -194,9 +196,9 @@ export function AppointmentCard({ appointment, top, height, patient, className }
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align='end' className='min-w-[280px]'>
-                                        {appointmentMenuItems.map((item, idx) => (
+                                        {appointmentMenuItems.map(item => (
                                             <DropdownMenuItem
-                                                key={idx}
+                                                key={item.id}
                                                 onSelect={() => console.log('Appointment action:', item.label)}
                                                 onPointerDown={e => e.stopPropagation()}
                                             >
