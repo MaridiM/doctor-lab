@@ -179,6 +179,14 @@ export function Schedule() {
     // ----------------------------------------------------------------------------------------------
 
     const [dragAppointment, setDragAppointment] = useState<DraggableData | null>(null)
+    const [activeSlotId, setActiveSlotId] = useState<string | null>(null)
+    const [isDragging, setIsDragging] = useState(false)
+
+    const mouseSensor = useSensor(MouseSensor)
+    const touchSensor = useSensor(TouchSensor)
+    const keyboardSensor = useSensor(KeyboardSensor)
+
+    const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor)
 
     function getStartHour24() {
         if (isTime24Format) return operatingHoursStart
@@ -191,20 +199,39 @@ export function Schedule() {
 
     const handleDragStart = useCallback(
         ({ active }: DragStartEvent) => {
+            setIsDragging(true)
+
             const patient = patients.find(p => p.medicalRecord.appointments.some(a => a.id === active.id))
             if (!patient) return
             const appointment = patient.medicalRecord.appointments.find(a => a.id === active.id)
-            if (appointment) setDragAppointment({ appointment, patient })
+            if (appointment) {
+                setDragAppointment({ appointment, patient })
+            }
         },
         [patients]
     )
 
-    const handleDragOver = useCallback((event: DragOverEvent) => {
-        // console.log('handleDragOver', event)
-    }, [])
+    const handleDragMove = useCallback(
+        ({ delta }: DragMoveEvent) => {
+            if (!isDragging) return
+
+            // Рассчитываем индекс слота с учетом текущего смещения
+            const newTop = Math.round(delta.y / slotHeight) * slotHeight
+            const slotIndex = Math.floor(newTop / slotHeight)
+
+            // Ограничиваем обновления состояния
+            if (activeSlotId !== String(slotIndex)) {
+                setActiveSlotId(String(slotIndex))
+            }
+        },
+        [slotHeight, isDragging, activeSlotId]
+    )
 
     const handleDragEnd = useCallback(
         ({ over, delta }: DragEndEvent) => {
+            setIsDragging(false)
+            setActiveSlotId(null)
+
             if (!dragAppointment || !over) {
                 setDragAppointment(null)
                 return
@@ -288,11 +315,11 @@ export function Schedule() {
     return (
         <section className='w-full overflow-hidden rounded-lg bg-card border-20'>
             <DndContext
-                // modifiers={[restrictToVerticalAxis]}
                 collisionDetection={closestCenter}
                 onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
                 onDragEnd={handleDragEnd}
+                onDragMove={handleDragMove}
+                sensors={sensors}
             >
                 <header className='z-20 flex h-14 items-center justify-between px-4 py-2 border-b-20'>
                     <div className='flex items-center gap-2'>
@@ -453,12 +480,21 @@ export function Schedule() {
                                 )
                             })}
 
-                            {SLOT_COUNT.map((_, idx) => (
+                            {/* {SLOT_COUNT.map((_, idx) => (
                                 <DroppableSlot
                                     key={idx}
                                     id={idx.toString()}
                                     top={idx * slotHeight}
                                     height={slotHeight}
+                                />
+                            ))} */}
+                            {SLOT_COUNT.map((_, idx) => (
+                                <DroppableSlot
+                                    key={`slot-${idx}`} // Уникальные стабильные ключи
+                                    id={`slot-${idx}`}
+                                    top={idx * slotHeight}
+                                    height={slotHeight}
+                                    isActive={activeSlotId === `slot-${idx}`}
                                 />
                             ))}
                             {/* Рендерим плашки событий */}
