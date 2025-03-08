@@ -7,10 +7,9 @@ interface IProps {
     id: string
     top: number
     height: number
-    isActive?: boolean
 }
 
-export const DroppableSlot = memo(({ id, top, height, isActive }: IProps) => {
+export const DroppableSlot = memo(({ id, top, height }: IProps) => {
     const { setNodeRef, isOver } = useDroppable({ id })
 
     const style: CSSProperties = {
@@ -21,7 +20,7 @@ export const DroppableSlot = memo(({ id, top, height, isActive }: IProps) => {
         backgroundColor: isOver ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
         position: 'absolute',
         width: '100%',
-        transition: isOver ? 'none' : 'all 0.2s ease' // Убираем анимацию при активном перетаскивании
+        transition: isOver ? 'none' : 'all 0.2s ease'
     }
 
     return (

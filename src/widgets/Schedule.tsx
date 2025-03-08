@@ -31,7 +31,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Appointment, PATIENTS, User } from '@/entities/api'
 
@@ -179,8 +179,6 @@ export function Schedule() {
     // ----------------------------------------------------------------------------------------------
 
     const [dragAppointment, setDragAppointment] = useState<DraggableData | null>(null)
-    const [activeSlotId, setActiveSlotId] = useState<string | null>(null)
-    const [isDragging, setIsDragging] = useState(false)
 
     const mouseSensor = useSensor(MouseSensor)
     const touchSensor = useSensor(TouchSensor)
@@ -199,8 +197,6 @@ export function Schedule() {
 
     const handleDragStart = useCallback(
         ({ active }: DragStartEvent) => {
-            setIsDragging(true)
-
             const patient = patients.find(p => p.medicalRecord.appointments.some(a => a.id === active.id))
             if (!patient) return
             const appointment = patient.medicalRecord.appointments.find(a => a.id === active.id)
@@ -211,27 +207,8 @@ export function Schedule() {
         [patients]
     )
 
-    const handleDragMove = useCallback(
-        ({ delta }: DragMoveEvent) => {
-            if (!isDragging) return
-
-            // Рассчитываем индекс слота с учетом текущего смещения
-            const newTop = Math.round(delta.y / slotHeight) * slotHeight
-            const slotIndex = Math.floor(newTop / slotHeight)
-
-            // Ограничиваем обновления состояния
-            if (activeSlotId !== String(slotIndex)) {
-                setActiveSlotId(String(slotIndex))
-            }
-        },
-        [slotHeight, isDragging, activeSlotId]
-    )
-
     const handleDragEnd = useCallback(
         ({ over, delta }: DragEndEvent) => {
-            setIsDragging(false)
-            setActiveSlotId(null)
-
             if (!dragAppointment || !over) {
                 setDragAppointment(null)
                 return
@@ -315,10 +292,10 @@ export function Schedule() {
     return (
         <section className='w-full overflow-hidden rounded-lg bg-card border-20'>
             <DndContext
+                modifiers={[restrictToVerticalAxis]}
                 collisionDetection={closestCenter}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
-                onDragMove={handleDragMove}
                 sensors={sensors}
             >
                 <header className='z-20 flex h-14 items-center justify-between px-4 py-2 border-b-20'>
@@ -480,29 +457,26 @@ export function Schedule() {
                                 )
                             })}
 
-                            {/* {SLOT_COUNT.map((_, idx) => (
-                                <DroppableSlot
-                                    key={idx}
-                                    id={idx.toString()}
-                                    top={idx * slotHeight}
-                                    height={slotHeight}
-                                />
-                            ))} */}
-                            {SLOT_COUNT.map((_, idx) => (
-                                <DroppableSlot
-                                    key={`slot-${idx}`} // Уникальные стабильные ключи
-                                    id={`slot-${idx}`}
-                                    top={idx * slotHeight}
-                                    height={slotHeight}
-                                    isActive={activeSlotId === `slot-${idx}`}
-                                />
-                            ))}
+                            {dragAppointment &&
+                                SLOT_COUNT.map((_, idx) => {
+                                    return (
+                                        <DroppableSlot
+                                            key={`slot-${idx}`} // Уникальные стабильные ключи
+                                            id={`slot-${idx}`}
+                                            top={
+                                                calculateAppointmentPosition(dragAppointment.appointment).top +
+                                                slotHeight / 2
+                                            }
+                                            height={calculateAppointmentPosition(dragAppointment.appointment).height}
+                                        />
+                                    )
+                                })}
                             {/* Рендерим плашки событий */}
                             {patients.map(patient => {
                                 const appointment = patient.medicalRecord.appointments[0]
                                 const { top, height } = calculateAppointmentPosition(appointment)
+                                const isDragged = dragAppointment?.appointment.id === appointment.id
 
-                                if (dragAppointment?.appointment.id === appointment.id) return
                                 return (
                                     <AppointmentCard
                                         key={appointment.id}
@@ -512,6 +486,7 @@ export function Schedule() {
                                         timeStep={timeStep}
                                         slotHeight={slotHeight}
                                         patient={patient}
+                                        className={isDragged ? 'opacity-0' : ''}
                                     />
                                 )
                             })}

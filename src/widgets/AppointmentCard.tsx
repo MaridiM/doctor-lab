@@ -13,7 +13,7 @@ import {
     SquarePlus
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { CSSProperties, memo, useCallback, useMemo, useState } from 'react'
 
 import { APPOINTMENT_STATUSES, Appointment, Status, User } from '@/entities/api'
 
@@ -37,9 +37,10 @@ interface IProps {
     slotHeight: number
     patient: User
     className?: string
+    style?: CSSProperties
 }
 
-export function AppointmentCard({ appointment, top, height, patient, className }: IProps) {
+export function AppointmentCard({ appointment, top, height, patient, className, style }: IProps) {
     const t = useTranslations('dashboard')
 
     const [isOpenAppointmentSettings, setIsOpenAppointmentSettings] = useState(false)
@@ -96,7 +97,7 @@ export function AppointmentCard({ appointment, top, height, patient, className }
         <div
             ref={setNodeRef}
             className={cn(
-                'absolute left-0 right-0 cursor-grab rounded-md pb-[2px] pl-px pr-1 pt-px',
+                'absolute left-0 right-0 cursor-grab rounded-md pb-[2px] pl-px pr-1 pt-px transition-transform duration-150 ease-linear',
                 { '!cursor-grabbing': !!transform },
                 className
             )}
@@ -106,7 +107,9 @@ export function AppointmentCard({ appointment, top, height, patient, className }
                 minHeight: 48,
                 maxHeight: height,
                 transform: CSS.Translate.toString(transform),
-                zIndex: transform ? 10 : 'auto'
+                zIndex: transform ? 10 : 'auto',
+                willChange: 'transform',
+                ...style
             }}
             {...listeners}
             {...attributes}
