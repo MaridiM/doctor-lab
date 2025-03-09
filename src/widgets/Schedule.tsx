@@ -4,7 +4,6 @@ import {
     DndContext,
     type DragEndEvent,
     DragMoveEvent,
-    DragOverEvent,
     DragOverlay,
     DragStartEvent,
     KeyboardSensor,
@@ -16,7 +15,7 @@ import {
     useSensor,
     useSensors
 } from '@dnd-kit/core'
-import { restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers'
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { format } from 'date-fns'
 import {
     CalendarClock,
@@ -28,7 +27,6 @@ import {
     Clock8,
     Clock12,
     ListTodo,
-    RedoDot,
     Settings
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -203,9 +201,11 @@ export function Schedule() {
     }
 
     const handleDragMove = useCallback(({ active, delta }: DragMoveEvent) => {
-        setCurrentPosition({
-            activeId: active.id,
-            translate: { x: 0, y: delta.y }
+        requestAnimationFrame(() => {
+            setCurrentPosition({
+                activeId: active.id,
+                translate: { x: 0, y: delta.y }
+            })
         })
     }, [])
     const handleDragStart = useCallback(
@@ -472,7 +472,16 @@ export function Schedule() {
                                 )
                             })}
 
-                            {dragAppointment &&
+                            {dragAppointment && (
+                                <DroppableSlot
+                                    key='active-slot'
+                                    id='active-slot'
+                                    top={calculateAppointmentPosition(dragAppointment.appointment).top + slotHeight / 2}
+                                    height={calculateAppointmentPosition(dragAppointment.appointment).height}
+                                    translate={currentPosition}
+                                />
+                            )}
+                            {/* {dragAppointment &&
                                 SLOT_COUNT.map((_, idx) => {
                                     return (
                                         <DroppableSlot
@@ -486,7 +495,7 @@ export function Schedule() {
                                             translate={currentPosition}
                                         />
                                     )
-                                })}
+                                })} */}
                             {/* Рендерим плашки событий */}
                             {patients.map(patient => {
                                 const appointment = patient.medicalRecord.appointments[0]
@@ -508,7 +517,10 @@ export function Schedule() {
                             })}
                         </ul>
                     </div>
-                    <DragOverlay>
+                    <DragOverlay
+                        zIndex={1000}
+                        dropAnimation={{ duration: 150, easing: 'ease-out' }} /*modifiers={[restrictToParentElement]}*/
+                    >
                         {dragAppointment && (
                             <AppointmentCard
                                 appointment={dragAppointment.appointment}

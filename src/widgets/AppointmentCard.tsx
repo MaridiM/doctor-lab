@@ -107,7 +107,7 @@ export function AppointmentCard({ appointment, top, height, patient, className, 
                 minHeight: 48,
                 maxHeight: height,
                 transform: CSS.Translate.toString(transform),
-                zIndex: transform ? 10 : 'auto',
+                zIndex: transform ? 100 : 'auto',
                 willChange: 'transform',
                 ...style
             }}
