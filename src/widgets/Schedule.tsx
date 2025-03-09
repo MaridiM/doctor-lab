@@ -21,6 +21,7 @@ import {
     CalendarClock,
     CalendarPlus2,
     Check,
+    ChevronsUpDown,
     Clock3,
     Clock4,
     Clock6,
@@ -57,6 +58,7 @@ const MAX_SLOT_HEIGHT = 192
 const DEFAULT_START_HOUR = 8
 const DEFAULT_OPERATING_HOURS = 8
 const DEFAULT_TIME_STEP = 15
+const RESTRICT_TO_VERTICAL_AXIS = true
 
 interface DraggableData {
     appointment: Appointment
@@ -179,6 +181,7 @@ export function Schedule() {
     // ----------------------------------------------------------------------------------------------
 
     const [dragAppointment, setDragAppointment] = useState<DraggableData | null>(null)
+    const [isVerticalRestriction, setIsVerticalRestriction] = useState(RESTRICT_TO_VERTICAL_AXIS)
 
     const [currentPosition, setCurrentPosition] = useState<{
         activeId: UniqueIdentifier | null
@@ -200,14 +203,29 @@ export function Schedule() {
         }
     }
 
-    const handleDragMove = useCallback(({ active, delta }: DragMoveEvent) => {
-        requestAnimationFrame(() => {
-            setCurrentPosition({
-                activeId: active.id,
-                translate: { x: 0, y: delta.y }
+    const handleDragMove = useCallback(
+        ({ active, delta }: DragMoveEvent) => {
+            if (!dragAppointment) return
+
+            requestAnimationFrame(() => {
+                const startHour24 = getStartHour24()
+                const minMinutes = (startHour24 - 1) * 60
+                const maxMinutes = minMinutes + (operatingHours + 2) * 60
+                const duration = dragAppointment.appointment.service.duration
+
+                const initialTop = calculateAppointmentPosition(dragAppointment.appointment).top
+                const maxAllowedTop = ((maxMinutes - minMinutes - duration) / timeStep) * slotHeight
+
+                const newY = Math.max(0, Math.min(initialTop + delta.y, maxAllowedTop))
+
+                setCurrentPosition({
+                    activeId: active.id,
+                    translate: { x: 0, y: newY - initialTop }
+                })
             })
-        })
-    }, [])
+        },
+        [dragAppointment, operatingHours, timeStep, slotHeight]
+    )
     const handleDragStart = useCallback(
         ({ active }: DragStartEvent) => {
             const patient = patients.find(p => p.medicalRecord.appointments.some(a => a.id === active.id))
@@ -298,7 +316,9 @@ export function Schedule() {
             )
 
             setDragAppointment(null)
-            setCurrentPosition({ activeId: null, translate: null })
+            requestAnimationFrame(() => {
+                setCurrentPosition({ activeId: null, translate: null })
+            })
         },
         [dragAppointment, slotHeight, timeStep, operatingHours, patients, calculateAppointmentPosition, getStartHour24]
     )
@@ -306,7 +326,7 @@ export function Schedule() {
     return (
         <section className='w-full overflow-hidden rounded-lg bg-card border-20'>
             <DndContext
-                // modifiers={[restrictToVerticalAxis]}
+                modifiers={isVerticalRestriction ? [restrictToVerticalAxis] : []}
                 collisionDetection={closestCenter}
                 onDragStart={handleDragStart}
                 onDragMove={handleDragMove}
@@ -356,6 +376,16 @@ export function Schedule() {
                                         {t(`schedule.header.timeFormat.${isTime24Format ? '24' : '12'}`)}
                                     </span>
                                     <Switch checked={isTime24Format} onCheckedChange={setIsTime24Format} />
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={e => e.preventDefault()}>
+                                    <ChevronsUpDown />
+                                    <span className='w-full text-p-sm text-text'>
+                                        {t('schedule.header.verticalRestriction')}
+                                    </span>
+                                    <Switch
+                                        checked={isVerticalRestriction}
+                                        onCheckedChange={setIsVerticalRestriction}
+                                    />
                                 </DropdownMenuItem>
                                 <DropdownMenuSub>
                                     <DropdownMenuSubTrigger className='gap-2'>
@@ -481,21 +511,7 @@ export function Schedule() {
                                     translate={currentPosition}
                                 />
                             )}
-                            {/* {dragAppointment &&
-                                SLOT_COUNT.map((_, idx) => {
-                                    return (
-                                        <DroppableSlot
-                                            key={`slot-${idx}`}
-                                            id={`slot-${idx}`}
-                                            top={
-                                                calculateAppointmentPosition(dragAppointment.appointment).top +
-                                                slotHeight / 2
-                                            }
-                                            height={calculateAppointmentPosition(dragAppointment.appointment).height}
-                                            translate={currentPosition}
-                                        />
-                                    )
-                                })} */}
+
                             {/* Рендерим плашки событий */}
                             {patients.map(patient => {
                                 const appointment = patient.medicalRecord.appointments[0]
@@ -519,7 +535,8 @@ export function Schedule() {
                     </div>
                     <DragOverlay
                         zIndex={1000}
-                        dropAnimation={{ duration: 150, easing: 'ease-out' }} /*modifiers={[restrictToParentElement]}*/
+                        dropAnimation={{ duration: 150, easing: 'ease-out' }}
+                        modifiers={isVerticalRestriction ? [restrictToParentElement] : []}
                     >
                         {dragAppointment && (
                             <AppointmentCard
@@ -529,6 +546,7 @@ export function Schedule() {
                                 timeStep={timeStep}
                                 slotHeight={slotHeight}
                                 patient={dragAppointment.patient}
+                                className='cursor-grabbing transition-transform'
                             />
                         )}
                     </DragOverlay>

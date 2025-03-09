@@ -21,16 +21,19 @@ export const DroppableSlot = memo(({ id, top, height, translate }: IProps) => {
     const style: CSSProperties = {
         top: dynamicTop,
         height,
-        transition: translate ? 'none' : 'top 0.2s ease',
+        transition: translate ? 'none' : 'transform 0.1s linear',
         border: isOver ? '2px dashed #3b82f6' : 'none',
         backgroundColor: isOver ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
         pointerEvents: 'auto',
         position: 'absolute',
-        width: '100%'
+        width: '100%',
+        willChange: 'transform',
+        backfaceVisibility: 'hidden',
+        transformStyle: 'preserve-3d'
     }
 
     return (
-        <div ref={setNodeRef} className='droppable-slot absolute flex w-full items-center justify-center' style={style}>
+        <div ref={setNodeRef} className='absolute flex w-full items-center justify-center' style={style}>
             {isOver && <span className='text-xs font-medium text-blue-500'>DROP HERE</span>}
         </div>
     )

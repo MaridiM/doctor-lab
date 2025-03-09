@@ -35,6 +35,7 @@
         "header": {
             "all": "All appointments",
             "addNewAppointment": "Add new appointment",
+            "verticalRestriction": "Vertical movement only",
             "timeFormat": {
                 "24": "24-hour format",
                 "12": "12-hour format"

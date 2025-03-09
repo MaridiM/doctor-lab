@@ -98,7 +98,6 @@ export function AppointmentCard({ appointment, top, height, patient, className, 
             ref={setNodeRef}
             className={cn(
                 'absolute left-0 right-0 cursor-grab rounded-md pb-[2px] pl-px pr-1 pt-px transition-transform duration-150 ease-linear',
-                { '!cursor-grabbing': !!transform },
                 className
             )}
             style={{
@@ -107,6 +106,10 @@ export function AppointmentCard({ appointment, top, height, patient, className, 
                 minHeight: 48,
                 maxHeight: height,
                 transform: CSS.Translate.toString(transform),
+                // transition: transform ? 'none' : 'transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                transition: transform 
+                ? 'transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)' 
+                : 'none',
                 zIndex: transform ? 100 : 'auto',
                 willChange: 'transform',
                 ...style
