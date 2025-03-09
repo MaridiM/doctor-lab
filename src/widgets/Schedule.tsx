@@ -10,11 +10,13 @@ import {
     KeyboardSensor,
     MouseSensor,
     TouchSensor,
+    Translate,
+    UniqueIdentifier,
     closestCenter,
     useSensor,
     useSensors
 } from '@dnd-kit/core'
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import { restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers'
 import { format } from 'date-fns'
 import {
     CalendarClock,
@@ -180,6 +182,11 @@ export function Schedule() {
 
     const [dragAppointment, setDragAppointment] = useState<DraggableData | null>(null)
 
+    const [currentPosition, setCurrentPosition] = useState<{
+        activeId: UniqueIdentifier | null
+        translate: Translate | null
+    }>({ activeId: null, translate: { x: 0, y: 0 } })
+
     const mouseSensor = useSensor(MouseSensor)
     const touchSensor = useSensor(TouchSensor)
     const keyboardSensor = useSensor(KeyboardSensor)
@@ -195,6 +202,12 @@ export function Schedule() {
         }
     }
 
+    const handleDragMove = useCallback(({ active, delta }: DragMoveEvent) => {
+        setCurrentPosition({
+            activeId: active.id,
+            translate: { x: 0, y: delta.y }
+        })
+    }, [])
     const handleDragStart = useCallback(
         ({ active }: DragStartEvent) => {
             const patient = patients.find(p => p.medicalRecord.appointments.some(a => a.id === active.id))
@@ -285,6 +298,7 @@ export function Schedule() {
             )
 
             setDragAppointment(null)
+            setCurrentPosition({ activeId: null, translate: null })
         },
         [dragAppointment, slotHeight, timeStep, operatingHours, patients, calculateAppointmentPosition, getStartHour24]
     )
@@ -292,9 +306,10 @@ export function Schedule() {
     return (
         <section className='w-full overflow-hidden rounded-lg bg-card border-20'>
             <DndContext
-                modifiers={[restrictToVerticalAxis]}
+                // modifiers={[restrictToVerticalAxis]}
                 collisionDetection={closestCenter}
                 onDragStart={handleDragStart}
+                onDragMove={handleDragMove}
                 onDragEnd={handleDragEnd}
                 sensors={sensors}
             >
@@ -392,7 +407,7 @@ export function Schedule() {
                 </header>
 
                 <ScrollArea className='flex h-full max-h-[calc(100vh-138px)] w-full bg-background' type='auto'>
-                    <div className='flex'>
+                    <div className='flex overflow-hidden'>
                         {/* Левая колонка с временной шкалой */}
                         <ul className='gap relative flex w-16 flex-col overflow-hidden bg-card border-r-20'>
                             {SLOT_COUNT.map((_, idx) => {
@@ -461,13 +476,14 @@ export function Schedule() {
                                 SLOT_COUNT.map((_, idx) => {
                                     return (
                                         <DroppableSlot
-                                            key={`slot-${idx}`} // Уникальные стабильные ключи
+                                            key={`slot-${idx}`}
                                             id={`slot-${idx}`}
                                             top={
                                                 calculateAppointmentPosition(dragAppointment.appointment).top +
                                                 slotHeight / 2
                                             }
                                             height={calculateAppointmentPosition(dragAppointment.appointment).height}
+                                            translate={currentPosition}
                                         />
                                     )
                                 })}
