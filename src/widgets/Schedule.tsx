@@ -160,6 +160,29 @@ export function Schedule() {
         }
     }
 
+    // Helper function to check time slot availability
+    const isTimeSlotAvailable = (start: number, duration: number, appointments: Appointment[]) => {
+        const end = start + duration
+        return !appointments.some(app => {
+            const { startHour, startMinute } = parseISOWithDurationNumeric(app.date, 0)
+            const appStart = startHour * 60 + startMinute
+            const appEnd = appStart + app.service.duration
+            return start < appEnd && end > appStart
+        })
+    }
+
+    const handleDragStart = useCallback(
+        ({ active }: DragStartEvent) => {
+            const patient = patients.find(p => p.medicalRecord.appointments.some(a => a.id === active.id))
+            if (!patient) return
+            const appointment = patient.medicalRecord.appointments.find(a => a.id === active.id)
+            if (appointment) {
+                setDragAppointment({ appointment, patient })
+            }
+        },
+        [patients]
+    )
+
     const handleDragMove = useCallback(
         ({ active, delta }: DragMoveEvent) => {
             if (!dragAppointment) return
@@ -183,17 +206,6 @@ export function Schedule() {
         },
         [dragAppointment, operatingHours, timeStep, slotHeight]
     )
-    const handleDragStart = useCallback(
-        ({ active }: DragStartEvent) => {
-            const patient = patients.find(p => p.medicalRecord.appointments.some(a => a.id === active.id))
-            if (!patient) return
-            const appointment = patient.medicalRecord.appointments.find(a => a.id === active.id)
-            if (appointment) {
-                setDragAppointment({ appointment, patient })
-            }
-        },
-        [patients]
-    )
 
     const handleDragEnd = useCallback(
         ({ over, delta }: DragEndEvent) => {
@@ -216,33 +228,106 @@ export function Schedule() {
                 Math.min(initialTop + delta.y, ((maxMinutes - minMinutes - duration) * slotHeight) / timeStep)
             )
 
-            // 3. Calculate new time
-            const totalMinutes = (newTop / slotHeight) * timeStep
-            const adjustedMinutes = Math.round((minMinutes + totalMinutes) / timeStep) * timeStep
+            // 3. Convert to minutes
+            let desiredStart = Math.round(((newTop / slotHeight) * timeStep + minMinutes) / timeStep) * timeStep
+            let desiredEnd = desiredStart + duration
 
-            const newStart = adjustedMinutes
-            const newEnd = newStart + duration
-
-            // 4. Check for conflicts with other appointments
+            // 4. Get all other appointments
             const allOtherAppointments = patients.flatMap(patient =>
-                patient.medicalRecord.appointments.filter(a => a.id !== dragAppointment.appointment.id)
+                patient.medicalRecord.appointments.filter(a => a.id !== dragAppointment!.appointment.id)
             )
 
-            const hasConflict = allOtherAppointments.some(app => {
+            // 5. Check for conflicts
+            const conflictAppointments = allOtherAppointments.filter(app => {
                 const { startHour, startMinute } = parseISOWithDurationNumeric(app.date, 0)
                 const appStart = startHour * 60 + startMinute
                 const appEnd = appStart + app.service.duration
-                return newStart < appEnd && newEnd > appStart
+                return desiredStart < appEnd && desiredEnd > appStart
             })
 
-            if (hasConflict) {
-                setDragAppointment(null)
-                return
+            // 6. Find best position
+            let bestPosition = desiredStart
+
+            if (conflictAppointments.length > 0) {
+                // Sort conflicts by start time
+                const sortedConflicts = conflictAppointments
+                    .map(app => {
+                        const { startHour, startMinute } = parseISOWithDurationNumeric(app.date, 0)
+                        return {
+                            start: startHour * 60 + startMinute,
+                            end: startHour * 60 + startMinute + app.service.duration
+                        }
+                    })
+                    .sort((a, b) => a.start - b.start)
+
+                // Check each conflict
+                for (const conflict of sortedConflicts) {
+                    const conflictMid = conflict.start + (conflict.end - conflict.start) / 2
+
+                    // Determine preferred direction
+                    if (desiredStart + duration / 2 < conflictMid) {
+                        // Try to place before conflict
+                        const candidate = conflict.start - duration
+                        if (candidate >= minMinutes && isTimeSlotAvailable(candidate, duration, allOtherAppointments)) {
+                            bestPosition = candidate
+                            break
+                        }
+                    } else {
+                        // Try to place after conflict
+                        const candidate = conflict.end
+                        if (
+                            candidate + duration <= maxMinutes &&
+                            isTimeSlotAvailable(candidate, duration, allOtherAppointments)
+                        ) {
+                            bestPosition = candidate
+                            break
+                        }
+                    }
+
+                    // If direct placement failed, search nearby
+                    let searchDirection = 0
+                    let searchStep = timeStep
+                    let found = false
+
+                    while (!found && searchStep <= 60 * 4) {
+                        // Search up to 4 hours
+                        // Search before
+                        const beforeCandidate = conflict.start - duration - searchDirection * searchStep
+                        if (
+                            beforeCandidate >= minMinutes &&
+                            isTimeSlotAvailable(beforeCandidate, duration, allOtherAppointments)
+                        ) {
+                            bestPosition = beforeCandidate
+                            found = true
+                            break
+                        }
+
+                        // Search after
+                        const afterCandidate = conflict.end + searchDirection * searchStep
+                        if (
+                            afterCandidate + duration <= maxMinutes &&
+                            isTimeSlotAvailable(afterCandidate, duration, allOtherAppointments)
+                        ) {
+                            bestPosition = afterCandidate
+                            found = true
+                            break
+                        }
+
+                        // Expand search area
+                        searchDirection++
+                        if (searchDirection % 2 === 0) searchStep += timeStep
+                    }
+
+                    if (found) break
+                }
             }
 
-            // 5. Update state if no conflicts
-            const hours = Math.floor(adjustedMinutes / 60)
-            const minutes = adjustedMinutes % 60
+            // 7. Ensure position is within bounds
+            bestPosition = Math.max(minMinutes, Math.min(bestPosition, maxMinutes - duration))
+
+            // 8. Update appointment time
+            const hours = Math.floor(bestPosition / 60)
+            const minutes = bestPosition % 60
 
             setPatients(prevPatients =>
                 prevPatients.map(patient => {
