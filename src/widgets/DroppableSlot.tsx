@@ -1,7 +1,7 @@
 'use client'
 
 import { Translate, UniqueIdentifier, useDroppable } from '@dnd-kit/core'
-import { CSSProperties, memo } from 'react'
+import { CSSProperties, memo, useMemo } from 'react'
 
 interface IProps {
     id: string
@@ -11,12 +11,13 @@ interface IProps {
         activeId: UniqueIdentifier | null
         translate: Translate | null
     }
+    isVerticalRestriction: boolean
 }
 
-export const DroppableSlot = memo(({ id, top, height, translate }: IProps) => {
+export const DroppableSlot = memo(({ id, top, height, translate, isVerticalRestriction }: IProps) => {
     const { setNodeRef, isOver } = useDroppable({ id })
 
-    const dynamicTop = translate.translate ? top + (translate.translate.y ?? 0) : top
+    const dynamicTop = useMemo(() => top + (translate.translate?.y ?? 0), [top, translate.translate?.y])
 
     const style: CSSProperties = {
         top: dynamicTop,
@@ -33,8 +34,14 @@ export const DroppableSlot = memo(({ id, top, height, translate }: IProps) => {
     }
 
     return (
-        <div ref={setNodeRef} className='absolute flex w-full items-center justify-center' style={style}>
-            {isOver && <span className='text-xs font-medium text-blue-500'>DROP HERE</span>}
-        </div>
+        <>
+            {isVerticalRestriction ? (
+                <div ref={setNodeRef} className='absolute h-full w-full' />
+            ) : (
+                <div ref={setNodeRef} className='absolute flex w-full items-center justify-center' style={style}>
+                    {isOver && <span className='text-xs font-medium text-blue-500'>DROP HERE</span>}
+                </div>
+            )}
+        </>
     )
 })

@@ -106,7 +106,6 @@ export function AppointmentCard({ appointment, top, height, patient, className, 
                 minHeight: 48,
                 maxHeight: height,
                 transform: CSS.Translate.toString(transform),
-                // transition: transform ? 'none' : 'transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
                 transition: transform 
                 ? 'transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)' 
                 : 'none',
