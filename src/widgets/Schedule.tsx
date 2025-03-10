@@ -145,6 +145,8 @@ export function Schedule() {
         translate: Translate | null
     }>({ activeId: null, translate: { x: 0, y: 0 } })
 
+    const [hasConflict, setHasConflict] = useState(false)
+
     const mouseSensor = useSensor(MouseSensor)
     const touchSensor = useSensor(TouchSensor)
     const keyboardSensor = useSensor(KeyboardSensor)
@@ -173,6 +175,7 @@ export function Schedule() {
 
     const handleDragStart = useCallback(
         ({ active }: DragStartEvent) => {
+            setHasConflict(false)
             const patient = patients.find(p => p.medicalRecord.appointments.some(a => a.id === active.id))
             if (!patient) return
             const appointment = patient.medicalRecord.appointments.find(a => a.id === active.id)
@@ -198,6 +201,24 @@ export function Schedule() {
 
                 const newY = Math.max(0, Math.min(initialTop + delta.y, maxAllowedTop))
 
+                // Convert to minutes
+                let desiredStart = Math.round(((newY / slotHeight) * timeStep + minMinutes) / timeStep) * timeStep
+                let desiredEnd = desiredStart + duration
+
+                // Get all other appointments
+                const allOtherAppointments = patients.flatMap(patient =>
+                    patient.medicalRecord.appointments.filter(a => a.id !== dragAppointment!.appointment.id)
+                )
+                // Check for conflicts
+                const conflictAppointments = allOtherAppointments.filter(app => {
+                    const { startHour, startMinute } = parseISOWithDurationNumeric(app.date, 0)
+                    const appStart = startHour * 60 + startMinute
+                    const appEnd = appStart + app.service.duration
+                    return desiredStart < appEnd && desiredEnd > appStart
+                })
+
+                setHasConflict(!!conflictAppointments.length)
+
                 setCurrentPosition({
                     activeId: active.id,
                     translate: { x: 0, y: newY - initialTop }
@@ -211,6 +232,7 @@ export function Schedule() {
         ({ over, delta }: DragEndEvent) => {
             if (!dragAppointment || !over) {
                 setDragAppointment(null)
+                setHasConflict(false)
                 return
             }
 
@@ -453,7 +475,6 @@ export function Schedule() {
 
                             {dragAppointment && (
                                 <DroppableSlot
-                                    key='active-slot'
                                     id='active-slot'
                                     top={calculateAppointmentPosition(dragAppointment.appointment).top + slotHeight / 2}
                                     height={calculateAppointmentPosition(dragAppointment.appointment).height}
@@ -496,7 +517,7 @@ export function Schedule() {
                                 timeStep={timeStep}
                                 slotHeight={slotHeight}
                                 patient={dragAppointment.patient}
-                                className='cursor-grabbing transition-transform'
+                                className={cn('cursor-grabbing', { 'cursor-not-allowed': hasConflict })}
                             />
                         )}
                     </DragOverlay>
