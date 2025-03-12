@@ -234,3 +234,14 @@ $specials: ("", // обычный border
         }
     }
 }
+
+.dashed-border {
+    border-width: 3px;
+    border-style: solid;
+    border-image:
+        repeating-linear-gradient(90deg,
+            #000 0px,
+            #000 10px,
+            transparent 10px,
+            transparent 20px) 1;
+}

@@ -1,47 +1,78 @@
 'use client'
 
-import { Translate, UniqueIdentifier, useDroppable } from '@dnd-kit/core'
-import { CSSProperties, memo, useMemo } from 'react'
+import { Translate, useDroppable } from '@dnd-kit/core'
+import { Expand } from 'lucide-react'
+import { memo, useMemo } from 'react'
+
+import { cn } from '@/shared/utils'
 
 interface IProps {
     id: string
     top: number
     height: number
-    translate: {
-        activeId: UniqueIdentifier | null
-        translate: Translate | null
-    }
-    isVerticalRestriction: boolean
+    translate: Translate
+    isVerticalRestriction?: boolean
+    hasConflict?: boolean
+    label?: string
 }
 
-export const DroppableSlot = memo(({ id, top, height, translate, isVerticalRestriction }: IProps) => {
-    const { setNodeRef, isOver } = useDroppable({ id })
+export const DroppableSlot = memo(
+    ({ id, top, height, translate, isVerticalRestriction, hasConflict, label }: IProps) => {
+        const { setNodeRef, isOver, rect } = useDroppable({ id })
 
-    const dynamicTop = useMemo(() => top + (translate.translate?.y ?? 0), [top, translate.translate?.y])
+        const dynamicTop = useMemo(() => top + (translate.y ?? 0), [top, translate.y])
 
-    const style: CSSProperties = {
-        top: dynamicTop,
-        height,
-        transition: translate ? 'none' : 'transform 0.1s linear',
-        border: isOver ? '2px dashed #3b82f6' : 'none',
-        backgroundColor: isOver ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
-        pointerEvents: 'auto',
-        position: 'absolute',
-        width: '100%',
-        willChange: 'transform',
-        backfaceVisibility: 'hidden',
-        transformStyle: 'preserve-3d'
+        return (
+            <>
+                {isVerticalRestriction ? (
+                    <div ref={setNodeRef} className='absolute h-full w-full' />
+                ) : (
+                    <div
+                        ref={setNodeRef}
+                        className={cn(
+                            'pointer-events-auto absolute flex w-full items-center justify-center py-0.5 pl-0.5 pr-1 will-change-transform'
+                        )}
+                        style={{
+                            top: dynamicTop,
+                            height,
+                            backfaceVisibility: 'hidden',
+                            transformStyle: 'preserve-3d'
+                        }}
+                    >
+                        <div
+                            className={cn('flex h-full flex-1 items-center justify-center rounded-md transition-all duration-300 ease-in-out', {
+                                '0.1s linear transform': translate,
+                                '!border-dashed bg-background border-lg-40': isOver,
+                                '!border-dashed bg-negative-100 border-lg-40-negative': isOver && hasConflict
+                            })}
+                            style={{}}
+                        >
+                            {isOver && (
+                                <div className='flex items-center justify-center gap-2'>
+                                    <Expand
+                                        className={cn(
+                                            '!size-5 stroke-text-tertiary stroke-[1.5px] transition-all duration-300 ease-in-out',
+                                            {
+                                                'stroke-negative': hasConflict
+                                            }
+                                        )}
+                                    />
+                                    <span
+                                        className={cn(
+                                            'bg-green- pt-1 !text-p-sm font-normal text-text-tertiary transition-all duration-300 ease-in-out',
+                                            {
+                                                'text-negative': hasConflict
+                                            }
+                                        )}
+                                    >
+                                        {label}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </>
+        )
     }
-
-    return (
-        <>
-            {isVerticalRestriction ? (
-                <div ref={setNodeRef} className='absolute h-full w-full' />
-            ) : (
-                <div ref={setNodeRef} className='absolute flex w-full items-center justify-center' style={style}>
-                    {isOver && <span className='text-xs font-medium text-blue-500'>DROP HERE</span>}
-                </div>
-            )}
-        </>
-    )
-})
+)

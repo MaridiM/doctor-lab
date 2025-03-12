@@ -32,6 +32,9 @@
     "schedule": {
         "title": "Расписание",
         "addASlot": "Добавить временной слот",
+        "addAppointment": "Добавить запись на {time}",
+        "dropSlot": "Запись на {time} ({duration} мин)",
+        "slotConflict": "Конфликт в {time}!",
         "header": {
             "all": "Все записи",
             "addNewAppointment": "Добавить новую запись",

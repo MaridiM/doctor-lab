@@ -32,6 +32,10 @@
     "schedule": {
         "title": "Schedule",
         "addASlot": "Add time slot",
+        "addAppointment": "Add appointment at {time}",
+        "freeSlot": "Available slot: {time}",
+        "dropSlot": "Appointment at {time} ({duration}min)",
+        "slotConflict": "Conflict at {time}!",
         "header": {
             "all": "All appointments",
             "addNewAppointment": "Add new appointment",

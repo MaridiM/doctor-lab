@@ -10,14 +10,13 @@ import {
     MouseSensor,
     TouchSensor,
     Translate,
-    UniqueIdentifier,
     closestCenter,
     useSensor,
     useSensors
 } from '@dnd-kit/core'
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { format } from 'date-fns'
-import { CalendarClock } from 'lucide-react'
+import { CalendarClock, CalendarPlus2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -37,7 +36,7 @@ const MAX_SLOT_HEIGHT = 192
 const DEFAULT_START_HOUR = 8
 const DEFAULT_OPERATING_HOURS = 8
 const DEFAULT_TIME_STEP = 15
-const RESTRICT_TO_VERTICAL_AXIS = true
+const RESTRICT_TO_VERTICAL_AXIS = false
 
 interface DraggableData {
     appointment: Appointment
@@ -46,6 +45,8 @@ interface DraggableData {
 
 export function Schedule() {
     const t = useTranslations('dashboard')
+
+    const [isSlotHover, setIsSlotHover] = useState<number | null>(null)
 
     //  Schedule
     // ----------------------------------------------------------------------------------------------
@@ -140,10 +141,8 @@ export function Schedule() {
     const [dragAppointment, setDragAppointment] = useState<DraggableData | null>(null)
     const [isVerticalRestriction, setIsVerticalRestriction] = useState<boolean>(RESTRICT_TO_VERTICAL_AXIS)
 
-    const [currentPosition, setCurrentPosition] = useState<{
-        activeId: UniqueIdentifier | null
-        translate: Translate | null
-    }>({ activeId: null, translate: { x: 0, y: 0 } })
+    const [currentPosition, setCurrentPosition] = useState<Translate>({ x: 0, y: 0 })
+    const [currentTime, setCurrentTime] = useState<string>('')
 
     const [hasConflict, setHasConflict] = useState(false)
 
@@ -187,7 +186,7 @@ export function Schedule() {
     )
 
     const handleDragMove = useCallback(
-        ({ active, delta }: DragMoveEvent) => {
+        ({ delta }: DragMoveEvent) => {
             if (!dragAppointment) return
 
             requestAnimationFrame(() => {
@@ -205,6 +204,14 @@ export function Schedule() {
                 let desiredStart = Math.round(((newY / slotHeight) * timeStep + minMinutes) / timeStep) * timeStep
                 let desiredEnd = desiredStart + duration
 
+                // Calculate time
+                const hours = Math.floor(desiredStart / 60)
+                const minutes = desiredStart % 60
+                const date = new Date().setHours(hours, minutes)
+                const formattedTime = format(date, isTime24Format ? 'HH:mm' : 'hh:mm a')
+
+                setCurrentTime(formattedTime)
+
                 // Get all other appointments
                 const allOtherAppointments = patients.flatMap(patient =>
                     patient.medicalRecord.appointments.filter(a => a.id !== dragAppointment!.appointment.id)
@@ -219,10 +226,7 @@ export function Schedule() {
 
                 setHasConflict(!!conflictAppointments.length)
 
-                setCurrentPosition({
-                    activeId: active.id,
-                    translate: { x: 0, y: newY - initialTop }
-                })
+                setCurrentPosition({ x: 0, y: newY - initialTop })
             })
         },
         [dragAppointment, operatingHours, timeStep, slotHeight]
@@ -379,8 +383,9 @@ export function Schedule() {
             )
 
             setDragAppointment(null)
+            setCurrentTime('')
             requestAnimationFrame(() => {
-                setCurrentPosition({ activeId: null, translate: null })
+                setCurrentPosition({ x: 0, y: 0 })
             })
         },
         [dragAppointment, slotHeight, timeStep, operatingHours, patients, calculateAppointmentPosition, getStartHour24]
@@ -453,23 +458,43 @@ export function Schedule() {
                                 )
                             })}
                         </ul>
+
                         {/* Правая колонка (сетка расписания) */}
                         <ul className='relative flex w-full flex-col'>
                             {SLOT_COUNT.map((_, idx) => {
-                                const { minute } = calculateTime(idx)
+                                const { adjustedHour, minute } = calculateTime(idx)
+                                const startTime = new Date().setHours(adjustedHour, minute - timeStep)
+
                                 const isMinuteZero = minute === 0
                                 const lastItem = idx === (operatingHours + 2) * stepsPerHour + 1
+                                const validSlot = isSlotHover !== 0 && !lastItem
+                                const isHover = isSlotHover === idx
+
                                 return (
                                     <li
                                         key={idx}
-                                        className={cn('flex items-center border-b-20', {
+                                        className={cn('flex items-center py-0.5 pl-0.5 pr-1 border-b-20', {
+                                            'hover:bg-hover': validSlot,
                                             'border-b-none': lastItem,
                                             '!border-dashed': !isMinuteZero
                                         })}
+                                        onMouseEnter={() => setIsSlotHover(idx)}
+                                        onMouseLeave={() => setIsSlotHover(null)}
                                         style={{
                                             height: lastItem || idx === 0 ? slotHeight / 2 : slotHeight
                                         }}
-                                    />
+                                    >
+                                        {isHover && (
+                                            <Button className='h-full w-full !border-dashed border-20'>
+                                                <CalendarPlus2 className='!size-5 stroke-text-tertiary stroke-[1.5px]' />
+                                                <span className='pt-1 text-p-sm font-normal text-text-tertiary'>
+                                                    {t('schedule.addAppointment', {
+                                                        time: format(startTime, 'HH:mm')
+                                                    })}
+                                                </span>
+                                            </Button>
+                                        )}
+                                    </li>
                                 )
                             })}
 
@@ -480,6 +505,17 @@ export function Schedule() {
                                     height={calculateAppointmentPosition(dragAppointment.appointment).height}
                                     translate={currentPosition}
                                     isVerticalRestriction={isVerticalRestriction}
+                                    hasConflict={hasConflict}
+                                    label={
+                                        !hasConflict
+                                            ? t('schedule.dropSlot', {
+                                                  time: currentTime,
+                                                  duration: dragAppointment.appointment.service.duration
+                                              })
+                                            : t('schedule.slotConflict', {
+                                                  time: currentTime
+                                              })
+                                    }
                                 />
                             )}
 
