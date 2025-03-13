@@ -13,7 +13,6 @@ import {
     Settings2,
     UsersRound
 } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 import { ComponentProps } from 'react'
 
 import { LogoIcon, Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/shared/components'

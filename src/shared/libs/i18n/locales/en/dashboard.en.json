@@ -42,29 +42,17 @@
             "verticalRestriction": "Vertical movement only",
             "smartPlacement": "Smart placement",
             "smartPlacementDescription": "Automatically find available slots",
-            "timeFormat": {
-                "24": "24-hour format",
-                "12": "12-hour format"
-            },
             "operatingHours": {
-                "label": "Operating hours - ",
+                "label": "Operating hours - {duration} hours",
                 "startLabel": "Start operating hours:",
                 "auto": "Auto",
-                "durations": {
-                    "6": "6 hours",
-                    "8": "8 hours",
-                    "12": "12 hours",
-                    "16": "16 hours",
-                    "24": "24 hours"
-                }
+                "durations": "{hours} hours"
             },
             "stepTime": {
-                "title": "Time step - ",
-                "15": "15 minutes",
-                "20": "20 minutes",
-                "30": "30 minutes",
-                "60": "60 minutes"
-            }
+                "title": "Time step - {step} minutes",
+                "step": "{step} minutes"
+            },
+            "timeFormat": "{format}-hours format"
         },
         "actions": {
             "notify": "Notify patient of appointment",
@@ -72,24 +60,6 @@
             "reschedule": "Reschedule appointment",
             "cancel": "Cancel appointment",
             "chart": "Appointment chart"
-        },
-        "time": {
-            "am": "AM",
-            "pm": "PM",
-            "minutes": {
-                "00": "00",
-                "15": "15",
-                "30": "30",
-                "45": "45"
-            },
-            "durations": {
-                "15": "15 min",
-                "30": "30 min",
-                "45": "45 min",
-                "60": "1 hour",
-                "90": "1.5 hours",
-                "120": "2 hours"
-            }
         }
     },
     "patients": {

@@ -202,8 +202,8 @@ export function Schedule() {
                 const newY = Math.max(0, Math.min(initialTop + delta.y, maxAllowedTop))
 
                 // Convert to minutes
-                let desiredStart = Math.round(((newY / slotHeight) * timeStep + minMinutes) / timeStep) * timeStep
-                let desiredEnd = desiredStart + duration
+                const desiredStart = Math.round(((newY / slotHeight) * timeStep + minMinutes) / timeStep) * timeStep
+                const desiredEnd = desiredStart + duration
 
                 // Calculate time
                 const hours = Math.floor(desiredStart / 60)
@@ -230,7 +230,16 @@ export function Schedule() {
                 setCurrentPosition({ x: 0, y: newY - initialTop })
             })
         },
-        [dragAppointment, operatingHours, timeStep, slotHeight]
+        [
+            dragAppointment,
+            operatingHours,
+            timeStep,
+            slotHeight,
+            calculateAppointmentPosition,
+            getStartHour24,
+            isTime24Format,
+            patients
+        ]
     )
 
     const handleDragEnd = useCallback(
@@ -266,8 +275,8 @@ export function Schedule() {
             )
 
             // 3. Convert to minutes
-            let desiredStart = Math.round(((newTop / slotHeight) * timeStep + minMinutes) / timeStep) * timeStep
-            let desiredEnd = desiredStart + duration
+            const desiredStart = Math.round(((newTop / slotHeight) * timeStep + minMinutes) / timeStep) * timeStep
+            const desiredEnd = desiredStart + duration
 
             // 4. Get all other appointments
             const allOtherAppointments = patients.flatMap(patient =>
@@ -399,7 +408,17 @@ export function Schedule() {
                 setCurrentPosition({ x: 0, y: 0 })
             })
         },
-        [dragAppointment, slotHeight, timeStep, operatingHours, patients, calculateAppointmentPosition, getStartHour24]
+        [
+            dragAppointment,
+            slotHeight,
+            timeStep,
+            operatingHours,
+            patients,
+            calculateAppointmentPosition,
+            getStartHour24,
+            hasConflict,
+            isSmartPlacement
+        ]
     )
 
     return (
