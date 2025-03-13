@@ -40,6 +40,8 @@
             "all": "All appointments",
             "addNewAppointment": "Add new appointment",
             "verticalRestriction": "Vertical movement only",
+            "smartPlacement": "Smart placement",
+            "smartPlacementDescription": "Automatically find available slots",
             "timeFormat": {
                 "24": "24-hour format",
                 "12": "12-hour format"

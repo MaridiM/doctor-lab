@@ -39,6 +39,8 @@
             "all": "Все записи",
             "addNewAppointment": "Добавить новую запись",
             "verticalRestriction": "Только вертикальное перемещение",
+            "smartPlacement": "Умное размещение",
+            "smartPlacementDescription": "Автоматический поиск свободных слотов",
             "timeFormat": {
                 "24": "24-часовой формат",
                 "12": "12-часовой формат"

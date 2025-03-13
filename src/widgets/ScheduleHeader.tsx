@@ -3,6 +3,7 @@
 import {
     CalendarClock,
     CalendarPlus2,
+    CalendarSync,
     Check,
     ChevronsUpDown,
     Clock3,
@@ -26,6 +27,9 @@ import {
     DropdownMenuSubContent,
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
     Switch
 } from '@/shared/components'
 import { PATHS } from '@/shared/config'
@@ -33,25 +37,29 @@ import { PATHS } from '@/shared/config'
 import { TOperatingHours, TTimeStep } from './Schedule'
 
 interface IProps {
-    isTime24Format: boolean
-    setIsTime24Format: VoidFunction
-    isVerticalRestriction: boolean
-    setIsVerticalRestriction: VoidFunction
-    operatingHours: TOperatingHours
-    setOperatingHours: (hour: TOperatingHours) => void
     timeStep: TTimeStep
+    isTime24Format: boolean
+    isSmartPlacement: boolean
+    isVerticalRestriction: boolean
+    operatingHours: TOperatingHours
+    setIsTime24Format: VoidFunction
+    setIsSmartPlacement: VoidFunction
+    setIsVerticalRestriction: VoidFunction
     setTimeStep: (time: TTimeStep) => void
+    setOperatingHours: (hour: TOperatingHours) => void
 }
 
 export function ScheduleHeader({
-    isTime24Format,
-    setIsTime24Format,
-    isVerticalRestriction,
-    setIsVerticalRestriction,
-    operatingHours,
-    setOperatingHours,
     timeStep,
-    setTimeStep
+    operatingHours,
+    isTime24Format,
+    isSmartPlacement,
+    isVerticalRestriction,
+    setTimeStep,
+    setOperatingHours,
+    setIsTime24Format,
+    setIsSmartPlacement,
+    setIsVerticalRestriction
 }: IProps) {
     const t = useTranslations('dashboard')
 
@@ -116,20 +124,6 @@ export function ScheduleHeader({
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end' className='min-w-[280px]'>
-                        <DropdownMenuItem onSelect={e => e.preventDefault()}>
-                            <CalendarClock />
-                            <span className='w-full text-p-sm text-text'>
-                                {t(`schedule.header.timeFormat.${isTime24Format ? '24' : '12'}`)}
-                            </span>
-                            <Switch checked={isTime24Format} onCheckedChange={setIsTime24Format} />
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={e => e.preventDefault()}>
-                            <ChevronsUpDown />
-                            <span className='w-full text-p-sm text-text'>
-                                {t('schedule.header.verticalRestriction')}
-                            </span>
-                            <Switch checked={isVerticalRestriction} onCheckedChange={setIsVerticalRestriction} />
-                        </DropdownMenuItem>
                         <DropdownMenuSub>
                             <DropdownMenuSubTrigger className='gap-2'>
                                 {operatingHoursIcon[operatingHours]}
@@ -171,6 +165,35 @@ export function ScheduleHeader({
                                 ))}
                             </DropdownMenuSubContent>
                         </DropdownMenuSub>
+
+                        <DropdownMenuItem onSelect={e => e.preventDefault()}>
+                            <CalendarClock />
+                            <span className='w-full text-p-sm text-text'>
+                                {t(`schedule.header.timeFormat.${isTime24Format ? '24' : '12'}`)}
+                            </span>
+                            <Switch checked={isTime24Format} onCheckedChange={setIsTime24Format} />
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem onSelect={e => e.preventDefault()}>
+                            <ChevronsUpDown />
+                            <span className='w-full text-p-sm text-text'>
+                                {t('schedule.header.verticalRestriction')}
+                            </span>
+                            <Switch checked={isVerticalRestriction} onCheckedChange={setIsVerticalRestriction} />
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem onSelect={e => e.preventDefault()}>
+                            <CalendarSync />
+                            <span className='w-full text-p-sm text-text'>{t('schedule.header.smartPlacement')}</span>
+                            <HoverCard>
+                                <HoverCardTrigger>
+                                    <Switch checked={isSmartPlacement} onCheckedChange={setIsSmartPlacement} />
+                                </HoverCardTrigger>
+                                <HoverCardContent className='w-fit max-w-[200px] px-2 py-1'>
+                                    {t('schedule.header.smartPlacementDescription')}
+                                </HoverCardContent>
+                            </HoverCard>
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>

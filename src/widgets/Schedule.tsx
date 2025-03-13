@@ -36,7 +36,8 @@ const MAX_SLOT_HEIGHT = 192
 const DEFAULT_START_HOUR = 8
 const DEFAULT_OPERATING_HOURS = 8
 const DEFAULT_TIME_STEP = 15
-const RESTRICT_TO_VERTICAL_AXIS = false
+const RESTRICT_TO_VERTICAL_AXIS = true
+const SMART_PLACEMENT = true
 
 interface DraggableData {
     appointment: Appointment
@@ -144,14 +145,14 @@ export function Schedule() {
     const [currentPosition, setCurrentPosition] = useState<Translate>({ x: 0, y: 0 })
     const [currentTime, setCurrentTime] = useState<string>('')
 
+    const [isSmartPlacement, setIsSmartPlacement] = useState(SMART_PLACEMENT)
     const [hasConflict, setHasConflict] = useState(false)
 
     const mouseSensor = useSensor(MouseSensor)
-    const touchSensor = useSensor(TouchSensor)
     const keyboardSensor = useSensor(KeyboardSensor)
+    const touchSensor = useSensor(TouchSensor)
 
     const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor)
-
     function getStartHour24() {
         if (isTime24Format) return operatingHoursStart
         if (operatingHoursMeridiemStart === 'AM') {
@@ -240,6 +241,16 @@ export function Schedule() {
                 return
             }
 
+            if (!isSmartPlacement && hasConflict) {
+                setDragAppointment(null)
+                setCurrentTime('')
+                setHasConflict(false)
+                requestAnimationFrame(() => {
+                    setCurrentPosition({ x: 0, y: 0 })
+                })
+                return
+            }
+
             // 1. Get base parameters
             const startHour24 = getStartHour24()
             const endHour24 = startHour24 + operatingHours
@@ -274,7 +285,7 @@ export function Schedule() {
             // 6. Find best position
             let bestPosition = desiredStart
 
-            if (conflictAppointments.length > 0) {
+            if (isSmartPlacement && conflictAppointments.length > 0) {
                 // Sort conflicts by start time
                 const sortedConflicts = conflictAppointments
                     .map(app => {
@@ -410,6 +421,8 @@ export function Schedule() {
                     setOperatingHours={setOperatingHours}
                     timeStep={timeStep}
                     setTimeStep={setTimeStep}
+                    isSmartPlacement={isSmartPlacement}
+                    setIsSmartPlacement={() => setIsSmartPlacement(!isSmartPlacement)}
                 />
 
                 <ScrollArea className='flex h-full max-h-[calc(100vh-138px)] w-full bg-background' type='auto'>
@@ -484,7 +497,7 @@ export function Schedule() {
                                             height: lastItem || idx === 0 ? slotHeight / 2 : slotHeight
                                         }}
                                     >
-                                        {isHover && (
+                                        {isHover && validSlot && (
                                             <Button className='h-full w-full !border-dashed border-20'>
                                                 <CalendarPlus2 className='!size-5 stroke-text-tertiary stroke-[1.5px]' />
                                                 <span className='pt-1 text-p-sm font-normal text-text-tertiary'>
