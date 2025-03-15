@@ -48,11 +48,11 @@
                 "auto": "Auto",
                 "durations": "{hours} hours"
             },
-            "stepTime": {
-                "title": "Time step - {step} minutes",
-                "step": "{step} minutes"
-            },
             "timeFormat": "{format}-hours format"
+        },
+        "stepTime": {
+            "title": "Time step - {step} minutes",
+            "step": "{step} minutes"
         },
         "actions": {
             "notify": "Notify patient of appointment",

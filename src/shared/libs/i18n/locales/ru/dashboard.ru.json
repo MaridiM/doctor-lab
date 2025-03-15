@@ -41,18 +41,24 @@
             "verticalRestriction": "Только вертикальное перемещение",
             "smartPlacement": "Умное размещение",
             "smartPlacementDescription": "Автоматический поиск свободных слотов",
-
             "operatingHours": {
                 "label": "Рабочее время - {duration} часов",
                 "startLabel": "Начало рабочего времени:",
                 "auto": "Авто",
                 "durations": "{hours} часов"
             },
-            "stepTime": {
-                "title": "Шаг времени - {step} минут",
-                "step": "{step} минут"
-            },
             "timeFormat": "{format}-часовой формат"
+        },
+        "stepTime": {
+            "title": "Шаг времени - {step} минут",
+            "step": "{step} минут"
+        },
+        "actions": {
+            "notify": "Уведомить пациента о приёме",
+            "edit": "Редактировать приём",
+            "reschedule": "Перенести приём",
+            "cancel": "Отменить приём",
+            "chart": "Карта приёма"
         }
     },
     "patients": {
