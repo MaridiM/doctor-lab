@@ -16,24 +16,7 @@ import {
 } from '@dnd-kit/core'
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { format } from 'date-fns'
-import {
-    CalendarClock,
-    CalendarCog,
-    CalendarMinus2,
-    CalendarPlus2,
-    CalendarX,
-    Check,
-    Clock3,
-    Clock4,
-    Clock6,
-    Clock9,
-    Clock12,
-    LucideTimerReset,
-    Timer,
-    TimerOff,
-    TimerReset,
-    X
-} from 'lucide-react'
+import { CalendarClock, CalendarPlus2, Check, Clock3, Clock4, Clock6, Clock9, Clock12, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -45,26 +28,19 @@ import {
     ContextMenuContent,
     ContextMenuItem,
     ContextMenuSeparator,
-    ContextMenuShortcut,
     ContextMenuSub,
     ContextMenuSubContent,
     ContextMenuSubTrigger,
     ContextMenuTrigger,
+    Icon,
     Input,
-    ScrollArea,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
+    ScrollArea
 } from '@/shared/components'
-import { Icon } from '@/shared/components/shared/Icon'
 import { adjustTime, cn, parseISOWithDurationNumeric } from '@/shared/utils'
 
 import { AppointmentCard } from './AppointmentCard'
 import { DroppableSlot } from './DroppableSlot'
 import { ScheduleHeader } from './ScheduleHeader'
-import TimerAddSvg from './timer-add.svg'
 
 // import { TimerAddSvg } from '../../shared/assets/icons'
 
