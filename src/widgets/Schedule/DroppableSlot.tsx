@@ -61,3 +61,5 @@ export const DroppableSlot = memo(
         )
     }
 )
+
+DroppableSlot.displayName = 'DroppableSlot'
