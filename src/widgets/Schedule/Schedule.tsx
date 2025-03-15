@@ -15,10 +15,27 @@ import {
     useSensors
 } from '@dnd-kit/core'
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
-import { CalendarClock, CalendarPlus2, Check, Clock3, Clock4, Clock6, Clock9, Clock12, X } from 'lucide-react'
+import {
+    CalendarClock,
+    CalendarCog,
+    CalendarPlus2,
+    CalendarX,
+    Check,
+    ChevronDown,
+    ChevronUp,
+    Clock3,
+    Clock4,
+    Clock6,
+    Clock9,
+    Clock12,
+    X
+} from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 import { Appointment, PATIENTS, User } from '@/entities/api'
 
@@ -32,9 +49,20 @@ import {
     ContextMenuSubContent,
     ContextMenuSubTrigger,
     ContextMenuTrigger,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
     Icon,
     Input,
-    ScrollArea
+    ScrollArea,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from '@/shared/components'
 import { adjustTime, cn, parseISOWithDurationNumeric } from '@/shared/utils'
 
@@ -59,10 +87,18 @@ interface DraggableData {
     patient: User
 }
 
-interface ITime {
-    hours: number
-    minutes: number
+type TTimeInputType = 'hours' | 'minutes' | 'seconds'
+type TPeriod = 'AM' | 'PM'
+interface ITimeInput {
+    initialHours?: number
+    initialMinutes?: number
 }
+
+const FormSchema = z.object({
+    datetime: z.date({
+        required_error: 'Date & time is required!.'
+    })
+})
 
 export function Schedule() {
     const t = useTranslations('dashboard')
@@ -73,7 +109,7 @@ export function Schedule() {
     // ----------------------------------------------------------------------------------------------
     const [operatingHours, setOperatingHours] = useState<TOperatingHours>(DEFAULT_OPERATING_HOURS)
     const [operatingHoursStart, setOperatingHoursStart] = useState<number>(DEFAULT_START_HOUR)
-    const [operatingHoursMeridiemStart, setOperatingHoursMeridiemStart] = useState<'AM' | 'PM'>('AM')
+    const [operatingHoursMeridiemStart, setOperatingHoursMeridiemStart] = useState<TPeriod>('AM')
     const [timeStep, setTimeStep] = useState<TTimeStep>(DEFAULT_TIME_STEP)
     const [isTime24Format, setIsTime24Format] = useState<boolean>(true)
 
@@ -443,29 +479,7 @@ export function Schedule() {
 
     // ----------------------------------------------------------------------------------------------
 
-    //  Context Menu
-    // ----------------------------------------------------------------------------------------------
-
-    const [customTime, setCustomTime] = useState<number | null>(DEFAULT_TIME_STEP)
-    const [isTimeSlotCustom, setIsTimeSlotCustom] = useState<boolean>(false)
-    const [isCreateReserveCustom, setIsCreateReserveCustom] = useState<boolean>(false)
-    const [isEditReserveCustom, setIsEditReserveCustom] = useState<boolean>(false)
-
-    const stepTimeSlotIcon = useMemo(
-        () => ({
-            15: <Clock3 className='size-[18px] stroke-[1.75px]' />,
-            20: <Clock4 className='size-[18px] stroke-[1.75px]' />,
-            30: <Clock6 className='size-[18px] stroke-[1.75px]' />,
-            45: <Clock9 className='size-[18px] stroke-[1.75px]' />,
-            60: <Clock12 className='size-[18px] stroke-[1.75px]' />,
-            90: <Clock6 className='size-[18px] stroke-[1.75px]' />,
-            120: <Clock12 className='size-[18px] stroke-[1.75px]' />
-        }),
-        []
-    )
-
-    // TimePicker
-    const [customMeridiem, setCustomMeridiem] = useState<'AM' | 'PM'>('AM')
+    const [selectedSlot, setSelectedSlot] = useState<number | null>(null)
 
     // ----------------------------------------------------------------------------------------------
 
@@ -548,13 +562,13 @@ export function Schedule() {
                                 const isMinuteZero = minute === 0
                                 const lastItem = idx === (operatingHours + 2) * stepsPerHour + 1
                                 const validSlot = isSlotHover !== 0 && !lastItem
-                                const isHover = isSlotHover === idx
+                                const isHover = isSlotHover === idx || selectedSlot === idx
 
                                 return (
-                                    <ContextMenu key={idx}>
+                                    <ContextMenu key={idx} onOpenChange={open => setSelectedSlot(open ? idx : null)}>
                                         <ContextMenuTrigger asChild>
                                             <li
-                                                className={cn('flex items-center py-0.5 pl-0.5 pr-1 border-b-20', {
+                                                className={cn('flex items-center py-0.5 pl-0.5 pr-1.5 border-b-20', {
                                                     'hover:bg-hover': validSlot,
                                                     'border-b-none': lastItem,
                                                     '!border-dashed': !isMinuteZero
@@ -590,163 +604,30 @@ export function Schedule() {
 
                                                 <span className='w-full text-p-sm text-text'>Create appointment</span>
                                             </ContextMenuItem>
-                                            <ContextMenuSub>
-                                                <ContextMenuSubTrigger className='gap-2'>
-                                                    <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                        <Icon
-                                                            name='TimerReserve'
-                                                            className='size-5 stroke-text stroke-[0.5px]'
-                                                        />
-                                                    </span>
-                                                    <span className='w-full text-p-sm text-text'>Create time slot</span>
-                                                </ContextMenuSubTrigger>
-                                                <ContextMenuSubContent className='ml-1.5 min-w-[240px]'>
-                                                    <ContextMenuItem
-                                                        className='gap-2'
-                                                        onSelect={e => e.preventDefault()}
-                                                        onClick={() => setIsTimeSlotCustom(true)}
-                                                    >
-                                                        <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                            <Icon
-                                                                name={isTimeSlotCustom ? 'TimerEdit' : 'TimerAdd'}
-                                                                className='size-5 stroke-text stroke-[0.5px]'
-                                                            />
-                                                        </span>
-                                                        <span
-                                                            className={cn('pt-0.5text-p-sm w-full text-text', {
-                                                                'text-center text-text-tertiary': isTimeSlotCustom
-                                                            })}
-                                                        >
-                                                            {isTimeSlotCustom ? `${customTime} min` : 'Custom'}
-                                                        </span>
-                                                    </ContextMenuItem>
-                                                    <ContextMenuSeparator />
-                                                    {isTimeSlotCustom && (
-                                                        <>
-                                                            <div className='flex h-9 items-center gap-2 pl-2'>
-                                                                <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                                    <Icon
-                                                                        name='TimerAdd'
-                                                                        className='size-5 stroke-text stroke-[0.5px]'
-                                                                    />
-                                                                </span>
-                                                                <div className='flex flex-1 items-center justify-center gap-1'>
-                                                                    <Input
-                                                                        className='flex size-10 items-center justify-center rounded-md p-0 text-center !text-p-lg text-text border-10 placeholder:text-center'
-                                                                        placeholder='00'
-                                                                        type='number'
-                                                                        min='0'
-                                                                        max='23'
-                                                                        value='0'
-                                                                        step='1'
-                                                                    />
-                                                                    <span className='text-p-lg'>:</span>
-                                                                    <Input
-                                                                        className='flex size-10 items-center justify-center rounded-md p-0 text-center !text-p-lg text-text border-10 placeholder:text-center'
-                                                                        placeholder='00'
-                                                                        type='number'
-                                                                        id='minutes'
-                                                                        min='0'
-                                                                        max='59'
-                                                                        value='0'
-                                                                        step='1'
-                                                                    />
-                                                                    <Button
-                                                                        className='flex size-10 items-center justify-center text-p-lg text-text hover:bg-hover'
-                                                                        onClick={() =>
-                                                                            setCustomMeridiem(
-                                                                                customMeridiem === 'AM' ? 'PM' : 'AM'
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        {customMeridiem}
-                                                                    </Button>
-                                                                </div>
-                                                                {/* <span className='w-full text-p-sm text-text'>
-                                                                    00:15
-                                                                </span> */}
-                                                                <Button
-                                                                    className='flex size-10 min-w-10 items-center justify-center hover:bg-hover'
-                                                                    onClick={() => {
-                                                                        setCustomMeridiem('AM')
-                                                                        setIsTimeSlotCustom(false)
-                                                                    }}
-                                                                >
-                                                                    <X className='!size-4' />
-                                                                </Button>
-                                                            </div>
-                                                            <ContextMenuSeparator />
-                                                        </>
-                                                    )}
-                                                    {[15, 20, 30, 45, 60, 90, 120].map(step => (
-                                                        <ContextMenuItem
-                                                            className='gap-2'
-                                                            key={step}
-                                                            onSelect={() => setTimeStep(step as any)}
-                                                        >
-                                                            <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                                {
-                                                                    stepTimeSlotIcon[
-                                                                        step as keyof typeof stepTimeSlotIcon
-                                                                    ]
-                                                                }
-                                                            </span>
-                                                            <span className='w-full text-p-sm text-text'>
-                                                                {t('schedule.stepTime.step', { step })}
-                                                            </span>
-                                                            {timeStep === step && <Check className='size-4' />}
-                                                        </ContextMenuItem>
-                                                    ))}
-                                                </ContextMenuSubContent>
-                                            </ContextMenuSub>
-                                            <ContextMenuSub>
-                                                <ContextMenuSubTrigger className='gap-2'>
-                                                    <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                        <Icon
-                                                            name='TimerAdd'
-                                                            className='size-5 stroke-text stroke-[0.5px]'
-                                                        />
-                                                    </span>
-                                                    <span className='w-full text-p-sm text-text'>
-                                                        Create reserved time
-                                                    </span>
-                                                </ContextMenuSubTrigger>
-                                                <ContextMenuSubContent className='ml-1.5 min-w-[200px]'>
-                                                    <ContextMenuItem
-                                                        className='gap-2'
-                                                        onSelect={() => console.log('CUSTOM')}
-                                                    >
-                                                        <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                            <Icon
-                                                                name='TimerAdd'
-                                                                className='size-5 stroke-text stroke-[0.5px]'
-                                                            />
-                                                        </span>
-                                                        <span className='w-full pt-px text-p-sm text-text'>Custom</span>
-                                                    </ContextMenuItem>
-                                                    <ContextMenuSeparator />
-
-                                                    {[15, 20, 30, 45, 60, 90, 120].map(step => (
-                                                        <ContextMenuItem
-                                                            className='gap-2'
-                                                            key={step}
-                                                            onSelect={() => setTimeStep(step as any)}
-                                                        >
-                                                            <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                                {
-                                                                    stepTimeSlotIcon[
-                                                                        step as keyof typeof stepTimeSlotIcon
-                                                                    ]
-                                                                }
-                                                            </span>
-                                                            <span className='w-full text-p-sm text-text'>
-                                                                {t('schedule.stepTime.step', { step })}
-                                                            </span>
-                                                            {timeStep === step && <Check className='size-4' />}
-                                                        </ContextMenuItem>
-                                                    ))}
-                                                </ContextMenuSubContent>
-                                            </ContextMenuSub>
+                                            <ContextMenuItem
+                                                className='gap-2'
+                                                onSelect={() => console.log('CREATE_TIME_SLOT')}
+                                            >
+                                                <span className='flex size-6 min-w-6 items-center justify-center'>
+                                                    <Icon
+                                                        name='TimerReserve'
+                                                        className='size-5 stroke-text stroke-[0.5px]'
+                                                    />
+                                                </span>
+                                                <span className='w-full text-p-sm text-text'>Create time slot</span>
+                                            </ContextMenuItem>
+                                            <ContextMenuItem
+                                                className='gap-2'
+                                                onSelect={() => console.log('CREATE_TIME_SLOT')}
+                                            >
+                                                <span className='flex size-6 min-w-6 items-center justify-center'>
+                                                    <Icon
+                                                        name='TimerAdd'
+                                                        className='size-5 stroke-text stroke-[0.5px]'
+                                                    />
+                                                </span>
+                                                <span className='w-full text-p-sm text-text'>Create reserved time</span>
+                                            </ContextMenuItem>
                                             {/* <ContextMenuItem
                                                 className='gap-2'
                                                 onSelect={() => console.log('EDIT_APPOINTMENT')}
@@ -756,53 +637,18 @@ export function Schedule() {
                                                 </span>
                                                 <span className='w-full text-p-sm text-text'>Edit appointment</span>
                                             </ContextMenuItem> */}
-                                            {/* <ContextMenuSub>
-                                                <ContextMenuSubTrigger className='gap-2'>
-                                                    <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                        <Icon
-                                                            name='TimerEdit'
-                                                            className='size-5 stroke-text stroke-[0.5px]'
-                                                        />
-                                                    </span>
-                                                    <span className='w-full text-p-sm text-text'>
-                                                        Edit reserved time
-                                                    </span>
-                                                </ContextMenuSubTrigger>
-                                                <ContextMenuSubContent className='ml-1.5 min-w-[200px]'>
-                                                    <ContextMenuItem
-                                                        className='gap-2'
-                                                        onSelect={() => console.log('CUSTOM')}
-                                                    >
-                                                        <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                            <Icon
-                                                                name='TimerAdd'
-                                                                className='size-5 stroke-text stroke-[0.5px]'
-                                                            />
-                                                        </span>
-                                                        <span className='w-full text-p-sm text-text'>Custom</span>
-                                                    </ContextMenuItem>
-                                                    <ContextMenuSeparator />
-                                                    {[15, 20, 30, 45, 60, 90, 120].map(step => (
-                                                        <ContextMenuItem
-                                                            className='gap-2'
-                                                            key={step}
-                                                            onSelect={() => setTimeStep(step as any)}
-                                                        >
-                                                            <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                                {
-                                                                    stepTimeSlotIcon[
-                                                                        step as keyof typeof stepTimeSlotIcon
-                                                                    ]
-                                                                }
-                                                            </span>
-                                                            <span className='w-full text-p-sm text-text'>
-                                                                {t('schedule.stepTime.step', { step })}
-                                                            </span>
-                                                            {timeStep === step && <Check className='size-4' />}
-                                                        </ContextMenuItem>
-                                                    ))}
-                                                </ContextMenuSubContent>
-                                            </ContextMenuSub> */}
+                                            {/* <ContextMenuItem
+                                                className='gap-2'
+                                                onSelect={() => console.log('EDIT_RESERVE_TIME')}
+                                            >
+                                                <span className='flex size-6 min-w-6 items-center justify-center'>
+                                                    <Icon
+                                                        name='TimerEdit'
+                                                        className='size-5 stroke-text stroke-[0.5px]'
+                                                    />
+                                                </span>
+                                                <span className='w-full text-p-sm text-text'>Edit reserved time</span>
+                                            </ContextMenuItem> */}
                                             {/* <ContextMenuItem
                                                 className='gap-2'
                                                 onSelect={() => console.log('CANCEL_APPOINTMENT')}
@@ -860,7 +706,7 @@ export function Schedule() {
                             )}
 
                             {/* Рендерим плашки событий */}
-                            {patients.map(patient => {
+                            {patients.map((patient, idx) => {
                                 const appointment = patient.medicalRecord.appointments[0]
                                 const { top, height } = calculateAppointmentPosition(appointment)
                                 const isDragged = dragAppointment?.appointment.id === appointment.id

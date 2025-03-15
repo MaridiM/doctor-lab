@@ -25,7 +25,7 @@ export const DroppableSlot = memo(
             <div
                 ref={setNodeRef}
                 className={cn(
-                    'pointer-events-auto absolute flex w-full items-center justify-center py-0.5 pl-0.5 pr-1 will-change-transform',
+                    'pointer-events-auto absolute flex w-full items-center justify-center py-0.5 pl-0.5 pr-1.5 will-change-transform',
                     { 'h-full w-full': isVerticalRestriction }
                 )}
                 style={{ top: dynamicTop, height }}
