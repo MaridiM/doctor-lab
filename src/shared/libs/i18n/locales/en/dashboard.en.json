@@ -8,7 +8,6 @@
             "all": "All tasks",
             "generateTask": "Generate task with AI",
             "addNewTask": "Add new task",
-            "taskSettings": "Task settings",
             "sortBy": "Sort by",
             "newestOnTop": "Newest on top",
             "newestOnBottom": "Newest on bottom",
@@ -60,6 +59,16 @@
             "reschedule": "Reschedule appointment",
             "cancel": "Cancel appointment",
             "chart": "Appointment chart"
+        },
+        "contextMenu": {
+            "createAppointment": "Create appointment",
+            "editAppointment": "Edit appointment",
+            "cancelAppointment": "Cancel appointment",
+            "createTimeSlot": "Create time slot",
+            "createReservedTime": "Create reserved time",
+            "editReserveTime": "Edit reserved time",
+            "cancelTimeSlot": "Cancel time slot",
+            "cancelReservedTime": "Cancel reserved time"
         }
     },
     "patients": {

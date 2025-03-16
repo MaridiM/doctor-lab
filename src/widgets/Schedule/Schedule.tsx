@@ -15,62 +15,21 @@ import {
     useSensors
 } from '@dnd-kit/core'
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
-import {
-    CalendarClock,
-    CalendarCog,
-    CalendarPlus2,
-    CalendarX,
-    Check,
-    ChevronDown,
-    ChevronUp,
-    Clock3,
-    Clock4,
-    Clock6,
-    Clock9,
-    Clock12,
-    X
-} from 'lucide-react'
+import { CalendarClock, CalendarPlus2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 
 import { Appointment, PATIENTS, User } from '@/entities/api'
 
-import {
-    Button,
-    ContextMenu,
-    ContextMenuContent,
-    ContextMenuItem,
-    ContextMenuSeparator,
-    ContextMenuSub,
-    ContextMenuSubContent,
-    ContextMenuSubTrigger,
-    ContextMenuTrigger,
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-    Icon,
-    Input,
-    ScrollArea,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
-} from '@/shared/components'
+import { Button, ScrollArea } from '@/shared/components'
 import { adjustTime, cn, parseISOWithDurationNumeric } from '@/shared/utils'
 
 import { AppointmentCard } from './AppointmentCard'
 import { DroppableSlot } from './DroppableSlot'
+import { ScheduleContextMenu } from './ScheduleContextMenu'
 import { ScheduleHeader } from './ScheduleHeader'
-
-// import { TimerAddSvg } from '../../shared/assets/icons'
 
 export type TOperatingHours = 6 | 8 | 12 | 16 | 24
 export type TTimeStep = 15 | 20 | 30 | 60
@@ -493,6 +452,11 @@ export function Schedule() {
                 onDragEnd={handleDragEnd}
                 sensors={sensors}
             >
+                {/* <WidgetHeader
+                    title={t('schedule.title')}
+                    icon={<CalendarDays className='size-5 stroke-text-foreground' />}
+                ></WidgetHeader> */}
+
                 <ScheduleHeader
                     isTime24Format={isTime24Format}
                     setIsTime24Format={() => setIsTime24Format(!isTime24Format)}
@@ -508,7 +472,7 @@ export function Schedule() {
 
                 <ScrollArea className='flex h-full max-h-[calc(100vh-138px)] w-full bg-background' type='auto'>
                     <div className='flex overflow-hidden'>
-                        {/* Левая колонка с временной шкалой */}
+                        {/* Time Line */}
                         <ul className='gap relative flex w-16 flex-col overflow-hidden bg-card border-r-20'>
                             {SLOT_COUNT.map((_, idx) => {
                                 const { adjustedHour, minute } = calculateTime(idx)
@@ -553,7 +517,7 @@ export function Schedule() {
                             })}
                         </ul>
 
-                        {/* Правая колонка (сетка расписания) */}
+                        {/* Schedule Grid */}
                         <ul className='relative flex w-full flex-col'>
                             {SLOT_COUNT.map((_, idx) => {
                                 const { adjustedHour, minute } = calculateTime(idx)
@@ -565,122 +529,33 @@ export function Schedule() {
                                 const isHover = isSlotHover === idx || selectedSlot === idx
 
                                 return (
-                                    <ContextMenu key={idx} onOpenChange={open => setSelectedSlot(open ? idx : null)}>
-                                        <ContextMenuTrigger asChild>
-                                            <li
-                                                className={cn('flex items-center py-0.5 pl-0.5 pr-1.5 border-b-20', {
-                                                    'hover:bg-hover': validSlot,
-                                                    'border-b-none': lastItem,
-                                                    '!border-dashed': !isMinuteZero
-                                                })}
-                                                onMouseEnter={() => setIsSlotHover(idx)}
-                                                onMouseLeave={() => setIsSlotHover(null)}
-                                                style={{
-                                                    height: lastItem || idx === 0 ? slotHeight / 2 : slotHeight
-                                                }}
-                                            >
-                                                {isHover && validSlot && (
-                                                    <Button className='h-full w-full !border-dashed border-20'>
-                                                        <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                            <CalendarPlus2 className='!size-5 stroke-text-tertiary stroke-[1.5px]' />
-                                                        </span>
-                                                        <span className='pt-1 text-p-sm font-normal text-text-tertiary'>
-                                                            {t('schedule.addAppointment', {
-                                                                time: format(startTime, 'HH:mm')
-                                                            })}
-                                                        </span>
-                                                    </Button>
-                                                )}
-                                            </li>
-                                        </ContextMenuTrigger>
-                                        <ContextMenuContent className='min-w-[240px]'>
-                                            <ContextMenuItem
-                                                className='gap-2'
-                                                onSelect={() => console.log('CREATE_APPOINTMENT')}
-                                            >
-                                                <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                    <CalendarPlus2 className='size-[18px] stroke-[1.75px]' />
-                                                </span>
-
-                                                <span className='w-full text-p-sm text-text'>Create appointment</span>
-                                            </ContextMenuItem>
-                                            <ContextMenuItem
-                                                className='gap-2'
-                                                onSelect={() => console.log('CREATE_TIME_SLOT')}
-                                            >
-                                                <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                    <Icon
-                                                        name='TimerReserve'
-                                                        className='size-5 stroke-text stroke-[0.5px]'
-                                                    />
-                                                </span>
-                                                <span className='w-full text-p-sm text-text'>Create time slot</span>
-                                            </ContextMenuItem>
-                                            <ContextMenuItem
-                                                className='gap-2'
-                                                onSelect={() => console.log('CREATE_TIME_SLOT')}
-                                            >
-                                                <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                    <Icon
-                                                        name='TimerAdd'
-                                                        className='size-5 stroke-text stroke-[0.5px]'
-                                                    />
-                                                </span>
-                                                <span className='w-full text-p-sm text-text'>Create reserved time</span>
-                                            </ContextMenuItem>
-                                            {/* <ContextMenuItem
-                                                className='gap-2'
-                                                onSelect={() => console.log('EDIT_APPOINTMENT')}
-                                            >
-                                                <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                    <CalendarCog className='size-[18px] stroke-[1.75px]' />
-                                                </span>
-                                                <span className='w-full text-p-sm text-text'>Edit appointment</span>
-                                            </ContextMenuItem> */}
-                                            {/* <ContextMenuItem
-                                                className='gap-2'
-                                                onSelect={() => console.log('EDIT_RESERVE_TIME')}
-                                            >
-                                                <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                    <Icon
-                                                        name='TimerEdit'
-                                                        className='size-5 stroke-text stroke-[0.5px]'
-                                                    />
-                                                </span>
-                                                <span className='w-full text-p-sm text-text'>Edit reserved time</span>
-                                            </ContextMenuItem> */}
-                                            {/* <ContextMenuItem
-                                                className='gap-2'
-                                                onSelect={() => console.log('CANCEL_APPOINTMENT')}
-                                            >
-                                                <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                    <CalendarX className='size-[18px] stroke-[1.75px]' />
-                                                </span>
-                                                <span className='w-full text-p-sm text-text'>Cancel appointment</span>
-                                            </ContextMenuItem> */}
-                                            {/* <ContextMenuItem
-                                                className='gap-2'
-                                                onSelect={() => console.log('CANCEL_TIME_SLOT')}
-                                            >
-                                                <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                    <CalendarMinus2 className='size-[18px] stroke-[1.75px]' />
-                                                </span>
-                                                <span className='w-full text-p-sm text-text'>Cancel time slot</span>
-                                            </ContextMenuItem> */}
-                                            {/* <ContextMenuItem
-                                                className='gap-2'
-                                                onSelect={() => console.log('CANCEL_RESEVED_TIME')}
-                                            >
-                                                <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                    <Icon
-                                                        name='TimerClose'
-                                                        className='size-5 stroke-text stroke-[0.5px]'
-                                                    />
-                                                </span>
-                                                <span className='w-full text-p-sm text-text'>Cancel reserved time</span>
-                                            </ContextMenuItem> */}
-                                        </ContextMenuContent>
-                                    </ContextMenu>
+                                    <ScheduleContextMenu key={idx} isOpen={open => setSelectedSlot(open ? idx : null)}>
+                                        <li
+                                            className={cn('flex items-center py-0.5 pl-0.5 pr-1.5 border-b-20', {
+                                                'hover:bg-hover': validSlot,
+                                                'border-b-none': lastItem,
+                                                '!border-dashed': !isMinuteZero
+                                            })}
+                                            onMouseEnter={() => setIsSlotHover(idx)}
+                                            onMouseLeave={() => setIsSlotHover(null)}
+                                            style={{
+                                                height: lastItem || idx === 0 ? slotHeight / 2 : slotHeight
+                                            }}
+                                        >
+                                            {isHover && validSlot && (
+                                                <Button className='h-full w-full !border-dashed border-20'>
+                                                    <span className='flex size-6 min-w-6 items-center justify-center'>
+                                                        <CalendarPlus2 className='!size-5 stroke-text-tertiary stroke-[1.5px]' />
+                                                    </span>
+                                                    <span className='pt-1 text-p-sm font-normal text-text-tertiary'>
+                                                        {t('schedule.addAppointment', {
+                                                            time: format(startTime, 'HH:mm')
+                                                        })}
+                                                    </span>
+                                                </Button>
+                                            )}
+                                        </li>
+                                    </ScheduleContextMenu>
                                 )
                             })}
 
@@ -705,8 +580,8 @@ export function Schedule() {
                                 />
                             )}
 
-                            {/* Рендерим плашки событий */}
-                            {patients.map((patient, idx) => {
+                            {/* Appointment */}
+                            {patients.map(patient => {
                                 const appointment = patient.medicalRecord.appointments[0]
                                 const { top, height } = calculateAppointmentPosition(appointment)
                                 const isDragged = dragAppointment?.appointment.id === appointment.id

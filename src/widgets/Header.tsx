@@ -12,6 +12,8 @@ import {
     SidebarTrigger
 } from '@/shared/components'
 
+import { ChangeLanguage, ChangeTheme } from '@/features'
+
 export function Header() {
     const tDashboard = useTranslations('dashboard')
     const t = useTranslations('core')
@@ -23,7 +25,8 @@ export function Header() {
                 <span className='text-h4 !text-text drop-shadow-sm'>{tDashboard('title')}</span>
             </div>
             <div className='flex items-center gap-4'>
-                {/* <ChangeTheme /> */}
+                <ChangeLanguage />
+                <ChangeTheme />
                 <Button
                     size='icon'
                     variant='primary'

@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { ReactNode, useMemo, useState } from 'react'
 
 import {
     Button,
@@ -36,17 +36,32 @@ import { PATHS } from '@/shared/config'
 
 import { TOperatingHours, TTimeStep } from './Schedule'
 
-interface IProps {
+interface ScheduleHeaderProps {
     timeStep: TTimeStep
+    operatingHours: TOperatingHours
     isTime24Format: boolean
     isSmartPlacement: boolean
     isVerticalRestriction: boolean
-    operatingHours: TOperatingHours
-    setIsTime24Format: VoidFunction
-    setIsSmartPlacement: VoidFunction
-    setIsVerticalRestriction: VoidFunction
-    setTimeStep: (time: TTimeStep) => void
-    setOperatingHours: (hour: TOperatingHours) => void
+    setTimeStep: (step: TTimeStep) => void
+    setOperatingHours: (hours: TOperatingHours) => void
+    setIsTime24Format: (value: boolean) => void
+    setIsSmartPlacement: (value: boolean) => void
+    setIsVerticalRestriction: (value: boolean) => void
+}
+
+const OPERATING_HOURS_ICON = {
+    6: <Clock6 className='size-[18px] stroke-[1.75px]' />,
+    8: <Clock8 className='size-[18px] stroke-[1.75px]' />,
+    12: <Clock12 className='size-[18px] stroke-[1.75px]' />,
+    16: <Clock4 className='size-[18px] stroke-[1.75px]' />,
+    24: <Clock12 className='size-[18px] stroke-[1.75px]' />
+}
+
+const STEP_TIME_ICON = {
+    15: <Clock3 className='size-[18px] stroke-[1.75px]' />,
+    20: <Clock4 className='size-[18px] stroke-[1.75px]' />,
+    30: <Clock6 className='size-[18px] stroke-[1.75px]' />,
+    60: <Clock12 className='size-[18px] stroke-[1.75px]' />
 }
 
 export function ScheduleHeader({
@@ -60,30 +75,34 @@ export function ScheduleHeader({
     setIsTime24Format,
     setIsSmartPlacement,
     setIsVerticalRestriction
-}: IProps) {
+}: ScheduleHeaderProps) {
     const t = useTranslations('dashboard')
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
-    const [isOpenScheduleSettings, setIsOpenScheduleSettings] = useState(false)
-
-    const operatingHoursIcon = useMemo(
+    const menuItems = useMemo(
         () => ({
-            6: <Clock6 className='size-[18px] stroke-[1.75px]' />,
-            8: <Clock8 className='size-[18px] stroke-[1.75px]' />,
-            12: <Clock12 className='size-[18px] stroke-[1.75px]' />,
-            16: <Clock4 className='size-[18px] stroke-[1.75px]' />,
-            24: <Clock12 className='size-[18px] stroke-[1.75px]' />
+            operatingHours: [6, 8, 12, 16, 24] as TOperatingHours[],
+            stepTime: [15, 20, 30, 60] as TTimeStep[]
         }),
         []
     )
 
-    const stepTimeIcon = useMemo(
-        () => ({
-            15: <Clock3 className='size-[18px] stroke-[1.75px]' />,
-            20: <Clock4 className='size-[18px] stroke-[1.75px]' />,
-            30: <Clock6 className='size-[18px] stroke-[1.75px]' />,
-            60: <Clock12 className='size-[18px] stroke-[1.75px]' />
-        }),
-        []
+    const renderSubMenuItem = (
+        value: number,
+        icon: ReactNode,
+        label: string,
+        isSelected: boolean,
+        onSelect: () => void
+    ) => (
+        <DropdownMenuItem key={value} onSelect={onSelect}>
+            {icon && <span className='flex size-6 min-w-6 items-center justify-center'>{icon}</span>}
+            <span className='w-full text-p-sm text-text'>{label}</span>
+            {isSelected && (
+                <span className='flex size-6 min-w-6 items-center justify-center'>
+                    <Check className='!size-4' />
+                </span>
+            )}
+        </DropdownMenuItem>
     )
 
     return (
@@ -114,75 +133,74 @@ export function ScheduleHeader({
                     <CalendarPlus2 className='stroke-text-foreground' />
                 </Button>
 
-                <DropdownMenu
-                    open={isOpenScheduleSettings}
-                    onOpenChange={() => setIsOpenScheduleSettings(!isOpenScheduleSettings)}
-                >
+                <DropdownMenu open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
                     <DropdownMenuTrigger asChild>
                         <Button variant='outline' size='icon' icon='sm'>
                             <Settings className='!size-[18px] stroke-[1.5px]' />
                         </Button>
                     </DropdownMenuTrigger>
+
                     <DropdownMenuContent align='end' className='min-w-[280px]'>
+                        {/* Operating Hours Submenu */}
                         <DropdownMenuSub>
                             <DropdownMenuSubTrigger className='gap-2'>
                                 <span className='flex size-6 min-w-6 items-center justify-center'>
-                                    {operatingHoursIcon[operatingHours]}
+                                    {OPERATING_HOURS_ICON[operatingHours]}
                                 </span>
                                 <span className='w-full text-p-sm text-text'>
-                                    {t('schedule.header.operatingHours.label', { duration: operatingHours })}
+                                    {t('schedule.header.operatingHours.label', {
+                                        duration: operatingHours
+                                    })}
                                 </span>
                             </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent className='ml-2.5 min-w-[200px]'>
-                                {[6, 8, 12, 16, 24].map(hours => (
-                                    <DropdownMenuItem key={hours} onSelect={() => setOperatingHours(hours as any)}>
-                                        <span className='flex size-6 min-w-6 items-center justify-center'>
-                                            {operatingHoursIcon[hours as keyof typeof operatingHoursIcon]}
-                                        </span>
-                                        <span className='w-full text-p-sm text-text'>
-                                            {t('schedule.header.operatingHours.durations', { hours })}
-                                        </span>
-
-                                        {operatingHours === hours && <Check className='size-4' />}
-                                    </DropdownMenuItem>
-                                ))}
+                            <DropdownMenuSubContent className='ml-1.5 min-w-[200px]'>
+                                {menuItems.operatingHours.map(hours =>
+                                    renderSubMenuItem(
+                                        hours,
+                                        OPERATING_HOURS_ICON[hours],
+                                        t('schedule.header.operatingHours.durations', { hours }),
+                                        operatingHours === hours,
+                                        () => setOperatingHours(hours)
+                                    )
+                                )}
                             </DropdownMenuSubContent>
                         </DropdownMenuSub>
 
+                        {/* Step Time Submenu */}
                         <DropdownMenuSub>
                             <DropdownMenuSubTrigger className='gap-2'>
                                 <span className='flex size-6 min-w-6 items-center justify-center'>
-                                    {stepTimeIcon[timeStep]}
+                                    {STEP_TIME_ICON[timeStep]}
                                 </span>
                                 <span>{t('schedule.stepTime.title', { step: timeStep })}</span>
                             </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent className='ml-2.5 min-w-[200px]'>
-                                {[15, 20, 30, 60].map(step => (
-                                    <DropdownMenuItem key={step} onSelect={() => setTimeStep(step as any)}>
-                                        <span className='flex size-6 min-w-6 items-center justify-center'>
-                                            {stepTimeIcon[step as keyof typeof stepTimeIcon]}
-                                        </span>
-                                        <span className='w-full text-p-sm text-text'>
-                                            {t('schedule.stepTime.step', { step })}
-                                        </span>
-                                        <span className='flex size-6 min-w-6 items-center justify-center'>
-                                            {timeStep === step && <Check className='size-4' />}
-                                        </span>
-                                    </DropdownMenuItem>
-                                ))}
+                            <DropdownMenuSubContent className='ml-1.5 min-w-[200px]'>
+                                {menuItems.stepTime.map(step =>
+                                    renderSubMenuItem(
+                                        step,
+                                        STEP_TIME_ICON[step],
+                                        t('schedule.stepTime.step', { step }),
+                                        timeStep === step,
+                                        () => setTimeStep(step)
+                                    )
+                                )}
                             </DropdownMenuSubContent>
                         </DropdownMenuSub>
 
+                        {/* Time Format Setting */}
                         <DropdownMenuItem onSelect={e => e.preventDefault()}>
                             <span className='flex size-6 min-w-6 items-center justify-center'>
                                 <CalendarClock className='size-[18px] stroke-[1.75px]' />
                             </span>
                             <span className='w-full text-p-sm text-text'>
-                                {t('schedule.header.timeFormat', { format: isTime24Format ? '24' : '12' })}
+                                {t('schedule.header.timeFormat', {
+                                    format: isTime24Format ? '24' : '12'
+                                })}
                             </span>
                             <Switch checked={isTime24Format} onCheckedChange={setIsTime24Format} />
                         </DropdownMenuItem>
 
+                        {/* Vertical Restriction Setting */}
                         <DropdownMenuItem onSelect={e => e.preventDefault()}>
                             <span className='flex size-6 min-w-6 items-center justify-center'>
                                 <ChevronsUpDown className='size-[18px] stroke-[1.75px]' />
@@ -193,6 +211,7 @@ export function ScheduleHeader({
                             <Switch checked={isVerticalRestriction} onCheckedChange={setIsVerticalRestriction} />
                         </DropdownMenuItem>
 
+                        {/* Smart Placement Setting */}
                         <DropdownMenuItem onSelect={e => e.preventDefault()}>
                             <span className='flex size-6 min-w-6 items-center justify-center'>
                                 <CalendarSync className='size-[18px] stroke-[1.75px]' />

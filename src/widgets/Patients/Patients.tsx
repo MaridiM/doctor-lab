@@ -11,11 +11,8 @@ import {
     MessagesSquare,
     Phone,
     UserPen,
-    UserPlus2,
-    Users2
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -32,9 +29,10 @@ import {
     SearchInput,
     UserAvatar
 } from '@/shared/components'
-import { PATHS } from '@/shared/config'
 import { TSearch, searchSchema } from '@/shared/schemas'
 import { parseISOWithDurationNumeric } from '@/shared/utils'
+
+import { PatientsHeader } from './PatientsHeader'
 
 export function Patients() {
     const t = useTranslations('dashboard')
@@ -63,10 +61,6 @@ export function Patients() {
 
     const { isDirty } = form.formState
 
-    function handlerAddPatient() {
-        console.log('Add New Patient')
-    }
-
     const patientMenuItems = useMemo(
         () => [
             { icon: BellRing, label: 'notify' },
@@ -83,34 +77,7 @@ export function Patients() {
                 <div className='w-full rounded-lg bg-card p-4 border-20'>Widgets 1</div>
             </section>
             <section className='h-full w-full overflow-hidden rounded-lg bg-background border-20'>
-                <header className='flex h-14 items-center justify-between bg-card px-4 py-2 border-b-20'>
-                    <div className='flex items-center gap-2'>
-                        <span className='rounded-md bg-primary p-1.5'>
-                            <Users2 className='size-5 stroke-text-foreground' />
-                        </span>
-                        <span className='text-h4 font-normal text-text'>{t('patients.title')}</span>
-                    </div>
-
-                    <div className='flex items-center gap-2'>
-                        <Button variant='outline' size='sm' className='pt-px'>
-                            <Link href={PATHS.patients}>{t('patients.header.all')}</Link>
-                        </Button>
-
-                        <Button
-                            size='icon'
-                            icon='sm'
-                            variant='primary'
-                            tooltip={{
-                                children: t('patients.header.addPatient'),
-                                align: 'center',
-                                side: 'bottom'
-                            }}
-                            onClick={handlerAddPatient}
-                        >
-                            <UserPlus2 className='stroke-text-foreground' />
-                        </Button>
-                    </div>
-                </header>
+                <PatientsHeader />
                 <SearchInput form={form} isDirty={isDirty} placeholder={t('patients.search')} />
                 <ScrollArea className='flex h-full max-h-[calc(100vh-442px)] w-full' type='auto'>
                     <ul className='flex flex-col gap-1 p-2'>

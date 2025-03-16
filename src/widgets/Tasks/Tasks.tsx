@@ -3,29 +3,17 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 import {
-    ArrowDownZA,
-    ArrowUpAZ,
-    ArrowUpDown,
-    ArrowUpNarrowWide,
-    ArrowUpWideNarrow,
-    Check,
     CheckCheck,
     EllipsisVertical,
-    ListChecks,
-    ListTodo,
     Package,
     PencilLine,
     Pin,
     PinOff,
-    Plus,
-    Settings,
-    Sparkles,
     SquareCheckBig,
     Star,
     Trash2
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import Link from 'next/link'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -37,21 +25,17 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuSub,
-    DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
     ScrollArea,
-    SearchInput,
-    Switch
+    SearchInput
 } from '@/shared/components'
-import { PATHS } from '@/shared/config'
 import { TSearch, searchSchema } from '@/shared/schemas'
 import { cn } from '@/shared/utils'
 
+import { TasksHeader } from './TasksHeader'
+
 export function Tasks() {
     const t = useTranslations('dashboard')
-    const [isOpenTaskSettings, setIsOpenTaskSettings] = useState(false)
     const [isOpenTaskMenu, setIsOpenTaskMenu] = useState(false)
     const [isHoverTask, setIsHoverTask] = useState<string | null>(null)
     const [isSelectedTask, setIsSelectedTask] = useState<string | null>(null)
@@ -66,102 +50,13 @@ export function Tasks() {
     const { isDirty } = form.formState
     return (
         <section className='bg-baclground w-full overflow-hidden rounded-lg border-20'>
-            <header className='flex h-14 items-center justify-between bg-card px-4 py-2 border-b-20'>
-                <div className='flex items-center gap-2'>
-                    <span className='rounded-md bg-primary p-1.5'>
-                        <ListTodo className='size-5 stroke-text-foreground' />
-                    </span>
-                    <span className='text-h4 font-normal text-text'>{t('tasks.title')}</span>
-                </div>
+            {/* <WidgetHeader
+                title={t('tasks.title')}
+                icon={<ListTodo className='size-5 stroke-text-foreground' />}
+            ></WidgetHeader> */}
 
-                <div className='flex items-center gap-2'>
-                    <Button variant='outline' size='sm' className='pt-px'>
-                        <Link href={PATHS.tasks}>{t('tasks.header.all')}</Link>
-                    </Button>
-                    <Button
-                        variant='outline'
-                        size='icon'
-                        icon='sm'
-                        tooltip={{ children: t('tasks.header.generateTask'), align: 'center', side: 'bottom' }}
-                    >
-                        <Sparkles className='stroke-[1.5px]' />
-                    </Button>
-                    <Button
-                        variant='primary'
-                        size='icon'
-                        icon='sm'
-                        tooltip={{ children: t('tasks.header.addNewTask'), align: 'center', side: 'bottom' }}
-                    >
-                        <Plus className='stroke-text-foreground' />
-                    </Button>
+            <TasksHeader />
 
-                    <DropdownMenu
-                        open={isOpenTaskSettings}
-                        onOpenChange={() => setIsOpenTaskSettings(!isOpenTaskSettings)}
-                    >
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant='outline'
-                                size='icon'
-                                icon='sm'
-                                tooltip={{
-                                    children: t('tasks.header.taskSettings'),
-                                    align: 'center',
-                                    side: 'bottom'
-                                }}
-                            >
-                                <Settings className='stroke-[1.5px]' />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align='end' className='min-w-[280px]'>
-                            {/* Вложенное подменю для сортировки */}
-                            <DropdownMenuSub>
-                                <DropdownMenuSubTrigger className='gap-2'>
-                                    <ArrowUpDown />
-                                    <span>{t('tasks.header.sortBy')}</span>
-                                </DropdownMenuSubTrigger>
-                                <DropdownMenuSubContent className='mr-1.5 min-w-[200px]'>
-                                    <DropdownMenuItem>
-                                        <ArrowUpAZ />
-                                        <span className='w-full text-p-sm text-text'>
-                                            {t('tasks.header.newestOnTop')}
-                                        </span>
-                                        <Check />
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <ArrowDownZA />
-                                        <span className='w-full text-p-sm text-text'>
-                                            {t('tasks.header.newestOnBottom')}
-                                        </span>
-                                        <Check />
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <ArrowUpNarrowWide />
-                                        <span className='w-full text-p-sm text-text'>
-                                            {t('tasks.header.dateCreated')}
-                                        </span>
-                                        <Check />
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <ArrowUpWideNarrow />
-                                        <span className='w-full text-p-sm text-text'>
-                                            {t('tasks.header.dateModified')}
-                                        </span>
-                                        <Check />
-                                    </DropdownMenuItem>
-                                </DropdownMenuSubContent>
-                            </DropdownMenuSub>
-
-                            {/* Остальные пункты меню */}
-                            <DropdownMenuItem onSelect={e => e.preventDefault()} className=''>
-                                <ListChecks />
-                                <span className='w-full text-p-sm text-text'>{t('tasks.header.showCompleted')}</span>
-                                <Switch className='border-25' />
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </header>
             <SearchInput form={form} isDirty={isDirty} placeholder={t('tasks.search')} />
             <ScrollArea className='h-full max-h-[calc(100vh-194px)] w-full' type='auto'>
                 <ul className='flex h-full w-full flex-col gap-1 p-2'>

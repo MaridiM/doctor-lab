@@ -14,6 +14,11 @@
     // user-select: none
   }
 
+  svg {
+    @apply stroke-text;
+    fill: none;
+  }
+
   body {
     font-family: var(--font-roboto);
     font-weight: 400;
