@@ -14,10 +14,11 @@ interface IProps {
     isVerticalRestriction?: boolean
     hasConflict?: boolean
     label?: string
+    className?: string
 }
 
 export const DroppableSlot = memo(
-    ({ id, top, height, translate, isVerticalRestriction, hasConflict, label }: IProps) => {
+    ({ id, top, height, translate, isVerticalRestriction, hasConflict, label, className }: IProps) => {
         const { setNodeRef, isOver } = useDroppable({ id })
         const dynamicTop = useMemo(() => top + (translate?.y ?? 0), [top, translate?.y])
 
@@ -26,7 +27,8 @@ export const DroppableSlot = memo(
                 ref={setNodeRef}
                 className={cn(
                     'pointer-events-auto absolute flex w-full items-center justify-center py-0.5 pl-0.5 pr-1.5 will-change-transform',
-                    { 'h-full w-full': isVerticalRestriction }
+                    { 'h-full w-full': isVerticalRestriction },
+                    className
                 )}
                 style={{ top: dynamicTop, height }}
             >

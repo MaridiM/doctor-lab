@@ -63,7 +63,6 @@ export function ChangeLanguage({ className }: IProps) {
                             </SelectTrigger>
                             <SelectContent className='min-w-10' classNameViewport='flex flex-col gap-0.5'>
                                 {languages.map(language => {
-                                    console.log(language === locale)
                                     const currentLanguage = language === locale
                                     return (
                                         <SelectItem

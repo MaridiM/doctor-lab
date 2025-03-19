@@ -19,7 +19,7 @@ export function ScheduleContextMenu({ children, isOpen, type }: PropsWithChildre
     const t = useTranslations('dashboard.schedule.contextMenu')
 
     const iconStyle = {
-        custom: 'size-5 stroke-text fill-text stroke-[3px]',
+        custom: 'size-5 stroke-text fill-text stroke-[1px]',
         lucide: 'size-[18px] stroke-[1.75px]'
     }
 

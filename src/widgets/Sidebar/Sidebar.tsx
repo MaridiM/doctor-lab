@@ -114,7 +114,8 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     return (
         <Sidebar collapsible='icon' {...props} className='border-r-20'>
             <SidebarHeader className='h-16 border-b-20'>
-                {isOrganisation ? <OrganizationSwitcher organizations={data.organizations} /> : <BaseHeader />}
+                <BaseHeader />
+            {/* {isOrganisation && <OrganizationSwitcher organizations={data.organizations} />} */}
             </SidebarHeader>
 
             <SidebarContent>
