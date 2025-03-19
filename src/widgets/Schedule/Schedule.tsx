@@ -143,7 +143,7 @@ export function Schedule() {
     // ----------------------------------------------------------------------------------------------
     const [reservedTimes, setReservedTimes] = useState<IReservedTime[]>(RESERVED_TIME)
 
-    const [dragAppointment, setDragAppointment] = useState<DraggableData | null>(null)
+    const [dragItem, setDragItem] = useState<DraggableData | null>(null)
     const [isVerticalRestriction, setIsVerticalRestriction] = useState<boolean>(RESTRICT_TO_VERTICAL_AXIS)
 
     const [currentPosition, setCurrentPosition] = useState<Translate>({ x: 0, y: 0 })
@@ -188,7 +188,7 @@ export function Schedule() {
             if (patient) {
                 const appointment = patient.medicalRecord.appointments.find(a => a.id === active.id)
                 if (appointment) {
-                    setDragAppointment({ type: 'APPOINTMENT', data: appointment, patient })
+                    setDragItem({ type: 'APPOINTMENT', data: appointment, patient })
                     return
                 }
             }
@@ -196,7 +196,7 @@ export function Schedule() {
             // Поиск среди зарезервированных времён
             const reservedTime = reservedTimes.find(rt => rt.id === active.id)
             if (reservedTime) {
-                setDragAppointment({ type: 'RESERVED_TIME', data: reservedTime })
+                setDragItem({ type: 'RESERVED_TIME', data: reservedTime })
             }
         },
         [patients, reservedTimes]
@@ -204,23 +204,18 @@ export function Schedule() {
 
     const handleDragMove = useCallback(
         ({ delta }: DragMoveEvent) => {
-            if (!dragAppointment) return
+            if (!dragItem) return
 
             requestAnimationFrame(() => {
                 const startHour24 = getStartHour24()
                 const minMinutes = (startHour24 - 1) * 60
                 const maxMinutes = minMinutes + (operatingHours + 2) * 60
 
-                const duration =
-                    'service' in dragAppointment.data
-                        ? dragAppointment.data.service.duration
-                        : dragAppointment.data.duration
+                const duration = 'service' in dragItem.data ? dragItem.data.service.duration : dragItem.data.duration
 
                 const initialTop = calculatePosition(
-                    dragAppointment.data.date,
-                    'service' in dragAppointment.data
-                        ? dragAppointment.data.service.duration
-                        : dragAppointment.data.duration
+                    dragItem.data.date,
+                    'service' in dragItem.data ? dragItem.data.service.duration : dragItem.data.duration
                 ).top
                 const maxAllowedTop = ((maxMinutes - minMinutes - duration) / timeStep) * slotHeight
 
@@ -240,9 +235,9 @@ export function Schedule() {
 
                 // Get all other appointments  / reserved times
                 const allOtherAppointments = patients.flatMap(patient =>
-                    patient.medicalRecord.appointments.filter(a => a.id !== dragAppointment.data.id)
+                    patient.medicalRecord.appointments.filter(a => a.id !== dragItem.data.id)
                 )
-                const allOtherReservedTimes = reservedTimes.filter(a => a.id !== dragAppointment.data.id)
+                const allOtherReservedTimes = reservedTimes.filter(a => a.id !== dragItem.data.id)
 
                 const conflicts = [...allOtherAppointments, ...allOtherReservedTimes]
 
@@ -262,28 +257,19 @@ export function Schedule() {
                 setCurrentPosition({ x: 0, y: newY - initialTop })
             })
         },
-        [
-            dragAppointment,
-            operatingHours,
-            timeStep,
-            slotHeight,
-            calculatePosition,
-            getStartHour24,
-            isTime24Format,
-            patients
-        ]
+        [dragItem, operatingHours, timeStep, slotHeight, calculatePosition, getStartHour24, isTime24Format, patients]
     )
 
     const handleDragEnd = useCallback(
         ({ over, delta }: DragEndEvent) => {
-            if (!dragAppointment || !over) {
-                setDragAppointment(null)
+            if (!dragItem || !over) {
+                setDragItem(null)
                 setHasConflict(false)
                 return
             }
 
             if (!isSmartPlacement && hasConflict) {
-                setDragAppointment(null)
+                setDragItem(null)
                 setCurrentTime('')
                 setHasConflict(false)
                 requestAnimationFrame(() => {
@@ -297,17 +283,12 @@ export function Schedule() {
             const endHour24 = startHour24 + operatingHours
             const minMinutes = (startHour24 - 1) * 60
             const maxMinutes = (endHour24 + 1) * 60
-            const duration =
-                'service' in dragAppointment.data
-                    ? dragAppointment.data.service.duration
-                    : dragAppointment.data.duration
+            const duration = 'service' in dragItem.data ? dragItem.data.service.duration : dragItem.data.duration
 
             // 2. Calculate new position
             const initialTop = calculatePosition(
-                dragAppointment.data.date,
-                'service' in dragAppointment.data
-                    ? dragAppointment.data.service.duration
-                    : dragAppointment.data.duration
+                dragItem.data.date,
+                'service' in dragItem.data ? dragItem.data.service.duration : dragItem.data.duration
             ).top
             const newTop = Math.max(
                 0,
@@ -320,9 +301,9 @@ export function Schedule() {
 
             // 4. Get all other appointments / reserved times
             const allOtherAppointments = patients.flatMap(patient =>
-                patient.medicalRecord.appointments.filter(a => a.id !== dragAppointment.data.id)
+                patient.medicalRecord.appointments.filter(a => a.id !== dragItem.data.id)
             )
-            const allOtherReservedTimes = reservedTimes.filter(a => a.id !== dragAppointment.data.id)
+            const allOtherReservedTimes = reservedTimes.filter(a => a.id !== dragItem.data.id)
 
             const conflicts = [...allOtherAppointments, ...allOtherReservedTimes]
             // 5. Check for conflicts
@@ -419,18 +400,18 @@ export function Schedule() {
             const hours = Math.floor(bestPosition / 60)
             const minutes = bestPosition % 60
 
-            dragAppointment.type === 'APPOINTMENT' &&
+            dragItem.type === 'APPOINTMENT' &&
                 setPatients(prevPatients =>
                     prevPatients.map(patient => {
                         const appointmentIndex = patient.medicalRecord.appointments.findIndex(
-                            a => a.id === dragAppointment.data.id
+                            a => a.id === dragItem.data.id
                         )
 
                         if (appointmentIndex === -1) return patient
 
                         const updatedAppointment = {
-                            ...(dragAppointment.data as Appointment),
-                            date: adjustTime(dragAppointment.data.date, hours, minutes)
+                            ...(dragItem.data as Appointment),
+                            date: adjustTime(dragItem.data.date, hours, minutes)
                         }
 
                         return {
@@ -446,16 +427,16 @@ export function Schedule() {
                         }
                     })
                 )
-            dragAppointment.type === 'RESERVED_TIME' &&
+            dragItem.type === 'RESERVED_TIME' &&
                 setReservedTimes(prev =>
                     prev.map(rt =>
-                        rt.id === dragAppointment.data.id
-                            ? { ...rt, date: adjustTime(dragAppointment.data.date, hours, minutes) }
+                        rt.id === dragItem.data.id
+                            ? { ...rt, date: adjustTime(dragItem.data.date, hours, minutes) }
                             : rt
                     )
                 )
 
-            setDragAppointment(null)
+            setDragItem(null)
             setCurrentTime('')
 
             requestAnimationFrame(() => {
@@ -463,7 +444,7 @@ export function Schedule() {
             })
         },
         [
-            dragAppointment,
+            dragItem,
             slotHeight,
             timeStep,
             operatingHours,
@@ -593,20 +574,20 @@ export function Schedule() {
                                 )
                             })}
 
-                            {dragAppointment?.type === 'APPOINTMENT' && (
+                            {dragItem?.type === 'APPOINTMENT' && (
                                 <DroppableSlot
                                     id='active-slot'
                                     top={
                                         calculatePosition(
-                                            dragAppointment.data.date,
-                                            (dragAppointment.data as Appointment).service.duration
+                                            dragItem.data.date,
+                                            (dragItem.data as Appointment).service.duration
                                         ).top +
                                         slotHeight / 2
                                     }
                                     height={
                                         calculatePosition(
-                                            dragAppointment.data.date,
-                                            (dragAppointment.data as Appointment).service.duration
+                                            dragItem.data.date,
+                                            (dragItem.data as Appointment).service.duration
                                         ).height
                                     }
                                     translate={currentPosition}
@@ -614,9 +595,9 @@ export function Schedule() {
                                     hasConflict={hasConflict}
                                     label={
                                         !hasConflict
-                                            ? t('schedule.dropSlot', {
+                                            ? t('schedule.dropSlot.appointment', {
                                                   time: currentTime,
-                                                  duration: (dragAppointment.data as Appointment).service.duration
+                                                  duration: (dragItem.data as Appointment).service.duration
                                               })
                                             : t('schedule.slotConflict', {
                                                   time: currentTime
@@ -624,30 +605,26 @@ export function Schedule() {
                                     }
                                 />
                             )}
-                            {dragAppointment?.type === 'RESERVED_TIME' && (
+                            {dragItem?.type === 'RESERVED_TIME' && (
                                 <DroppableSlot
                                     id='active-slot'
                                     top={
-                                        calculatePosition(
-                                            dragAppointment.data.date,
-                                            (dragAppointment.data as IReservedTime).duration
-                                        ).top +
+                                        calculatePosition(dragItem.data.date, (dragItem.data as IReservedTime).duration)
+                                            .top +
                                         slotHeight / 2
                                     }
                                     height={
-                                        calculatePosition(
-                                            dragAppointment.data.date,
-                                            (dragAppointment.data as IReservedTime).duration
-                                        ).height
+                                        calculatePosition(dragItem.data.date, (dragItem.data as IReservedTime).duration)
+                                            .height
                                     }
                                     translate={currentPosition}
                                     isVerticalRestriction={isVerticalRestriction}
                                     hasConflict={hasConflict}
                                     label={
                                         !hasConflict
-                                            ? t('schedule.dropSlot', {
+                                            ? t('schedule.dropSlot.reservedTime', {
                                                   time: currentTime,
-                                                  duration: (dragAppointment.data as IReservedTime).duration
+                                                  duration: (dragItem.data as IReservedTime).duration
                                               })
                                             : t('schedule.slotConflict', {
                                                   time: currentTime
@@ -663,7 +640,7 @@ export function Schedule() {
                                     appointment.date,
                                     appointment.service.duration
                                 )
-                                const isDragged = dragAppointment?.data.id === appointment.id
+                                const isDragged = dragItem?.data.id === appointment.id
 
                                 return (
                                     <AppointmentCard
@@ -678,7 +655,7 @@ export function Schedule() {
                             })}
                             {reservedTimes.map(reservedTime => {
                                 const { top, height } = calculatePosition(reservedTime.date, reservedTime.duration)
-                                const isDragged = dragAppointment?.data.id === reservedTime.id
+                                const isDragged = dragItem?.data.id === reservedTime.id
 
                                 return (
                                     <ReservedTimeCard
@@ -697,28 +674,26 @@ export function Schedule() {
                         dropAnimation={{ duration: 150, easing: 'ease-out' }}
                         modifiers={isVerticalRestriction ? [restrictToParentElement] : []}
                     >
-                        {dragAppointment?.type === 'APPOINTMENT' && (
+                        {dragItem?.type === 'APPOINTMENT' && (
                             <AppointmentCard
-                                appointment={dragAppointment.data as Appointment}
+                                appointment={dragItem.data as Appointment}
                                 top={0}
                                 height={
                                     calculatePosition(
-                                        dragAppointment.data.date,
-                                        (dragAppointment.data as Appointment).service.duration
+                                        dragItem.data.date,
+                                        (dragItem.data as Appointment).service.duration
                                     ).height
                                 }
                                 className={cn('cursor-grabbing', { 'cursor-not-allowed': hasConflict })}
                             />
                         )}
-                        {dragAppointment?.type === 'RESERVED_TIME' && (
+                        {dragItem?.type === 'RESERVED_TIME' && (
                             <ReservedTimeCard
-                                reservedTime={dragAppointment.data as IReservedTime}
+                                reservedTime={dragItem.data as IReservedTime}
                                 top={0}
                                 height={
-                                    calculatePosition(
-                                        dragAppointment.data.date,
-                                        (dragAppointment.data as IReservedTime).duration
-                                    ).height
+                                    calculatePosition(dragItem.data.date, (dragItem.data as IReservedTime).duration)
+                                        .height
                                 }
                                 className={cn('cursor-grabbing', { 'cursor-not-allowed': hasConflict })}
                             />

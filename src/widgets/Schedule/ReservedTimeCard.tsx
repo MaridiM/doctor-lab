@@ -9,7 +9,14 @@ import { CSSProperties, useMemo, useState } from 'react'
 
 import { IReservedTime } from '@/entities/api/mock/reservedTime'
 
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/shared/components'
+import {
+    Badge,
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from '@/shared/components'
 import { cn, parseISOWithDurationNumeric } from '@/shared/utils'
 
 import { EStateType, ScheduleContextMenu } from './ScheduleContextMenu'
@@ -46,11 +53,6 @@ export function ReservedTimeCard({ reservedTime, top, height, className, style }
 
     const dragParams = isContextMenu || isOpenSettings ? {} : { ...listeners, ...attributes }
 
-    const { startHour, startMinute } = parseISOWithDurationNumeric(reservedTime.date, reservedTime.duration)
-
-    const start = startHour * 60 + startMinute
-    const end = start + reservedTime.duration
-
     return (
         <div
             ref={setNodeRef}
@@ -83,9 +85,12 @@ export function ReservedTimeCard({ reservedTime, top, height, className, style }
                         <span className='line-clamp-1 w-full pt-[2px] text-p-md font-medium leading-6 text-text'>
                             {reservedTime.reason}
                         </span>
-                        <span className='flex min-w-fit items-center gap-1 text-p-sm font-medium text-text-secondary'>
-                            {format(new Date(reservedTime.date), 'HH:mm')} ({reservedTime.duration} min)
-                        </span>
+                        <Badge
+                            variant='outline'
+                            className='border-0 min-w-fit cursor-pointer rounded-md p-0 tracking-wider'
+                        >
+                            {format(new Date(reservedTime.date), 'HH:mm')} ({reservedTime.duration} {t('time.minutes')})
+                        </Badge>
 
                         <DropdownMenu open={isOpenSettings} onOpenChange={setIsOpenSettings}>
                             <DropdownMenuTrigger asChild>
@@ -118,7 +123,7 @@ export function ReservedTimeCard({ reservedTime, top, height, className, style }
                     </header>
                     <div
                         className={cn('flex flex-col px-1 py-1', {
-                            'flex-row-reverse py-0': height === 48
+                            'py-0': height === 48
                         })}
                     >
                         {reservedTime.note && (

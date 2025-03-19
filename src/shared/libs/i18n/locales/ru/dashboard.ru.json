@@ -32,8 +32,11 @@
         "title": "Расписание",
         "addASlot": "Добавить временной слот",
         "addAppointment": "Добавить запись на {time}",
-        "dropSlot": "Запись на {time} ({duration} мин)",
-        "slotConflict": "Конфликт в {time}!",
+        "dropSlot": {
+            "appointment": "Запись на {time} ({duration} мин)",
+            "reservedTime": "Забронировать время: {time}"
+        },
+        "slotConflict": "{time} уже занято!",
         "header": {
             "all": "Все записи",
             "addNewAppointment": "Добавить новую запись",
@@ -98,12 +101,7 @@
             "service": "Услуга:",
             "notes": "Заметки:",
             "doctor": "Врач:",
-            "specialty": "Специальность",
-            "time": {
-                "minutes": "мин",
-                "am": "AM",
-                "pm": "PM"
-            }
+            "specialty": "Специальность"
         }
     },
     "status": {
@@ -130,5 +128,8 @@
             "IN_MEDICAL_APPOINTMENT": "Пациент находится на приёме у врача.",
             "CANCELED": "Запись была отменена."
         }
+    },
+    "time": {
+        "minutes": "мин"
     }
 }

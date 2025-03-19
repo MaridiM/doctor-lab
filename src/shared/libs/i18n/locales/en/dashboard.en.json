@@ -32,9 +32,11 @@
         "title": "Schedule",
         "addASlot": "Add time slot",
         "addAppointment": "Add appointment at {time}",
-        "freeSlot": "Available slot: {time}",
-        "dropSlot": "Appointment at {time} ({duration}min)",
-        "slotConflict": "Conflict at {time}!",
+        "dropSlot": {
+            "appointment": "Appointment at {time} ({duration} min)",
+            "reservedTime": "Book a time slot: {time}"
+        },
+        "slotConflict": "{time} is already booked!",
         "header": {
             "all": "All appointments",
             "addNewAppointment": "Add new appointment",
@@ -91,12 +93,7 @@
             "room": "Room",
             "service": "Service:",
             "notes": "Notes:",
-            "doctor": "Doctor:",
-            "time": {
-                "minutes": "min",
-                "am": "AM",
-                "pm": "PM"
-            }
+            "doctor": "Doctor:"
         }
     },
     "status": {
@@ -123,5 +120,8 @@
             "IN_MEDICAL_APPOINTMENT": "The patient is currently in a medical appointment.",
             "CANCELED": "The appointment has been canceled."
         }
+    },
+    "time": {
+        "minutes": "min"
     }
 }

@@ -2,6 +2,7 @@
 
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
+import { format } from 'date-fns'
 import {
     BellRing,
     CalendarClock,
@@ -231,7 +232,8 @@ export function AppointmentCard({ appointment, top, height, patient, className, 
                                         variant='outline'
                                         className='border-0 min-w-fit cursor-pointer rounded-md p-0 tracking-wider'
                                     >
-                                        {appointment.service.duration} {t('patients.labels.time.minutes')}
+                                        {format(new Date(appointment.date), 'HH:mm')} ({appointment.service.duration}{' '}
+                                        {t('time.minutes')})
                                     </Badge>
                                 </div>
                             </div>
