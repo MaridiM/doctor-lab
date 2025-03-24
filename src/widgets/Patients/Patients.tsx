@@ -10,7 +10,7 @@ import {
     IdCard,
     MessagesSquare,
     Phone,
-    UserPen,
+    UserPen
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
@@ -211,8 +211,7 @@ export function Patients() {
                                                         variant='outline'
                                                         className='min-w-fit cursor-pointer rounded-md tracking-wider'
                                                     >
-                                                        {appointment.service.duration}{' '}
-                                                        {t(`patients.labels.time.minutes`)}
+                                                        {appointment.service.duration} {t(`time.minutes`)}
                                                     </Badge>
                                                     <Badge
                                                         variant='outline'

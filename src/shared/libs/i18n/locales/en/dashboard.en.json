@@ -66,7 +66,6 @@
             "createAppointment": "Create appointment",
             "editAppointment": "Edit appointment",
             "cancelAppointment": "Cancel appointment",
-            "createTimeSlot": "Create time slot",
             "createReservedTime": "Create reserved time",
             "editReserveTime": "Edit reserved time",
             "cancelTimeSlot": "Cancel time slot",

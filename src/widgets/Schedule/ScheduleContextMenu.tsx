@@ -33,12 +33,6 @@ export function ScheduleContextMenu({ children, isOpen, type }: PropsWithChildre
             },
             {
                 types: [EStateType.SLOT, EStateType.ADDED_SLOT],
-                label: 'createTimeSlot',
-                icon: <Icon name='TimerReserve' className={iconStyle.custom} />,
-                onSelect: () => console.log('CREATE_TIME_SLOT')
-            },
-            {
-                types: [EStateType.SLOT, EStateType.ADDED_SLOT],
                 label: 'createReservedTime',
                 icon: <Icon name='TimerAdd' className={iconStyle.custom} />,
                 onSelect: () => console.log('CREATE_RESERVED_TIME')

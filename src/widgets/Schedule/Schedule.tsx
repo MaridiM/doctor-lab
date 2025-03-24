@@ -31,15 +31,19 @@ import { AppointmentCard } from './AppointmentCard'
 import { DroppableSlot } from './DroppableSlot'
 import { ReservedTimeCard } from './ReservedTimeCard'
 import { ScheduleContextMenu } from './ScheduleContextMenu'
+import { ScheduleGrid } from './ScheduleGrid'
 import { ScheduleHeader } from './ScheduleHeader'
+import { ScheduleTimeLine } from './ScheduleTimeLine'
 
 export type TOperatingHours = 6 | 8 | 12 | 16 | 24
 export type TTimeStep = 15 | 20 | 30 | 60
+export type TDragTimeStep = 5 | 10 | TTimeStep | 'auto'
 
 const MAX_SLOT_HEIGHT = 192
 const DEFAULT_START_HOUR = 8
-const DEFAULT_OPERATING_HOURS = 8
-const DEFAULT_TIME_STEP = 15
+const DEFAULT_OPERATING_HOURS: TOperatingHours = 8
+const DEFAULT_TIME_STEP: TTimeStep = 15
+const DRAG_TIME_STEP: TDragTimeStep = 'auto'
 const RESTRICT_TO_VERTICAL_AXIS = true
 const SMART_PLACEMENT = true
 
@@ -296,7 +300,8 @@ export function Schedule() {
             )
 
             // 3. Convert to minutes
-            const desiredStart = Math.round(((newTop / slotHeight) * timeStep + minMinutes) / timeStep) * timeStep
+            const dragStep = DRAG_TIME_STEP === 'auto' ? timeStep : DRAG_TIME_STEP
+            const desiredStart = Math.round(((newTop / slotHeight) * timeStep + minMinutes) / dragStep) * dragStep
             const desiredEnd = desiredStart + duration
 
             // 4. Get all other appointments / reserved times
@@ -458,10 +463,6 @@ export function Schedule() {
 
     // ----------------------------------------------------------------------------------------------
 
-    const [selectedSlot, setSelectedSlot] = useState<number | null>(null)
-
-    // ----------------------------------------------------------------------------------------------
-
     return (
         <section className='w-full overflow-hidden rounded-lg bg-card border-20'>
             <DndContext
@@ -488,106 +489,42 @@ export function Schedule() {
                 <ScrollArea className='flex h-full max-h-[calc(100vh-138px)] w-full bg-background' type='auto'>
                     <div className='flex overflow-hidden'>
                         {/* Time Line */}
-                        <ul className='gap relative flex w-16 flex-col overflow-hidden bg-card border-r-20'>
-                            {SLOT_COUNT.map((_, idx) => {
-                                const { adjustedHour, minute } = calculateTime(idx)
-                                const isMinuteZero = minute === 0
-                                const displayHour = isTime24Format ? adjustedHour : adjustedHour % 12 || 0
-                                const timeMeridiem = adjustedHour < 12 ? 'AM' : 'PM'
-
-                                return (
-                                    <li
-                                        key={idx}
-                                        className='flex w-full items-center justify-end pr-1'
-                                        style={{ height: slotHeight }}
-                                    >
-                                        <div className={cn('flex h-6 items-start')}>
-                                            {isMinuteZero && (
-                                                <span className='text-h4 leading-[20px] text-text-secondary'>
-                                                    {displayHour}
-                                                </span>
-                                            )}
-                                            <div
-                                                className={cn('flex h-full w-4 flex-col items-center', {
-                                                    'justify-center': !isMinuteZero
-                                                })}
-                                            >
-                                                <span
-                                                    className={cn(
-                                                        'flex w-full justify-center !text-label-md leading-[10px] text-text-secondary'
-                                                    )}
-                                                >
-                                                    {minute.toString().padStart(2, '0')}
-                                                </span>
-
-                                                {!isTime24Format && isMinuteZero && (
-                                                    <span className='flex w-full justify-center !text-label-md uppercase leading-[10px] text-text-secondary'>
-                                                        {timeMeridiem}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </li>
-                                )
-                            })}
-                        </ul>
+                        <ScheduleTimeLine
+                            slots={SLOT_COUNT}
+                            isTime24Format={isTime24Format}
+                            slotHeight={slotHeight}
+                            calculateTime={calculateTime}
+                        />
 
                         {/* Schedule Grid */}
                         <ul className='relative flex w-full flex-col'>
-                            {SLOT_COUNT.map((_, idx) => {
-                                const { adjustedHour, minute } = calculateTime(idx)
-                                const startTime = new Date().setHours(adjustedHour, minute - timeStep)
+                            <ScheduleGrid
+                                slots={SLOT_COUNT}
+                                operatingHours={operatingHours}
+                                timeStep={timeStep}
+                                stepsPerHour={stepsPerHour}
+                                slotHeight={slotHeight}
+                                calculateTime={calculateTime}
+                            />
 
-                                const isMinuteZero = minute === 0
-                                const lastItem = idx === (operatingHours + 2) * stepsPerHour + 1
-                                const validSlot = isSlotHover !== 0 && !lastItem
-                                const isHover = isSlotHover === idx || selectedSlot === idx
-
-                                return (
-                                    <ScheduleContextMenu key={idx} isOpen={open => setSelectedSlot(open ? idx : null)}>
-                                        <li
-                                            className={cn('flex items-center py-0.5 pl-0.5 pr-1.5 border-b-20', {
-                                                'hover:bg-hover': validSlot,
-                                                'border-b-none': lastItem,
-                                                '!border-dashed': !isMinuteZero
-                                            })}
-                                            onMouseEnter={() => setIsSlotHover(idx)}
-                                            onMouseLeave={() => setIsSlotHover(null)}
-                                            style={{
-                                                height: lastItem || idx === 0 ? slotHeight / 2 : slotHeight
-                                            }}
-                                        >
-                                            {isHover && validSlot && (
-                                                <Button className='h-full w-full !border-dashed border-20'>
-                                                    <span className='flex size-6 min-w-6 items-center justify-center'>
-                                                        <CalendarPlus2 className='!size-5 stroke-text-tertiary stroke-[1.5px]' />
-                                                    </span>
-                                                    <span className='pt-1 text-p-sm font-normal text-text-tertiary'>
-                                                        {t('schedule.addAppointment', {
-                                                            time: format(startTime, 'HH:mm')
-                                                        })}
-                                                    </span>
-                                                </Button>
-                                            )}
-                                        </li>
-                                    </ScheduleContextMenu>
-                                )
-                            })}
-
-                            {dragItem?.type === 'APPOINTMENT' && (
+                            {dragItem && (
                                 <DroppableSlot
                                     id='active-slot'
                                     top={
                                         calculatePosition(
                                             dragItem.data.date,
-                                            (dragItem.data as Appointment).service.duration
+                                            dragItem?.type === 'APPOINTMENT'
+                                                ? (dragItem.data as Appointment).service.duration
+                                                : (dragItem.data as IReservedTime).duration
                                         ).top +
                                         slotHeight / 2
                                     }
                                     height={
                                         calculatePosition(
                                             dragItem.data.date,
-                                            (dragItem.data as Appointment).service.duration
+                                            dragItem?.type === 'APPOINTMENT'
+                                                ? (dragItem.data as Appointment).service.duration
+                                                : (dragItem.data as IReservedTime).duration
                                         ).height
                                     }
                                     translate={currentPosition}
@@ -595,37 +532,18 @@ export function Schedule() {
                                     hasConflict={hasConflict}
                                     label={
                                         !hasConflict
-                                            ? t('schedule.dropSlot.appointment', {
-                                                  time: currentTime,
-                                                  duration: (dragItem.data as Appointment).service.duration
-                                              })
-                                            : t('schedule.slotConflict', {
-                                                  time: currentTime
-                                              })
-                                    }
-                                />
-                            )}
-                            {dragItem?.type === 'RESERVED_TIME' && (
-                                <DroppableSlot
-                                    id='active-slot'
-                                    top={
-                                        calculatePosition(dragItem.data.date, (dragItem.data as IReservedTime).duration)
-                                            .top +
-                                        slotHeight / 2
-                                    }
-                                    height={
-                                        calculatePosition(dragItem.data.date, (dragItem.data as IReservedTime).duration)
-                                            .height
-                                    }
-                                    translate={currentPosition}
-                                    isVerticalRestriction={isVerticalRestriction}
-                                    hasConflict={hasConflict}
-                                    label={
-                                        !hasConflict
-                                            ? t('schedule.dropSlot.reservedTime', {
-                                                  time: currentTime,
-                                                  duration: (dragItem.data as IReservedTime).duration
-                                              })
+                                            ? t(
+                                                  `schedule.dropSlot.${
+                                                      dragItem?.type === 'APPOINTMENT' ? 'appointment' : 'reservedTime'
+                                                  }`,
+                                                  {
+                                                      time: currentTime,
+                                                      duration:
+                                                          dragItem?.type === 'APPOINTMENT'
+                                                              ? (dragItem.data as Appointment).service.duration
+                                                              : (dragItem.data as IReservedTime).duration
+                                                  }
+                                              )
                                             : t('schedule.slotConflict', {
                                                   time: currentTime
                                               })
@@ -687,6 +605,7 @@ export function Schedule() {
                                 className={cn('cursor-grabbing', { 'cursor-not-allowed': hasConflict })}
                             />
                         )}
+
                         {dragItem?.type === 'RESERVED_TIME' && (
                             <ReservedTimeCard
                                 reservedTime={dragItem.data as IReservedTime}
@@ -699,13 +618,6 @@ export function Schedule() {
                             />
                         )}
                     </DragOverlay>
-                    <Button
-                        className='group mt-auto h-14 w-full gap-2 rounded-none bg-background border-y-20 hover:bg-hover'
-                        onClick={() => console.log('Add Slot')}
-                    >
-                        <CalendarClock className='size-5 stroke-text' />
-                        <span className='pt-[2px] text-p-md text-text'>{t('schedule.addASlot')}</span>
-                    </Button>
                 </ScrollArea>
             </DndContext>
         </section>
