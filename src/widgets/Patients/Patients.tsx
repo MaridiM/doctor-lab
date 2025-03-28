@@ -2,48 +2,26 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
-import {
-    BellRing,
-    CalendarClock,
-    CalendarX2,
-    EllipsisVertical,
-    IdCard,
-    MessagesSquare,
-    Phone,
-    UserPen
-} from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { PATIENTS, User } from '@/entities/api'
+import { Appointment, PATIENTS, User } from '@/entities/api'
 
-import {
-    Badge,
-    Button,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-    ScrollArea,
-    SearchInput,
-    UserAvatar
-} from '@/shared/components'
+import { ScrollArea, SearchInput } from '@/shared/components'
 import { TSearch, searchSchema } from '@/shared/schemas'
-import { parseISOWithDurationNumeric } from '@/shared/utils'
 
+import { PatientCard } from './PatientCard'
 import { PatientsHeader } from './PatientsHeader'
 
 export function Patients() {
     const t = useTranslations('dashboard')
 
-    const [isOpenPatientSettings, setIsOpenPaitentSettings] = useState(false)
-    const [isTime24Format] = useState<boolean>(true)
     const [patients, setPatients] = useState<User[]>([])
 
     useEffect(() => {
         const foundPatients: any[] = PATIENTS.filter(patient => {
-            const appointments = patient.medicalRecord.appointments.filter(appointment => {
+            const appointments: Appointment[] = patient.medicalRecord.appointments.filter(appointment => {
                 return format('2025-03-02T11:00:00.000Z', 'dd-MM-yyyy') === format(appointment.date, 'dd-MM-yyyy')
             })
             return appointments
@@ -61,16 +39,6 @@ export function Patients() {
 
     const { isDirty } = form.formState
 
-    const patientMenuItems = useMemo(
-        () => [
-            { icon: BellRing, label: 'notify' },
-            { icon: UserPen, label: 'edit' },
-            { icon: CalendarClock, label: 'reschedule' },
-            { icon: CalendarX2, label: 'cancel' },
-            { icon: IdCard, label: 'chart' }
-        ],
-        []
-    )
     return (
         <section className='flex h-full w-full flex-col gap-2'>
             <section className='flex h-full max-h-[240px] w-full gap-2'>
@@ -79,175 +47,11 @@ export function Patients() {
             <section className='h-full w-full overflow-hidden rounded-lg bg-background border-20'>
                 <PatientsHeader />
                 <SearchInput form={form} isDirty={isDirty} placeholder={t('patients.search')} />
+
                 <ScrollArea className='flex h-full max-h-[calc(100vh-442px)] w-full' type='auto'>
                     <ul className='flex flex-col gap-1 p-2'>
                         {patients.map((patient: any) => {
-                            const appointment = patient.medicalRecord.appointments[0]
-                            const { startHour, startMinute, endHour, endMinute } = parseISOWithDurationNumeric(
-                                appointment.date,
-                                appointment.service.duration
-                            )
-
-                            return (
-                                <li
-                                    key={patient.id}
-                                    className='min-h-[96px] w-full rounded-md bg-card shadow border-20 hover:border-40'
-                                >
-                                    <header className='flex h-7 items-center justify-between px-2 border-b-20'>
-                                        <div className='flex items-center gap-2'>
-                                            <IdCard className='size-5 stroke-text-secondary stroke-[2px]' />
-                                            <span className='pt-[2px] text-p-sm font-medium text-text'>
-                                                {appointment.clinic.name}
-                                            </span>
-                                        </div>
-                                        <div className='flex gap-2'>
-                                            <Button
-                                                size='icon'
-                                                icon='xs'
-                                                variant='outline'
-                                                tooltip={{
-                                                    children: t('patients.actions.call'),
-                                                    align: 'center',
-                                                    side: 'bottom'
-                                                }}
-                                                onClick={() => console.log('Call to patient')}
-                                            >
-                                                <Phone className='stroke-text stroke-[2px]' />
-                                            </Button>
-                                            <Button
-                                                size='icon'
-                                                icon='xs'
-                                                variant='outline'
-                                                tooltip={{
-                                                    children: t('patients.actions.addAppointment'),
-                                                    align: 'center',
-                                                    side: 'bottom'
-                                                }}
-                                                onClick={() => console.log('Add appointment')}
-                                            >
-                                                <MessagesSquare className='stroke-text stroke-[2px]' />
-                                            </Button>
-                                            <DropdownMenu
-                                                open={isOpenPatientSettings}
-                                                onOpenChange={() => setIsOpenPaitentSettings(!isOpenPatientSettings)}
-                                            >
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant='outline' size='icon' icon='xs'>
-                                                        <EllipsisVertical className='stroke-[2px]' />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align='end' className='min-w-[280px]'>
-                                                    {patientMenuItems.map((item, idx) => (
-                                                        <DropdownMenuItem
-                                                            key={idx}
-                                                            onSelect={() => console.log('Patient action:', item.label)}
-                                                        >
-                                                            <item.icon className='size-4' />
-                                                            <span className='w-full text-p-sm text-text'>
-                                                                {t(`schedule.actions.${item.label}`)}
-                                                            </span>
-                                                        </DropdownMenuItem>
-                                                    ))}
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </div>
-                                    </header>
-                                    <div className='flex gap-2 px-2 py-1'>
-                                        <UserAvatar
-                                            className='size-16 border-20'
-                                            radius='rounded-md'
-                                            src={patient.personalInfo.avatar}
-                                            fullName='Robert Traram'
-                                        />
-                                        <div className='flex w-full flex-col'>
-                                            <div className='flex gap-2'>
-                                                <div className='flex w-full flex-col gap-[2px]'>
-                                                    <h4 className='text-p-lg font-medium text-text'>
-                                                        {patient.personalInfo.fullName}
-                                                    </h4>
-                                                    <span className='line-clamp-2 text-p-sm text-text-secondary'>
-                                                        {appointment.service.name}
-                                                    </span>
-                                                </div>
-                                                <div className='flex w-full items-start justify-end'>
-                                                    <div className='flex w-full max-w-[120px] items-center justify-end gap-2 pt-1'>
-                                                        <div className='flex items-start'>
-                                                            <span className='text-h3 font-medium leading-[24px] text-text'>
-                                                                {startHour}
-                                                            </span>
-                                                            <div className='flex flex-col items-center text-text'>
-                                                                <span className='text-label-lg font-medium leading-3 text-text'>
-                                                                    {startMinute.toString().padStart(2, '0')}
-                                                                </span>
-                                                                {!isTime24Format && (
-                                                                    <span className='text-label-lg font-medium leading-3 text-text'>
-                                                                        {appointment.startMiridiem}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        <span className='h-[2px] w-3 bg-text-secondary' />
-                                                        <div className='flex items-start'>
-                                                            <span className='text-h3 font-medium leading-[24px] text-text'>
-                                                                {endHour}
-                                                            </span>
-                                                            <div className='flex flex-col items-center text-text'>
-                                                                <span className='text-label-lg font-medium leading-3 text-text'>
-                                                                    {endMinute.toString().padStart(2, '0')}
-                                                                </span>
-                                                                {!isTime24Format && (
-                                                                    <span className='text-label-lg font-medium leading-3 text-text'>
-                                                                        {appointment.startMiridiem}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className='flex gap-1'>
-                                                <div className='flex w-full gap-1'>
-                                                    <Badge
-                                                        variant='outline'
-                                                        className='min-w-fit cursor-pointer rounded-md tracking-wider'
-                                                    >
-                                                        {appointment.service.duration} {t(`time.minutes`)}
-                                                    </Badge>
-                                                    <Badge
-                                                        variant='outline'
-                                                        className='min-w-fit cursor-pointer rounded-md tracking-wider'
-                                                    >
-                                                        {appointment.room} {t(`patients.labels.room`)}
-                                                    </Badge>
-                                                </div>
-                                                <Badge
-                                                    variant='outline'
-                                                    className='min-w-fit cursor-pointer rounded-md tracking-wider'
-                                                    style={{
-                                                        backgroundColor: appointment.status.backgroundColor,
-                                                        color: appointment.status.textColor
-                                                    }}
-                                                >
-                                                    {t(`status.labels.${appointment.status.key}`)}
-                                                </Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <footer className='flex h-7 items-center justify-between gap-1 px-2 border-t-20'>
-                                        <div className='flex h-full items-center gap-1'>
-                                            <span className='text-p-xs font-medium tracking-wider text-text'>
-                                                {t('patients.labels.doctor')}
-                                            </span>
-                                            <span className='text-p-xs text-text-secondary'>
-                                                {appointment.doctors[0].name}
-                                            </span>
-                                        </div>
-                                        <span className='text-p-xs font-medium tracking-wider text-text-secondary'>
-                                            {appointment.doctors[0].specialties.name}
-                                        </span>
-                                    </footer>
-                                </li>
-                            )
+                            return <PatientCard key={patient.id} patient={patient} />
                         })}
                     </ul>
                 </ScrollArea>

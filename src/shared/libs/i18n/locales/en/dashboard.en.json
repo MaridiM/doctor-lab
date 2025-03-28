@@ -9,14 +9,12 @@
             "generateTask": "Generate task with AI",
             "addNewTask": "Add new task",
             "sortBy": "Sort by",
-            "newestOnTop": "Newest on top",
-            "newestOnBottom": "Newest on bottom",
+            "dueDate": "Due date",
             "dateCreated": "Date created",
             "dateModified": "Date modified",
             "showCompleted": "Show completed tasks"
         },
         "task": {
-            "menu": "Task actions",
             "complete": "Mark as complete",
             "edit": "Edit task",
             "pin": "Pin task",

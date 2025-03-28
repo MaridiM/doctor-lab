@@ -14,9 +14,10 @@ import {
     SquarePlus
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { CSSProperties, useCallback, useMemo, useState } from 'react'
+import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { APPOINTMENT_STATUSES, Appointment, Status, User } from '@/entities/api'
+import { StatusBadge } from '@/entities/api/ui'
 
 import {
     Badge,
@@ -49,6 +50,10 @@ export function AppointmentCard({ appointment, top, height, patient, className, 
     const [isOpenStatusMenu, setIsOpenStatusMenu] = useState<boolean>(false)
     const [appointmentStatus, setAppointmentStatus] = useState<Status>(appointment.status)
 
+    useEffect(() => {
+        setAppointmentStatus(appointment.status)
+    }, [appointment.status])
+
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: appointment.id,
         data: {
@@ -57,11 +62,6 @@ export function AppointmentCard({ appointment, top, height, patient, className, 
             data: appointment
         }
     })
-
-    const handleChangeAppointmentStatus = useCallback((status: Status) => {
-        setAppointmentStatus(status)
-        setIsOpenStatusMenu(false)
-    }, [])
 
     const menuItems = useMemo(
         () => [
@@ -72,28 +72,6 @@ export function AppointmentCard({ appointment, top, height, patient, className, 
             { icon: CalendarX2, label: 'cancel' }
         ],
         []
-    )
-
-    const statusItems = useMemo(
-        () =>
-            APPOINTMENT_STATUSES.map(status => (
-                <DropdownMenuItem
-                    key={status.id}
-                    onSelect={() => handleChangeAppointmentStatus(status)}
-                    onPointerDown={e => e.stopPropagation()}
-                >
-                    <span
-                        className='size-4 min-w-4 rounded-sm'
-                        style={{
-                            backgroundColor: status.backgroundColor,
-                            color: status.textColor
-                        }}
-                    />
-                    <span className='w-full text-p-sm text-text'>{t(`status.labels.${status.key}`)}</span>
-                    {appointmentStatus.key === status.key && <Check className='ml-2' />}
-                </DropdownMenuItem>
-            )),
-        [handleChangeAppointmentStatus, t, appointmentStatus.key]
     )
 
     const dragParams = isContextMenu || isOpenStatusMenu || isOpenSettings ? {} : { ...listeners, ...attributes }
@@ -154,38 +132,12 @@ export function AppointmentCard({ appointment, top, height, patient, className, 
                                         {patient?.personalInfo.fullName}
                                     </span>
 
-                                    <DropdownMenu open={isOpenStatusMenu} onOpenChange={setIsOpenStatusMenu}>
-                                        <DropdownMenuTrigger asChild>
-                                            <Badge
-                                                variant='outline'
-                                                className='min-w-fit cursor-pointer rounded-md !text-label-md font-normal tracking-wider'
-                                                style={{
-                                                    backgroundColor: appointmentStatus.backgroundColor,
-                                                    color: appointmentStatus.textColor
-                                                }}
-                                                onPointerDown={e => e.stopPropagation()}
-                                            >
-                                                {t(`status.labels.${appointmentStatus.key}`)}
-                                            </Badge>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent
-                                            align='end'
-                                            className='min-w-[280px]'
-                                            onInteractOutside={() => setIsOpenStatusMenu(false)}
-                                        >
-                                            <DropdownMenuItem
-                                                onSelect={() => console.log('Custom status')}
-                                                onPointerDown={e => e.stopPropagation()}
-                                            >
-                                                <SquarePlus />
-                                                <span className='w-full text-p-sm text-text'>
-                                                    {t('status.labels.CUSTOM')}
-                                                </span>
-                                            </DropdownMenuItem>
-                                            <DropdownMenuSeparator />
-                                            {statusItems}
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                    <StatusBadge
+                                        statusList={APPOINTMENT_STATUSES}
+                                        initialStatus={appointment.status}
+                                        isOpen={open => setIsOpenStatusMenu(open)}
+                                        onSelect={status => setAppointmentStatus(status)}
+                                    />
 
                                     <DropdownMenu open={isOpenSettings} onOpenChange={setIsOpenSettings}>
                                         <DropdownMenuTrigger asChild>

@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
-import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 import { PATHS } from '@/shared/config'
 
@@ -13,9 +13,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function HomePage() {
-    return (
-        <div>
-            <Link href={PATHS.dashboard}>Dashboard</Link>
-        </div>
-    )
+    return redirect(PATHS.dashboard)
 }

@@ -11,11 +11,12 @@ import {
     ListTodo,
     Plus,
     Settings,
-    Sparkles
+    Sparkles,
+    TimerReset
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import {
     Button,
@@ -29,42 +30,47 @@ import {
     Switch
 } from '@/shared/components'
 import { PATHS } from '@/shared/config'
+import { TIcon } from '@/shared/types'
 
-enum EFilterTasks {
-    NEWEST_TOP = 'NEWEST_TOP',
-    NEWEST_BOTTOM = 'NEWEST_BOTTOM',
-    CREATED = 'CREATED',
-    MODIFIED = 'MODIFIED'
+import { EFilterTasks } from './Tasks'
+
+interface ISortOption {
+    value: EFilterTasks
+    icon: TIcon
+    labelKey: string
 }
 
-const SORT_OPTIONS = [
-    {
-        value: EFilterTasks.NEWEST_TOP,
-        icon: ArrowUpAz,
-        labelKey: 'tasks.header.newestOnTop'
-    },
-    {
-        value: EFilterTasks.NEWEST_BOTTOM,
-        icon: ArrowDownZA,
-        labelKey: 'tasks.header.newestOnBottom'
-    },
-    {
-        value: EFilterTasks.CREATED,
-        icon: ArrowUpNarrowWide,
-        labelKey: 'tasks.header.dateCreated'
-    },
-    {
-        value: EFilterTasks.MODIFIED,
-        icon: ArrowUpWideNarrow,
-        labelKey: 'tasks.header.dateModified'
-    }
-]
+interface IProps {
+    isShowCompleted: boolean
+    setIsShowCompleted: (isShowCompleted: boolean) => void
+    filterTasks: EFilterTasks
+    setFilterTasks: (filterTasks: EFilterTasks) => void
+}
 
-export function TasksHeader() {
+export function TasksHeader({ isShowCompleted, filterTasks, setFilterTasks, setIsShowCompleted }: IProps) {
     const t = useTranslations('dashboard')
     const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-    const [filterTasks, setFilterTasks] = useState<EFilterTasks>(EFilterTasks.CREATED)
-    const [isShowCompleted, setIsShowCompleted] = useState(false)
+
+    const SORT_OPTIONS: ISortOption[] = useMemo(
+        () => [
+            {
+                value: EFilterTasks.DUE_DATE,
+                icon: TimerReset,
+                labelKey: 'tasks.header.dueDate'
+            },
+            {
+                value: EFilterTasks.CREATED,
+                icon: ArrowUpNarrowWide,
+                labelKey: 'tasks.header.dateCreated'
+            },
+            {
+                value: EFilterTasks.MODIFIED,
+                icon: ArrowUpWideNarrow,
+                labelKey: 'tasks.header.dateModified'
+            }
+        ],
+        [EFilterTasks]
+    )
 
     const renderSortMenuItem = ({ value, icon: Icon, labelKey }: (typeof SORT_OPTIONS)[number]) => (
         <DropdownMenuItem key={value} onSelect={() => setFilterTasks(value)}>

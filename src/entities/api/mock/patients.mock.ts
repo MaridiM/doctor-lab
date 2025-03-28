@@ -72,6 +72,7 @@ export interface Appointment {
     service: Service
     status: Status
     notes: string
+    startMiridiem: 'AM' | 'PM' | null
 }
 
 export interface MedicalRecord {

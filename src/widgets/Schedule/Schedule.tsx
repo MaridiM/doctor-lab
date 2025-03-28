@@ -16,21 +16,18 @@ import {
 } from '@dnd-kit/core'
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { format } from 'date-fns'
-import { CalendarClock, CalendarPlus2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { z } from 'zod'
 
 import { Appointment, PATIENTS, User } from '@/entities/api'
 import { IReservedTime, RESERVED_TIME } from '@/entities/api/mock/reservedTime'
 
-import { Button, ScrollArea } from '@/shared/components'
+import { ScrollArea } from '@/shared/components'
 import { adjustTime, cn, parseISOWithDurationNumeric } from '@/shared/utils'
 
 import { AppointmentCard } from './AppointmentCard'
 import { DroppableSlot } from './DroppableSlot'
 import { ReservedTimeCard } from './ReservedTimeCard'
-import { ScheduleContextMenu } from './ScheduleContextMenu'
 import { ScheduleGrid } from './ScheduleGrid'
 import { ScheduleHeader } from './ScheduleHeader'
 import { ScheduleTimeLine } from './ScheduleTimeLine'
@@ -58,50 +55,50 @@ type TPeriod = 'AM' | 'PM'
 export function Schedule() {
     const t = useTranslations('dashboard')
 
-    const [isSlotHover, setIsSlotHover] = useState<number | null>(null)
-
     //  Schedule
     // ----------------------------------------------------------------------------------------------
-    const [operatingHours, setOperatingHours] = useState<TOperatingHours>(DEFAULT_OPERATING_HOURS)
-    const [operatingHoursStart, setOperatingHoursStart] = useState<number>(DEFAULT_START_HOUR)
-    const [operatingHoursMeridiemStart, setOperatingHoursMeridiemStart] = useState<TPeriod>('AM')
-    const [timeStep, setTimeStep] = useState<TTimeStep>(DEFAULT_TIME_STEP)
-    const [isTime24Format, setIsTime24Format] = useState<boolean>(true)
+    const [scheduleState, setScheduleState] = useState({
+        operatingHours: DEFAULT_OPERATING_HOURS,
+        operatingHoursStart: DEFAULT_START_HOUR,
+        operatingHoursMeridiemStart: 'AM' as TPeriod,
+        timeStep: DEFAULT_TIME_STEP,
+        isTime24Format: true
+    })
 
-    const stepsPerHour = useMemo(() => 60 / timeStep, [timeStep])
+    const stepsPerHour = useMemo(() => 60 / scheduleState.timeStep, [scheduleState.timeStep])
     const slotHeight = useMemo(() => MAX_SLOT_HEIGHT / stepsPerHour, [stepsPerHour])
 
     const startHour24 = useMemo(() => {
-        if (isTime24Format) return operatingHoursStart
+        if (scheduleState.isTime24Format) return scheduleState.operatingHoursStart
 
-        return operatingHoursMeridiemStart === 'AM'
-            ? operatingHoursStart === 12
+        return scheduleState.operatingHoursMeridiemStart === 'AM'
+            ? scheduleState.operatingHoursStart === 12
                 ? 0
-                : operatingHoursStart
-            : operatingHoursStart === 12
+                : scheduleState.operatingHoursStart
+            : scheduleState.operatingHoursStart === 12
               ? 12
-              : operatingHoursStart + 12
-    }, [isTime24Format, operatingHoursMeridiemStart, operatingHoursStart])
+              : scheduleState.operatingHoursStart + 12
+    }, [scheduleState.isTime24Format, scheduleState.operatingHoursMeridiemStart, scheduleState.operatingHoursStart])
 
     useEffect(() => {
-        setOperatingHoursStart(operatingHours === 24 ? 0 : 8)
-    }, [operatingHours])
+        setScheduleState(prev => ({ ...prev, operatingHoursStart: scheduleState.operatingHours === 24 ? 0 : 8 }))
+    }, [scheduleState.operatingHours])
 
     const calculateTime = useCallback(
         (idx: number) => {
             const baseHour = startHour24 - 1
             const hour = baseHour + Math.floor(idx / stepsPerHour)
             const adjustedHour = (hour + 24) % 24
-            const minute = (idx % stepsPerHour) * timeStep
+            const minute = (idx % stepsPerHour) * scheduleState.timeStep
 
             return { adjustedHour, minute }
         },
-        [startHour24, stepsPerHour, timeStep]
+        [startHour24, stepsPerHour, scheduleState.timeStep]
     )
 
     const SLOT_COUNT = useMemo(
-        () => Array((operatingHours + 2) * stepsPerHour + 1).fill(null),
-        [operatingHours, stepsPerHour]
+        () => Array((scheduleState.operatingHours + 2) * stepsPerHour + 1).fill(null),
+        [scheduleState.operatingHours, stepsPerHour]
     )
     // ----------------------------------------------------------------------------------------------
 
@@ -119,16 +116,16 @@ export function Schedule() {
             const end = start + duration
 
             // Проверка на выход за границы
-            const isVisible = start >= baseMinutes && end <= baseMinutes + (operatingHours + 2) * 60
+            const isVisible = start >= baseMinutes && end <= baseMinutes + (scheduleState.operatingHours + 2) * 60
 
             const StartMinutes = startHour * 60 + startMinute
             const offsetMinutes = StartMinutes - baseMinutes
             return {
-                top: isVisible ? ((start - baseMinutes) / timeStep) * slotHeight : -1000,
-                height: (duration / timeStep) * slotHeight
+                top: isVisible ? ((start - baseMinutes) / scheduleState.timeStep) * slotHeight : -1000,
+                height: (duration / scheduleState.timeStep) * slotHeight
             }
         },
-        [startHour24, operatingHours, timeStep, slotHeight]
+        [startHour24, scheduleState.operatingHours, scheduleState.timeStep, slotHeight]
     )
 
     useEffect(() => {
@@ -162,11 +159,11 @@ export function Schedule() {
 
     const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor)
     function getStartHour24() {
-        if (isTime24Format) return operatingHoursStart
-        if (operatingHoursMeridiemStart === 'AM') {
-            return operatingHoursStart === 12 ? 0 : operatingHoursStart
+        if (scheduleState.isTime24Format) return scheduleState.operatingHoursStart
+        if (scheduleState.operatingHoursMeridiemStart === 'AM') {
+            return scheduleState.operatingHoursStart === 12 ? 0 : scheduleState.operatingHoursStart
         } else {
-            return operatingHoursStart === 12 ? 12 : operatingHoursStart + 12
+            return scheduleState.operatingHoursStart === 12 ? 12 : scheduleState.operatingHoursStart + 12
         }
     }
 
@@ -213,7 +210,7 @@ export function Schedule() {
             requestAnimationFrame(() => {
                 const startHour24 = getStartHour24()
                 const minMinutes = (startHour24 - 1) * 60
-                const maxMinutes = minMinutes + (operatingHours + 2) * 60
+                const maxMinutes = minMinutes + (scheduleState.operatingHours + 2) * 60
 
                 const duration = 'service' in dragItem.data ? dragItem.data.service.duration : dragItem.data.duration
 
@@ -221,19 +218,21 @@ export function Schedule() {
                     dragItem.data.date,
                     'service' in dragItem.data ? dragItem.data.service.duration : dragItem.data.duration
                 ).top
-                const maxAllowedTop = ((maxMinutes - minMinutes - duration) / timeStep) * slotHeight
+                const maxAllowedTop = ((maxMinutes - minMinutes - duration) / scheduleState.timeStep) * slotHeight
 
                 const newY = Math.max(0, Math.min(initialTop + delta.y, maxAllowedTop))
 
                 // Convert to minutes
-                const desiredStart = Math.round(((newY / slotHeight) * timeStep + minMinutes) / timeStep) * timeStep
+                const desiredStart =
+                    Math.round(((newY / slotHeight) * scheduleState.timeStep + minMinutes) / scheduleState.timeStep) *
+                    scheduleState.timeStep
                 const desiredEnd = desiredStart + duration
 
                 // Calculate time
                 const hours = Math.floor(desiredStart / 60)
                 const minutes = desiredStart % 60
                 const date = new Date().setHours(hours, minutes)
-                const formattedTime = format(date, isTime24Format ? 'HH:mm' : 'hh:mm a')
+                const formattedTime = format(date, scheduleState.isTime24Format ? 'HH:mm' : 'hh:mm a')
 
                 setCurrentTime(formattedTime)
 
@@ -261,7 +260,16 @@ export function Schedule() {
                 setCurrentPosition({ x: 0, y: newY - initialTop })
             })
         },
-        [dragItem, operatingHours, timeStep, slotHeight, calculatePosition, getStartHour24, isTime24Format, patients]
+        [
+            dragItem,
+            scheduleState.operatingHours,
+            scheduleState.timeStep,
+            slotHeight,
+            calculatePosition,
+            getStartHour24,
+            scheduleState.isTime24Format,
+            patients
+        ]
     )
 
     const handleDragEnd = useCallback(
@@ -284,7 +292,7 @@ export function Schedule() {
 
             // 1. Get base parameters
             const startHour24 = getStartHour24()
-            const endHour24 = startHour24 + operatingHours
+            const endHour24 = startHour24 + scheduleState.operatingHours
             const minMinutes = (startHour24 - 1) * 60
             const maxMinutes = (endHour24 + 1) * 60
             const duration = 'service' in dragItem.data ? dragItem.data.service.duration : dragItem.data.duration
@@ -296,12 +304,16 @@ export function Schedule() {
             ).top
             const newTop = Math.max(
                 0,
-                Math.min(initialTop + delta.y, ((maxMinutes - minMinutes - duration) * slotHeight) / timeStep)
+                Math.min(
+                    initialTop + delta.y,
+                    ((maxMinutes - minMinutes - duration) * slotHeight) / scheduleState.timeStep
+                )
             )
 
             // 3. Convert to minutes
-            const dragStep = DRAG_TIME_STEP === 'auto' ? timeStep : DRAG_TIME_STEP
-            const desiredStart = Math.round(((newTop / slotHeight) * timeStep + minMinutes) / dragStep) * dragStep
+            const dragStep = DRAG_TIME_STEP === 'auto' ? scheduleState.timeStep : DRAG_TIME_STEP
+            const desiredStart =
+                Math.round(((newTop / slotHeight) * scheduleState.timeStep + minMinutes) / dragStep) * dragStep
             const desiredEnd = desiredStart + duration
 
             // 4. Get all other appointments / reserved times
@@ -362,7 +374,7 @@ export function Schedule() {
 
                     // If direct placement failed, search nearby
                     let searchDirection = 0
-                    let searchStep = timeStep
+                    let searchStep = scheduleState.timeStep
                     let found = false
 
                     while (!found && searchStep <= 60 * 4) {
@@ -391,7 +403,7 @@ export function Schedule() {
 
                         // Expand search area
                         searchDirection++
-                        if (searchDirection % 2 === 0) searchStep += timeStep
+                        if (searchDirection % 2 === 0) searchStep += scheduleState.timeStep
                     }
 
                     if (found) break
@@ -451,8 +463,8 @@ export function Schedule() {
         [
             dragItem,
             slotHeight,
-            timeStep,
-            operatingHours,
+            scheduleState.timeStep,
+            scheduleState.operatingHours,
             patients,
             calculatePosition,
             getStartHour24,
@@ -474,14 +486,16 @@ export function Schedule() {
                 sensors={sensors}
             >
                 <ScheduleHeader
-                    isTime24Format={isTime24Format}
-                    setIsTime24Format={() => setIsTime24Format(!isTime24Format)}
+                    isTime24Format={scheduleState.isTime24Format}
+                    setIsTime24Format={() =>
+                        setScheduleState(prev => ({ ...prev, isTime24Format: !prev.isTime24Format }))
+                    }
                     isVerticalRestriction={isVerticalRestriction}
                     setIsVerticalRestriction={() => setIsVerticalRestriction(!isVerticalRestriction)}
-                    operatingHours={operatingHours}
-                    setOperatingHours={setOperatingHours}
-                    timeStep={timeStep}
-                    setTimeStep={setTimeStep}
+                    operatingHours={scheduleState.operatingHours}
+                    setOperatingHours={newHours => setScheduleState(prev => ({ ...prev, operatingHours: newHours }))}
+                    timeStep={scheduleState.timeStep}
+                    setTimeStep={newTimeStep => setScheduleState(prev => ({ ...prev, timeStep: newTimeStep }))}
                     isSmartPlacement={isSmartPlacement}
                     setIsSmartPlacement={() => setIsSmartPlacement(!isSmartPlacement)}
                 />
@@ -491,7 +505,7 @@ export function Schedule() {
                         {/* Time Line */}
                         <ScheduleTimeLine
                             slots={SLOT_COUNT}
-                            isTime24Format={isTime24Format}
+                            isTime24Format={scheduleState.isTime24Format}
                             slotHeight={slotHeight}
                             calculateTime={calculateTime}
                         />
@@ -500,8 +514,8 @@ export function Schedule() {
                         <ul className='relative flex w-full flex-col'>
                             <ScheduleGrid
                                 slots={SLOT_COUNT}
-                                operatingHours={operatingHours}
-                                timeStep={timeStep}
+                                operatingHours={scheduleState.operatingHours}
+                                timeStep={scheduleState.timeStep}
                                 stepsPerHour={stepsPerHour}
                                 slotHeight={slotHeight}
                                 calculateTime={calculateTime}
@@ -622,4 +636,12 @@ export function Schedule() {
             </DndContext>
         </section>
     )
+}
+
+const useScheduleTime = () => {
+    // логика работы со временем
+}
+
+const useScheduleDragAndDrop = () => {
+    // логика drag&drop
 }
