@@ -39,7 +39,7 @@ import { TaskMenuMore } from './TaskMenuMore'
 interface IProps {
     className?: string
     item: (typeof TASKS_MOCK)[0]
-    setIsSelectedTask: (id: string) => void
+    setIsSelectedTask: VoidFunction
     ref: RefObject<null>
 }
 
@@ -133,14 +133,14 @@ export function TaskItem({ item, className, setIsSelectedTask, ref }: IProps) {
     )
 
     return (
-        <ContextMenu>
-            <ContextMenuTrigger>
-                <li
-                    key={item.id}
-                    ref={ref}
-                    onClick={() => setIsSelectedTask(item.id)}
-                    className={cn('rounded-md bg-card shadow border-20 hover:border-40', className)}
-                >
+        <li
+            key={item.id}
+            ref={ref}
+            onClick={setIsSelectedTask}
+            className={cn('rounded-md bg-card shadow border-20 hover:border-40', className)}
+        >
+            <ContextMenu>
+                <ContextMenuTrigger>
                     <header className='flex h-7 justify-between px-2 border-b-20'>
                         <div className='flex h-full items-center gap-1'>
                             {item.done ? (
@@ -266,20 +266,20 @@ export function TaskItem({ item, className, setIsSelectedTask, ref }: IProps) {
                             />
                         </span>
                     </footer>
-                </li>
-            </ContextMenuTrigger>
-            <ContextMenuContent>
-                {menuItems.map(({ icon: Icon, label, onSelect }, idx) => {
-                    return (
-                        <ContextMenuItem key={idx} className='gap-2' onSelect={onSelect}>
-                            <span className='flex size-6 min-w-6 items-center justify-center'>
-                                <Icon className='size-[18px] stroke-[1.75px]' />
-                            </span>
-                            <span className='w-full pt-px text-p-sm text-text'>{label}</span>
-                        </ContextMenuItem>
-                    )
-                })}
-            </ContextMenuContent>
-        </ContextMenu>
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                    {menuItems.map(({ icon: Icon, label, onSelect }, idx) => {
+                        return (
+                            <ContextMenuItem key={idx} className='gap-2' onSelect={onSelect}>
+                                <span className='flex size-6 min-w-6 items-center justify-center'>
+                                    <Icon className='size-[18px] stroke-[1.75px]' />
+                                </span>
+                                <span className='w-full pt-px text-p-sm text-text'>{label}</span>
+                            </ContextMenuItem>
+                        )
+                    })}
+                </ContextMenuContent>
+            </ContextMenu>
+        </li>
     )
 }

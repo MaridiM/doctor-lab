@@ -89,7 +89,7 @@ export function Tasks() {
                                         'border-sm-primary hover:border-sm-primary': isSelect
                                     })}
                                     item={item}
-                                    setIsSelectedTask={setIsSelectedTask}
+                                    setIsSelectedTask={() => setIsSelectedTask(item.id)}
                                 />
                             )
                         })}
