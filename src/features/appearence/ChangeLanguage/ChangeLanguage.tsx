@@ -55,7 +55,10 @@ export function ChangeLanguage({ className }: IProps) {
                             }}
                         >
                             <SelectTrigger
-                                className={cn('border-none font-normal disabled:opacity-75', className)}
+                                className={cn(
+                                    'border-none bg-transparent font-normal hover:bg-hover disabled:opacity-75 transition-colors ease-in-out duration-300',
+                                    className
+                                )}
                                 arrow={false}
                                 disabled={isPanding}
                             >

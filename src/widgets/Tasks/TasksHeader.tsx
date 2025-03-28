@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 
 import {
     Button,
@@ -25,7 +25,8 @@ import {
     DropdownMenuSubContent,
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
-    Switch
+    Switch,
+    WidgetHeader
 } from '@/shared/components'
 import { PATHS } from '@/shared/config'
 import { TIcon } from '@/shared/types'
@@ -45,7 +46,12 @@ interface IProps {
     setFilterTasks: (filterTasks: EFilterTasks) => void
 }
 
-export function TasksHeader({ isShowCompleted, filterTasks, setFilterTasks, setIsShowCompleted }: IProps) {
+export const TasksHeader = memo(function TasksHeader({
+    isShowCompleted,
+    filterTasks,
+    setFilterTasks,
+    setIsShowCompleted
+}: IProps) {
     const t = useTranslations('dashboard')
     const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
@@ -86,71 +92,62 @@ export function TasksHeader({ isShowCompleted, filterTasks, setFilterTasks, setI
     )
 
     return (
-        <header className='flex h-14 items-center justify-between bg-card px-4 py-2 border-b-20'>
-            <div className='flex items-center gap-2'>
-                <span className='rounded-md bg-primary p-1.5'>
-                    <ListTodo className='size-5 stroke-text-foreground' />
-                </span>
-                <span className='text-h4 font-normal text-text'>{t('tasks.title')}</span>
-            </div>
+        <WidgetHeader title={t('tasks.title')} icon={<ListTodo className='size-5 stroke-text-foreground' />}>
+            <Button variant='outline' size='sm' className='pt-px'>
+                <Link href={PATHS.tasks}>{t('tasks.header.all')}</Link>
+            </Button>
 
-            <div className='flex items-center gap-2'>
-                <Button variant='outline' size='sm' className='pt-px'>
-                    <Link href={PATHS.tasks}>{t('tasks.header.all')}</Link>
-                </Button>
+            <Button
+                variant='outline'
+                size='icon'
+                icon='sm'
+                tooltip={{
+                    children: t('tasks.header.generateTask'),
+                    align: 'center',
+                    side: 'bottom'
+                }}
+            >
+                <Sparkles className='stroke-[1.5px]' />
+            </Button>
 
-                <Button
-                    variant='outline'
-                    size='icon'
-                    icon='sm'
-                    tooltip={{
-                        children: t('tasks.header.generateTask'),
-                        align: 'center',
-                        side: 'bottom'
-                    }}
-                >
-                    <Sparkles className='stroke-[1.5px]' />
-                </Button>
+            <Button
+                variant='primary'
+                size='icon'
+                icon='sm'
+                tooltip={{
+                    children: t('tasks.header.addNewTask'),
+                    align: 'center',
+                    side: 'bottom'
+                }}
+            >
+                <Plus className='stroke-text-foreground' />
+            </Button>
 
-                <Button
-                    variant='primary'
-                    size='icon'
-                    icon='sm'
-                    tooltip={{
-                        children: t('tasks.header.addNewTask'),
-                        align: 'center',
-                        side: 'bottom'
-                    }}
-                >
-                    <Plus className='stroke-text-foreground' />
-                </Button>
+            <DropdownMenu open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+                <DropdownMenuTrigger asChild>
+                    <Button variant='outline' size='icon' icon='sm'>
+                        <Settings className='stroke-[1.5px]' />
+                    </Button>
+                </DropdownMenuTrigger>
 
-                <DropdownMenu open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant='outline' size='icon' icon='sm'>
-                            <Settings className='stroke-[1.5px]' />
-                        </Button>
-                    </DropdownMenuTrigger>
+                <DropdownMenuContent align='end' className='min-w-[280px]'>
+                    <DropdownMenuSub>
+                        <DropdownMenuSubTrigger className='gap-2'>
+                            <ArrowUpDown />
+                            <span>{t('tasks.header.sortBy')}</span>
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent className='mr-1.5 min-w-[200px]'>
+                            {SORT_OPTIONS.map(renderSortMenuItem)}
+                        </DropdownMenuSubContent>
+                    </DropdownMenuSub>
 
-                    <DropdownMenuContent align='end' className='min-w-[280px]'>
-                        <DropdownMenuSub>
-                            <DropdownMenuSubTrigger className='gap-2'>
-                                <ArrowUpDown />
-                                <span>{t('tasks.header.sortBy')}</span>
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent className='mr-1.5 min-w-[200px]'>
-                                {SORT_OPTIONS.map(renderSortMenuItem)}
-                            </DropdownMenuSubContent>
-                        </DropdownMenuSub>
-
-                        <DropdownMenuItem onSelect={e => e.preventDefault()}>
-                            <ListChecks />
-                            <span className='w-full text-p-sm text-text'>{t('tasks.header.showCompleted')}</span>
-                            <Switch checked={isShowCompleted} onCheckedChange={setIsShowCompleted} />
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-        </header>
+                    <DropdownMenuItem onSelect={e => e.preventDefault()}>
+                        <ListChecks />
+                        <span className='w-full text-p-sm text-text'>{t('tasks.header.showCompleted')}</span>
+                        <Switch checked={isShowCompleted} onCheckedChange={setIsShowCompleted} />
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </WidgetHeader>
     )
-}
+})

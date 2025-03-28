@@ -16,7 +16,7 @@ export function ScheduleTimeLine({ slots, isTime24Format, slotHeight, calculateT
             {slots.map((_, idx) => {
                 const { adjustedHour, minute } = calculateTime(idx)
                 const isMinuteZero = minute === 0
-                const displayHour = isTime24Format ? adjustedHour : adjustedHour % 12 || 0
+                const displayHour = isTime24Format ? adjustedHour : adjustedHour % 12 || 12
                 const timeMeridiem = adjustedHour < 12 ? 'AM' : 'PM'
 
                 return (
