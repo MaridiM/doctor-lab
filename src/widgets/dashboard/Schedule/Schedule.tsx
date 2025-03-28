@@ -19,8 +19,8 @@ import { format } from 'date-fns'
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { Appointment, PATIENTS, User } from '@/entities/api'
-import { IReservedTime, RESERVED_TIME } from '@/entities/api/mock/reservedTime'
+import { Appointment, PATIENTS, User } from '@/shared/api'
+import { IReservedTime, RESERVED_TIME } from '@/shared/api/mock/reservedTime'
 
 import { ScrollArea } from '@/shared/components'
 import { adjustTime, cn, parseISOWithDurationNumeric } from '@/shared/utils'

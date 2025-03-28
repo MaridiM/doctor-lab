@@ -7,7 +7,7 @@ import { Badge, DropdownMenuContent } from '@/shared/components'
 import { DropdownMenuTrigger } from '@/shared/components'
 import { DropdownMenu } from '@/shared/components'
 
-import { Status } from '../api/mock'
+import { Status } from '../shared/api/mock'
 
 interface IProps {
     initialStatus: Status

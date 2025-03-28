@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useClickAway } from 'react-use'
 
-import { TASKS_MOCK } from '@/entities/api'
+import { TASKS_MOCK } from '@/shared/api'
 
 import { ScrollArea, SearchInput } from '@/shared/components'
 import { TSearch, searchSchema } from '@/shared/schemas'

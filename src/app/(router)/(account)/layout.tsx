@@ -4,8 +4,7 @@ import { ReactNode } from 'react'
 import { SidebarInset, SidebarProvider } from '@/shared/components'
 import { SITE_DESCRIPTION, SITE_NAME } from '@/shared/constants'
 
-import { AppSidebar, Header } from '@/widgets'
-
+import { AppSidebar } from '@/widgets'
 export const metadata: Metadata = {
     title: {
         absolute: SITE_NAME,
@@ -23,7 +22,6 @@ export default async function AccountLayout({
         <SidebarProvider defaultOpen={false}>
             <AppSidebar />
             <SidebarInset>
-                <Header />
                 {children}
             </SidebarInset>
         </SidebarProvider>

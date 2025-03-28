@@ -14,7 +14,7 @@ import {
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 
-import { Appointment } from '@/entities/api/mock/patients.mock'
+import { Appointment } from '@/shared/api/mock/patients.mock'
 
 import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/shared/components'
 

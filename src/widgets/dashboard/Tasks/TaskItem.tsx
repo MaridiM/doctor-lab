@@ -14,8 +14,8 @@ import {
 import { useTranslations } from 'next-intl'
 import { RefObject, useCallback, useState } from 'react'
 
-import { TASKS_MOCK } from '@/entities/api'
-import { TASK_STATUSES } from '@/entities/api/mock/task_statuses'
+import { TASKS_MOCK } from '@/shared/api'
+import { TASK_STATUSES } from '@/shared/api/mock/task_statuses'
 
 import {
     Badge,

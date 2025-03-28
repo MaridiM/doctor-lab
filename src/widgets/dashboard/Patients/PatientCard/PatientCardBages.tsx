@@ -1,10 +1,10 @@
 import { useTranslations } from 'next-intl'
 
-import { APPOINTMENT_STATUSES } from '@/entities/api'
-import { Appointment } from '@/entities/api/mock/patients.mock'
-import { StatusBadge } from '@/entities/ui'
+import { Appointment } from '@/shared/api/mock/patients.mock'
 
 import { Badge } from '@/shared/components'
+import { StatusBadge } from '@/entities/StatusBadge'
+import { APPOINTMENT_STATUSES } from '@/shared/api'
 
 interface IProps {
     appointment: Appointment

@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { RefObject, useState } from 'react'
 
-import { Appointment, User } from '@/entities/api/mock/patients.mock'
+import { Appointment, User } from '@/shared/api/mock/patients.mock'
 
 import { UserAvatar } from '@/shared/components'
 import { cn, parseISOWithDurationNumeric } from '@/shared/utils'

@@ -7,8 +7,7 @@ import { BellRing, CalendarClock, CalendarX2, EllipsisVertical, FilePenLine, IdC
 import { useTranslations } from 'next-intl'
 import { CSSProperties, useEffect, useMemo, useState } from 'react'
 
-import { APPOINTMENT_STATUSES, Appointment, Status, User } from '@/entities/api'
-import { StatusBadge } from '@/entities/ui'
+import { APPOINTMENT_STATUSES, Appointment, Status, User } from '@/shared/api'
 
 import {
     Badge,
@@ -22,6 +21,7 @@ import {
 import { cn } from '@/shared/utils'
 
 import { EStateType, ScheduleContextMenu } from './ScheduleContextMenu'
+import { StatusBadge } from '@/entities'
 
 interface IProps {
     appointment: Appointment

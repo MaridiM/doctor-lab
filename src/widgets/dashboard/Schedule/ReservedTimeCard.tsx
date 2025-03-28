@@ -7,7 +7,7 @@ import { CalendarClock, CalendarX2, EllipsisVertical, FilePenLine } from 'lucide
 import { useTranslations } from 'next-intl'
 import { CSSProperties, useMemo, useState } from 'react'
 
-import { IReservedTime } from '@/entities/api/mock/reservedTime'
+import { IReservedTime } from '@/shared/api/mock/reservedTime'
 
 import {
     Badge,

@@ -1,6 +1,3 @@
+export * from './dashboard'
 export * from './Header'
-export * from './Schedule'
-export * from './Patients'
 export * from './Sidebar'
-export * from './Tasks'
-export * from './TodaySummaryWidget'

@@ -14,15 +14,18 @@ import {
 
 import { ChangeLanguage, ChangeTheme } from '@/features'
 
-export function Header() {
-    const tDashboard = useTranslations('dashboard')
+interface IProps {
+    title: string
+}
+
+export function Header({title}: IProps) {
     const t = useTranslations('core')
 
     return (
         <header className='flex h-16 shrink-0 items-center justify-between gap-2 bg-card px-4 transition-[width,height] ease-linear border-b-20'>
             <div className='flex items-center gap-4'>
                 <SidebarTrigger className='-ml-1' />
-                <span className='text-h4 !text-text drop-shadow-sm'>{tDashboard('title')}</span>
+                <span className='text-h4 !text-text drop-shadow-sm'>{title}</span>
             </div>
             <div className='flex items-center gap-4'>
                 <ChangeLanguage />
