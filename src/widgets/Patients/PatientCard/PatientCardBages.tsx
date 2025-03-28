@@ -2,7 +2,7 @@ import { useTranslations } from 'next-intl'
 
 import { APPOINTMENT_STATUSES } from '@/entities/api'
 import { Appointment } from '@/entities/api/mock/patients.mock'
-import { StatusBadge } from '@/entities/api/ui'
+import { StatusBadge } from '@/entities/ui'
 
 import { Badge } from '@/shared/components'
 

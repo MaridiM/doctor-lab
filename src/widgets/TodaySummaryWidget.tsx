@@ -3,46 +3,50 @@
 import { format } from 'date-fns'
 import { Calendar, ChartNetwork, CheckCircle, CircleAlert, UserPlus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useMemo } from 'react'
 
 import { WidgetHeader } from '@/shared/components'
 
 export function TodaySummaryWidget() {
     const t = useTranslations('dashboard')
 
-    const widgetTodaySummary = {
-        title: 'Today’s Summary',
-        stats: [
-            {
-                label: 'Appointments Today',
-                value: 14,
-                icon: Calendar,
-                color: '#3B82F6'
-            },
-            {
-                label: 'New Patients',
-                value: 3,
-                icon: UserPlus,
-                color: '#10B981'
-            },
-            {
-                label: 'Completed Tasks',
-                value: 12,
-                icon: CheckCircle,
-                color: '#22C55E'
-            },
-            {
-                label: 'Overdue Tasks',
-                value: 2,
-                icon: CircleAlert,
-                color: '#F59E0B'
-            }
-        ],
-        updatedAt: '2025-03-28T09:30:00Z'
-    }
+    const widgetTodaySummary = useMemo(() => {
+        return {
+            title: 'title',
+            stats: [
+                {
+                    label: 'appointments',
+                    value: 14,
+                    icon: Calendar,
+                    color: '#3B82F6'
+                },
+                {
+                    label: 'newPatients',
+                    value: 3,
+                    icon: UserPlus,
+                    color: '#10B981'
+                },
+                {
+                    label: 'completedTasks',
+                    value: 12,
+                    icon: CheckCircle,
+                    color: '#22C55E'
+                },
+                {
+                    label: 'overdueTasks',
+                    value: 2,
+                    icon: CircleAlert,
+                    color: '#F59E0B'
+                }
+            ],
+            updatedAt: '2025-03-28T09:30:00Z'
+        }
+    }, [])
+
     return (
         <section className='flex h-full max-h-[240px] w-full flex-col overflow-hidden rounded-lg bg-card border-20'>
             <WidgetHeader
-                title={widgetTodaySummary.title}
+                title={t(`widget.todaySummary.${widgetTodaySummary.title}`)}
                 icon={<ChartNetwork className='size-5 stroke-text-foreground' />}
             />
             <div className='flex h-full items-center justify-center'>
@@ -58,8 +62,10 @@ export function TodaySummaryWidget() {
                                         <Icon color={color} className='size-5' />
                                     </span>
                                     <div className='flex flex-col gap-1'>
-                                        <span className='text-p-sm text-text-secondary'>{label}</span>
-                                        <span className='text-p-md font-medium text-text'>{value}</span>
+                                        <span className='text-p-sm text-text-secondary'>
+                                            {t(`widget.todaySummary.${label}`)}
+                                        </span>
+                                        <span className='text-p-lg font-medium text-text'>{value}</span>
                                     </div>
                                 </div>
                             </div>
@@ -69,7 +75,7 @@ export function TodaySummaryWidget() {
             </div>
             <footer className='flex min-h-8 w-full items-center justify-end px-4 border-t-20'>
                 <span className='text-p-sm text-text-tertiary'>
-                    Last updated: {format(widgetTodaySummary.updatedAt, 'HH:mm:ss')}
+                    {t('widget.todaySummary.lastUpdated', { time: format(widgetTodaySummary.updatedAt, 'HH:mm:ss') })}
                 </span>
             </footer>
         </section>

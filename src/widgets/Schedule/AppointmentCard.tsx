@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl'
 import { CSSProperties, useEffect, useMemo, useState } from 'react'
 
 import { APPOINTMENT_STATUSES, Appointment, Status, User } from '@/entities/api'
-import { StatusBadge } from '@/entities/api/ui'
+import { StatusBadge } from '@/entities/ui'
 
 import {
     Badge,

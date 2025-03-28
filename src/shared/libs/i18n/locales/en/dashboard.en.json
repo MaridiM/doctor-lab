@@ -108,6 +108,16 @@
             "doctor": "Doctor:"
         }
     },
+    "widget": {
+        "todaySummary": {
+            "title": "Today’s Summary",
+            "appointments": "Appointments Today",
+            "newPatients": "New Patients",
+            "completedTasks": "Completed Tasks",
+            "overdueTasks": "Overdue Tasks",
+            "lastUpdated": "Last updated: {time}"
+        }
+    },
     "status": {
         "labels": {
             "CUSTOM": "Custom",

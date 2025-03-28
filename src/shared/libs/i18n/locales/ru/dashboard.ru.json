@@ -116,6 +116,16 @@
             "specialty": "Специальность"
         }
     },
+    "widget": {
+        "todaySummary": {
+            "title": "Сводка на сегодня",
+            "appointments": "Приёмов сегодня",
+            "newPatients": "Новых пациентов",
+            "completedTasks": "Выполнено задач",
+            "overdueTasks": "Просроченных задач",
+            "lastUpdated": "Обновлено: {time}"
+        }
+    },
     "status": {
         "labels": {
             "CUSTOM": "Пользовательский",
