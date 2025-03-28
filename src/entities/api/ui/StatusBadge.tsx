@@ -1,6 +1,6 @@
 import { Check, SquarePlus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { DropdownMenuItem, DropdownMenuSeparator } from '@/shared/components'
 import { Badge, DropdownMenuContent } from '@/shared/components'
@@ -25,29 +25,7 @@ export function StatusBadge({ initialStatus, statusList, isOpen, onSelect }: IPr
     const handleChangeCurrentStatus = useCallback((status: Status) => {
         setCurrentStatus(status)
         onSelect?.(status)
-    }, [])
-
-    const statusItems = useMemo(
-        () =>
-            statusList.map(status => (
-                <DropdownMenuItem
-                    key={status.id}
-                    onSelect={() => handleChangeCurrentStatus(status)}
-                    onPointerDown={e => e.stopPropagation()}
-                >
-                    <span
-                        className='size-4 min-w-4 rounded-sm'
-                        style={{
-                            backgroundColor: status.backgroundColor,
-                            color: status.textColor
-                        }}
-                    />
-                    <span className='w-full text-p-sm text-text'>{t(`status.labels.${status.key}`)}</span>
-                    {currentStatus.key === status.key && <Check className='ml-2' />}
-                </DropdownMenuItem>
-            )),
-        [handleChangeCurrentStatus, t, currentStatus.key]
-    )
+    }, [onSelect])
 
     useEffect(() => {
         isOpen?.(isOpenStatusMenu)
@@ -81,7 +59,23 @@ export function StatusBadge({ initialStatus, statusList, isOpen, onSelect }: IPr
                     <span className='w-full text-p-sm text-text'>{t('status.labels.CUSTOM')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                {statusItems}
+                {statusList.map(status => (
+                    <DropdownMenuItem
+                        key={status.id}
+                        onSelect={() => handleChangeCurrentStatus(status)}
+                        onPointerDown={e => e.stopPropagation()}
+                    >
+                        <span
+                            className='size-4 min-w-4 rounded-sm'
+                            style={{
+                                backgroundColor: status.backgroundColor,
+                                color: status.textColor
+                            }}
+                        />
+                        <span className='w-full text-p-sm text-text'>{t(`status.labels.${status.key}`)}</span>
+                        {currentStatus.key === status.key && <Check className='ml-2' />}
+                    </DropdownMenuItem>
+                ))}
             </DropdownMenuContent>
         </DropdownMenu>
     )

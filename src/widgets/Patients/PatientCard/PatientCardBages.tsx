@@ -1,21 +1,10 @@
-'use client'
-
-import { Check, SquarePlus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useCallback, useMemo, useState } from 'react'
 
 import { APPOINTMENT_STATUSES } from '@/entities/api'
-import { Appointment, Status } from '@/entities/api/mock/patients.mock'
+import { Appointment } from '@/entities/api/mock/patients.mock'
 import { StatusBadge } from '@/entities/api/ui'
 
-import {
-    Badge,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
-} from '@/shared/components'
+import { Badge } from '@/shared/components'
 
 interface IProps {
     appointment: Appointment

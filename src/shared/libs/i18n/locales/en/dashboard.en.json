@@ -24,6 +24,21 @@
             "incomplete": "Mark as incomplete",
             "archive": "Archive task",
             "delete": "Delete task"
+        },
+        "status": {
+            "PENDING": "Pending",
+            "IN_PROGRESS": "In progress",
+            "COMPLETED": "Completed",
+            "CANCELLED": "Cancelled",
+            "OVERDUE": "Overdue",
+            "SCHEDULED": "Scheduled",
+            "ON_HOLD": "On hold",
+            "FAILED": "Failed",
+            "AWAITING_REVIEW": "Awaiting review",
+            "DELEGATED": "Delegated",
+            "ARCHIVED": "Archived",
+            "DRAFT": "Draft",
+            "RECURRING": "Recurring"
         }
     },
     "schedule": {

@@ -69,7 +69,7 @@ export function ScheduleContextMenu({ children, isOpen, type }: PropsWithChildre
                 onSelect: () => console.log('CANCEL_RESEVED_TIME')
             }
         ],
-        []
+        [EStateType, iconStyle.custom, iconStyle.lucide, t]
     )
 
     return (

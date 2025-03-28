@@ -1,16 +1,35 @@
 import { format } from 'date-fns'
-import { CheckCheck, Package, PencilLine, Pin, PinOff, SquareCheckBig, Star, StarOff, Trash2 } from 'lucide-react'
+import {
+    Check,
+    CheckCheck,
+    Package,
+    PencilLine,
+    Pin,
+    PinOff,
+    SquareCheckBig,
+    Star,
+    StarOff,
+    Trash2
+} from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { RefObject, useCallback, useState } from 'react'
 
 import { TASKS_MOCK } from '@/entities/api'
+import { TASK_STATUSES } from '@/entities/api/mock/task_statuses'
 
 import {
+    Badge,
     Button,
     Checkbox,
     ContextMenu,
     ContextMenuContent,
     ContextMenuItem,
-    ContextMenuTrigger
+    ContextMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    UserAvatar
 } from '@/shared/components'
 import { TIcon } from '@/shared/types'
 import { cn } from '@/shared/utils'
@@ -21,6 +40,7 @@ interface IProps {
     className?: string
     item: (typeof TASKS_MOCK)[0]
     setIsSelectedTask: (id: string) => void
+    ref: RefObject<null>
 }
 
 enum EMenu {
@@ -39,8 +59,10 @@ export interface IMenu {
     onSelect: () => void
 }
 
-export function TaskItem({ item, className, setIsSelectedTask }: IProps) {
+export function TaskItem({ item, className, setIsSelectedTask, ref }: IProps) {
     const t = useTranslations('dashboard')
+
+    const [currentStatus, setCurrentStatus] = useState(item.status)
 
     const handleMenuSelect = (menu: EMenu) => {
         switch (menu) {
@@ -103,11 +125,19 @@ export function TaskItem({ item, className, setIsSelectedTask }: IProps) {
         }
     ]
 
+    const handleChangeCurrentStatus = useCallback(
+        (status: any) => {
+            setCurrentStatus(status)
+        },
+        [setCurrentStatus]
+    )
+
     return (
         <ContextMenu>
             <ContextMenuTrigger>
                 <li
                     key={item.id}
+                    ref={ref}
                     onClick={() => setIsSelectedTask(item.id)}
                     className={cn('rounded-md bg-card shadow border-20 hover:border-40', className)}
                 >
@@ -128,7 +158,7 @@ export function TaskItem({ item, className, setIsSelectedTask }: IProps) {
                                 </Button>
                             ) : (
                                 <div className='flex size-6 items-center justify-center'>
-                                    <Checkbox  />
+                                    <Checkbox />
                                 </div>
                             )}
                             <Button
@@ -178,6 +208,64 @@ export function TaskItem({ item, className, setIsSelectedTask }: IProps) {
                     >
                         {item.text}
                     </p>
+
+                    <footer className='flex h-7 items-center justify-between px-2 border-t-20'>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Badge
+                                    variant='outline'
+                                    className='!text-label-md'
+                                    style={{
+                                        backgroundColor: currentStatus.backgroundColor,
+                                        color: currentStatus.textColor
+                                    }}
+                                >
+                                    {t(`tasks.status.${currentStatus.key}`)}
+                                </Badge>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                {Object.values(TASK_STATUSES).map(status => {
+                                    return (
+                                        <DropdownMenuItem
+                                            key={status.id}
+                                            onSelect={() => handleChangeCurrentStatus(status)}
+                                            onPointerDown={e => e.stopPropagation()}
+                                        >
+                                            <span
+                                                className='size-4 min-w-4 rounded-sm'
+                                                style={{
+                                                    backgroundColor: status.backgroundColor,
+                                                    color: status.textColor
+                                                }}
+                                            />
+                                            <span className='w-full text-p-sm text-text'>
+                                                {t(`tasks.status.${status.key}`)}
+                                            </span>
+                                            {currentStatus.key === status.key && <Check className='ml-2' />}
+                                        </DropdownMenuItem>
+                                    )
+                                })}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <span className='flex gap-1 text-label-md text-text-secondary'>
+                            <UserAvatar
+                                className='size-5'
+                                fullName='Emma Stone'
+                                src='https://i.pinimg.com/736x/b9/64/45/b96445118da9f45f16345b3218342aae.jpg'
+                            />
+                            <UserAvatar
+                                className='size-5'
+                                fullName='Oliver Twist'
+                                src='https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*'
+                            />
+                            <UserAvatar
+                                className='size-5'
+                                fullName='Marlow Grand'
+                                src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyBnY2OmVc4EJcVSkmvrVZFHgFDVedUQ56GA&s'
+                            />
+                        </span>
+                    </footer>
                 </li>
             </ContextMenuTrigger>
             <ContextMenuContent>

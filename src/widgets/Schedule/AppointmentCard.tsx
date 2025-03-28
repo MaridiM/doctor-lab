@@ -3,18 +3,9 @@
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { format } from 'date-fns'
-import {
-    BellRing,
-    CalendarClock,
-    CalendarX2,
-    Check,
-    EllipsisVertical,
-    FilePenLine,
-    IdCard,
-    SquarePlus
-} from 'lucide-react'
+import { BellRing, CalendarClock, CalendarX2, EllipsisVertical, FilePenLine, IdCard } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import { CSSProperties, useEffect, useMemo, useState } from 'react'
 
 import { APPOINTMENT_STATUSES, Appointment, Status, User } from '@/entities/api'
 import { StatusBadge } from '@/entities/api/ui'
@@ -25,7 +16,6 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
     UserAvatar
 } from '@/shared/components'

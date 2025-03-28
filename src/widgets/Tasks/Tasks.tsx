@@ -2,8 +2,9 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslations } from 'next-intl'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useClickAway } from 'react-use'
 
 import { TASKS_MOCK } from '@/entities/api'
 
@@ -27,6 +28,9 @@ export function Tasks() {
     const [tasks, setTasks] = useState<typeof TASKS_MOCK>(TASKS_MOCK)
     const [isShowCompleted, setIsShowCompleted] = useState(false)
     const [filterTasks, setFilterTasks] = useState<EFilterTasks>(EFilterTasks.CREATED)
+
+    const taskItemRef = useRef(null)
+    useClickAway(taskItemRef, () => setIsSelectedTask(null))
 
     const form = useForm<TSearch>({
         resolver: zodResolver(searchSchema),
@@ -80,8 +84,9 @@ export function Tasks() {
                             return (
                                 <TaskItem
                                     key={item.id}
+                                    ref={taskItemRef}
                                     className={cn({
-                                        'bg-primary-50 border-sm-primary hover:border-sm-primary': isSelect
+                                        'border-sm-primary hover:border-sm-primary': isSelect
                                     })}
                                     item={item}
                                     setIsSelectedTask={setIsSelectedTask}

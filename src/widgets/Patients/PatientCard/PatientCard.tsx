@@ -1,21 +1,24 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { useState } from 'react'
+import { RefObject, useState } from 'react'
 
 import { Appointment, User } from '@/entities/api/mock/patients.mock'
 
 import { UserAvatar } from '@/shared/components'
-import { parseISOWithDurationNumeric } from '@/shared/utils'
+import { cn, parseISOWithDurationNumeric } from '@/shared/utils'
 
 import { PatientCardBages } from './PatientCardBages'
 import { PatientCardHeader } from './PatientCardHeader'
 
 interface IProps {
+    ref: RefObject<null>
     patient: User
+    setSelectedPatient: VoidFunction
+    className?: string
 }
 
-export function PatientCard({ patient }: IProps) {
+export function PatientCard({ patient, ref, setSelectedPatient, className }: IProps) {
     const t = useTranslations('dashboard')
 
     const appointment: Appointment = patient.medicalRecord.appointments[0]
@@ -27,7 +30,12 @@ export function PatientCard({ patient }: IProps) {
     const [isTime24Format] = useState<boolean>(true)
 
     return (
-        <li key={patient.id} className='min-h-[96px] w-full rounded-md bg-card shadow border-20 hover:border-40'>
+        <li
+            key={patient.id}
+            ref={ref}
+            onClick={setSelectedPatient}
+            className={cn('min-h-[96px] w-full rounded-md bg-card shadow border-20 hover:border-40', className)}
+        >
             <PatientCardHeader appointment={appointment} />
 
             <div className='flex gap-2 px-2 py-1'>

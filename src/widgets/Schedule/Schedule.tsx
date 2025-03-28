@@ -118,8 +118,8 @@ export function Schedule() {
             // Проверка на выход за границы
             const isVisible = start >= baseMinutes && end <= baseMinutes + (scheduleState.operatingHours + 2) * 60
 
-            const StartMinutes = startHour * 60 + startMinute
-            const offsetMinutes = StartMinutes - baseMinutes
+            // const StartMinutes = startHour * 60 + startMinute
+            // const offsetMinutes = StartMinutes - baseMinutes
             return {
                 top: isVisible ? ((start - baseMinutes) / scheduleState.timeStep) * slotHeight : -1000,
                 height: (duration / scheduleState.timeStep) * slotHeight
@@ -158,14 +158,14 @@ export function Schedule() {
     const touchSensor = useSensor(TouchSensor)
 
     const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor)
-    function getStartHour24() {
+    const getStartHour24 = useCallback(() => {
         if (scheduleState.isTime24Format) return scheduleState.operatingHoursStart
         if (scheduleState.operatingHoursMeridiemStart === 'AM') {
             return scheduleState.operatingHoursStart === 12 ? 0 : scheduleState.operatingHoursStart
         } else {
             return scheduleState.operatingHoursStart === 12 ? 12 : scheduleState.operatingHoursStart + 12
         }
-    }
+    }, [scheduleState.isTime24Format, scheduleState.operatingHoursMeridiemStart, scheduleState.operatingHoursStart])
 
     // Helper function to check time slot availability
     const isTimeSlotAvailable = (start: number, duration: number, items: Array<Appointment | IReservedTime>) => {
@@ -261,14 +261,15 @@ export function Schedule() {
             })
         },
         [
+            patients,
             dragItem,
-            scheduleState.operatingHours,
-            scheduleState.timeStep,
             slotHeight,
-            calculatePosition,
+            reservedTimes,
             getStartHour24,
-            scheduleState.isTime24Format,
-            patients
+            calculatePosition,
+            scheduleState.timeStep,
+            scheduleState.operatingHours,
+            scheduleState.isTime24Format
         ]
     )
 
@@ -461,15 +462,16 @@ export function Schedule() {
             })
         },
         [
+            patients,
             dragItem,
             slotHeight,
-            scheduleState.timeStep,
-            scheduleState.operatingHours,
-            patients,
-            calculatePosition,
-            getStartHour24,
             hasConflict,
-            isSmartPlacement
+            reservedTimes,
+            getStartHour24,
+            isSmartPlacement,
+            calculatePosition,
+            scheduleState.timeStep,
+            scheduleState.operatingHours
         ]
     )
 
@@ -636,12 +638,4 @@ export function Schedule() {
             </DndContext>
         </section>
     )
-}
-
-const useScheduleTime = () => {
-    // логика работы со временем
-}
-
-const useScheduleDragAndDrop = () => {
-    // логика drag&drop
 }

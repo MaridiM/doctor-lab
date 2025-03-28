@@ -3,7 +3,7 @@
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { format } from 'date-fns'
-import { CalendarClock, CalendarX2, ClockIcon, EllipsisVertical, FilePenLine, Gauge, Users } from 'lucide-react'
+import { CalendarClock, CalendarX2, EllipsisVertical, FilePenLine } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { CSSProperties, useMemo, useState } from 'react'
 
@@ -17,7 +17,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from '@/shared/components'
-import { cn, parseISOWithDurationNumeric } from '@/shared/utils'
+import { cn } from '@/shared/utils'
 
 import { EStateType, ScheduleContextMenu } from './ScheduleContextMenu'
 

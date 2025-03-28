@@ -18,7 +18,7 @@ import { ComponentProps } from 'react'
 import { LogoIcon, Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/shared/components'
 import { PATHS } from '@/shared/config'
 
-import { BaseHeader, NavMain, NavSecondary, NavUser, OrganizationSwitcher } from './ui'
+import { BaseHeader, NavMain, NavSecondary, NavUser } from './ui'
 
 const data = {
     user: {
@@ -109,13 +109,13 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
-    const isOrganisation = true
+    // const isOrganisation = true
 
     return (
         <Sidebar collapsible='icon' {...props} className='border-r-20'>
             <SidebarHeader className='h-16 border-b-20'>
                 <BaseHeader />
-            {/* {isOrganisation && <OrganizationSwitcher organizations={data.organizations} />} */}
+                {/* {isOrganisation && <OrganizationSwitcher organizations={data.organizations} />} */}
             </SidebarHeader>
 
             <SidebarContent>

@@ -8,7 +8,7 @@ export const USER = {
     telegramId: '12345678',
     role: ['USER', 'CLINIC'],
     organization: true,
-    avatar: 'https://example.com/user_avatar.png',
+    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyBnY2OmVc4EJcVSkmvrVZFHgFDVedUQ56GA&s',
     organizations: [
         {
             id: '21793f8d-d0ee-4d3b-9766-58e8596f42e1',

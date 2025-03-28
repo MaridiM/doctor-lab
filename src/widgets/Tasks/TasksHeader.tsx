@@ -1,8 +1,6 @@
 'use client'
 
 import {
-    ArrowDownZA,
-    ArrowUpAz,
     ArrowUpDown,
     ArrowUpNarrowWide,
     ArrowUpWideNarrow,
@@ -69,7 +67,7 @@ export function TasksHeader({ isShowCompleted, filterTasks, setFilterTasks, setI
                 labelKey: 'tasks.header.dateModified'
             }
         ],
-        [EFilterTasks]
+        [EFilterTasks, t]
     )
 
     const renderSortMenuItem = ({ value, icon: Icon, labelKey }: (typeof SORT_OPTIONS)[number]) => (

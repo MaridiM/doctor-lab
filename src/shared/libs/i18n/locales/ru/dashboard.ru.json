@@ -24,6 +24,21 @@
             "incomplete": "Отметить невыполненной",
             "archive": "Архивировать",
             "delete": "Удалить"
+        },
+        "status": {
+            "PENDING": "В ожидании",
+            "IN_PROGRESS": "В процессе",
+            "COMPLETED": "Завершена",
+            "CANCELLED": "Отменена",
+            "OVERDUE": "Просрочена",
+            "SCHEDULED": "Запланирована",
+            "ON_HOLD": "Приостановлена",
+            "FAILED": "Провалена",
+            "AWAITING_REVIEW": "Ожидает проверки",
+            "DELEGATED": "Делегирована",
+            "ARCHIVED": "Архивирована",
+            "DRAFT": "Черновик",
+            "RECURRING": "Повторяющаяся"
         }
     },
     "schedule": {
