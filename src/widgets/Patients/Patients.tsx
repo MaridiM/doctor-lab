@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
+import { Calendar, ChartNetwork, CheckCircle, ChevronRight, CircleAlert, UserPlus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -9,9 +10,11 @@ import { useClickAway } from 'react-use'
 
 import { Appointment, PATIENTS, User } from '@/entities/api'
 
-import { ScrollArea, SearchInput } from '@/shared/components'
+import { ScrollArea, SearchInput, WidgetHeader } from '@/shared/components'
 import { TSearch, searchSchema } from '@/shared/schemas'
 import { cn } from '@/shared/utils'
+
+import { TodaySummaryWidget } from '../TodaySummaryWidget'
 
 import { PatientCard } from './PatientCard'
 import { PatientsHeader } from './PatientsHeader'
@@ -47,29 +50,29 @@ export function Patients() {
 
     return (
         <section className='flex h-full w-full flex-col gap-2'>
-            <section className='flex h-full max-h-[240px] w-full gap-2'>
-                <div className='w-full rounded-lg bg-card p-4 border-20'>Widgets 1</div>
-            </section>
+            <TodaySummaryWidget />
+
             <section className='h-full w-full overflow-hidden rounded-lg bg-background border-20'>
                 <PatientsHeader />
                 <SearchInput form={form} isDirty={isDirty} placeholder={t('patients.search')} />
 
                 <ScrollArea className='flex h-full max-h-[calc(100vh-442px)] w-full' type='auto'>
                     <ul className='flex flex-col gap-1 p-2'>
-                        {patients.map((patient: any) => {
-                            const isSelect = selectedPatient?.id === patient.id
-                            return (
-                                <PatientCard
-                                    ref={patientCardRef}
-                                    key={patient.id}
-                                    patient={patient}
-                                    setSelectedPatient={() => setSelectedPatient(patient)}
-                                    className={cn({
-                                        'border-sm-primary hover:border-sm-primary': isSelect
-                                    })}
-                                />
-                            )
-                        })}
+                        {!!patients.length &&
+                            patients.map((patient: any) => {
+                                const isSelect = selectedPatient?.id === patient.id
+                                return (
+                                    <PatientCard
+                                        ref={patientCardRef}
+                                        key={patient.id}
+                                        patient={patient}
+                                        setSelectedPatient={() => setSelectedPatient(patient)}
+                                        className={cn({
+                                            'border-sm-primary hover:border-sm-primary': isSelect
+                                        })}
+                                    />
+                                )
+                            })}
                     </ul>
                 </ScrollArea>
             </section>

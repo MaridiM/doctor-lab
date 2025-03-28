@@ -17,7 +17,7 @@ export const WidgetHeader = memo(function WidgetHeader({
     return (
         <header
             className={cn(
-                'flex h-14 items-center justify-start bg-card px-4 py-2 border-b-20',
+                'flex h-14 min-h-14 items-center justify-start bg-card px-4 py-2 border-b-20',
                 { 'justify-between': children },
                 className
             )}
