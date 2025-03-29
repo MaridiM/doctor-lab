@@ -4,9 +4,9 @@ import { MoreVertical, Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 import { Header } from '@/widgets/Header'
+import { TasksHeader } from '@/widgets/tasks'
 
 import { Button } from '@/shared/components'
-import { TasksHeader } from '@/widgets/tasks/TasksHeader'
 
 export default function Tasks() {
     const t = useTranslations('tasks')

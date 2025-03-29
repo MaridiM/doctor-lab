@@ -3,13 +3,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Columns3, Plus, Rows3, Settings } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Button, EditableTitle } from '@/shared/components'
 import { TEditableTitle, editableTitleSchema } from '@/shared/schemas'
 
-export function TasksHeader() {
+export const TasksHeader = memo(function TasksHeader() {
     const t = useTranslations('tasks')
 
     const [view, setView] = useState<'kanban' | 'list'>('kanban')
@@ -48,4 +48,4 @@ export function TasksHeader() {
             </div>
         </header>
     )
-}
+})
