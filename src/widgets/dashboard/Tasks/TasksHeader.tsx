@@ -126,7 +126,7 @@ export const TasksHeader = memo(function TasksHeader({
             <DropdownMenu open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
                 <DropdownMenuTrigger asChild>
                     <Button variant='outline' size='icon' icon='sm'>
-                        <Settings className='stroke-[1.5px]' />
+                        <Settings className='!size-[18px] stroke-[1.5px]' />
                     </Button>
                 </DropdownMenuTrigger>
 

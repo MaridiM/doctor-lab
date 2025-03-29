@@ -1,17 +1,25 @@
 'use client'
 
-import { X } from 'lucide-react'
+import { Pencil, X } from 'lucide-react'
 import { Check } from 'lucide-react'
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
+import { useClickAway } from 'react-use'
+
+import { cn } from '@/shared/utils'
 
 import { Button, Form, FormControl, FormField, FormItem } from '../ui'
 import { Input } from '../ui/Input'
 
 interface IProps {
+    maxLength?: number
+    width?: string
     initialTitle: string
+    className?: string
+    setIsEditTitle?: (isEditTitle: boolean) => void
+    classNameInput?: string
+    classNameWrapper?: string
     placeholder?: string
-    isDirty?: boolean
     form: UseFormReturn<
         {
             title: string
@@ -22,37 +30,64 @@ interface IProps {
 }
 
 export function EditableTitle({
-    initialTitle = 'Editable Title',
-    placeholder = 'Input new title',
     form,
-    isDirty
+    maxLength,
+    setIsEditTitle,
+    className,
+    classNameInput,
+    classNameWrapper,
+    width = 'auto',
+    initialTitle = 'Editable Title',
+    placeholder = 'Input new title'
 }: IProps) {
+    const ref = useRef<HTMLDivElement>(null)
+    const [isHover, setIsHover] = useState(false)
     const [title, setTitle] = useState(initialTitle)
-
     const [isEditing, setIsEditing] = useState(false)
     const [tempTitle, setTempTitle] = useState(title)
 
-    const MAX_LENGTH = 64
+    useClickAway(ref, () => setIsEditing(false))
 
-    const handleDoubleClick = () => {
+    const handleOnClick = useCallback(() => {
         setTempTitle(title)
         setIsEditing(true)
-    }
+        form.setValue('title', title)
+    }, [title, setTempTitle, setIsEditing])
 
-    const handleSave = () => {
+    const handleSave = useCallback(() => {
         setTitle(tempTitle)
         setIsEditing(false)
-    }
+    }, [tempTitle, title, setTitle, setIsEditing])
 
-    const handleCancel = () => {
+    const handleCancel = useCallback(() => {
         setTempTitle(title)
         setIsEditing(false)
-    }
+    }, [title, setTempTitle, setIsEditing])
+
+    const handleOnChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            setTempTitle(e.target.value)
+            form.setValue('title', e.target.value)
+        },
+        [form, setTempTitle]
+    )
+
+    useEffect(() => {
+        if (setIsEditTitle) {
+            setIsEditTitle(isEditing)
+        }
+    }, [isEditing, setIsEditTitle])
+
     return (
-        <div className='flex items-center gap-2' onDoubleClick={() => setIsEditing(true)}>
+        <div
+            className='flex items-center gap-2'
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}
+            onDoubleClick={handleOnClick}
+        >
             {isEditing ? (
                 <Form {...form}>
-                    <form>
+                    <form onSubmit={form.handleSubmit(handleSave)}>
                         <FormField
                             control={form.control}
                             name='title'
@@ -60,52 +95,74 @@ export function EditableTitle({
                                 <FormItem className='flex w-full items-center'>
                                     <FormControl>
                                         <div
-                                            className='flex w-fit items-center gap-1 rounded-md border-20'
-                                            style={{ width: 'calc(72ch + 32px)' }}
+                                            ref={ref}
+                                            className={cn(
+                                                'relative flex w-fit items-center gap-1 pr-px',
+                                                classNameWrapper
+                                            )}
+                                            style={{ width }}
                                         >
                                             <Input
                                                 type='text'
-                                                maxLength={MAX_LENGTH}
+                                                maxLength={maxLength}
                                                 placeholder={placeholder}
-                                                className='max-h-8 min-h-8 w-full border-none bg-transparent px-2 !text-h5 font-bold text-text focus:outline-none'
+                                                className={cn(
+                                                    'text-notext-text max-h-8 min-h-8 w-full border-none bg-transparent px-2 placeholder:text-text-tertiary focus:outline-none',
+                                                    classNameInput
+                                                )}
                                                 autoFocus
                                                 {...field}
+                                                value={tempTitle}
+                                                onChange={handleOnChange}
                                             />
                                             <Button
                                                 variant='outline'
-                                                size='sm'
+                                                size='icon'
                                                 icon='sm'
-                                                className='min-w-8'
+                                                className={cn('group size-7 min-w-7', {
+                                                    'opacity-0': !form.getValues('title').length
+                                                })}
                                                 onClick={handleSave}
                                             >
-                                                <Check className='size-4 stroke-text' />
+                                                <Check className='!size-[18px] stroke-[1.5px]' />
                                             </Button>
 
                                             <Button
                                                 variant='outline'
-                                                size='sm'
+                                                size='icon'
                                                 icon='sm'
-                                                className='min-w-8'
+                                                className='group size-7 min-w-7'
                                                 onClick={handleCancel}
                                             >
-                                                <X className='size-4 stroke-text' />
+                                                <X className='!size-[18px] stroke-[1.5px]' />
                                             </Button>
                                         </div>
                                     </FormControl>
                                 </FormItem>
                             )}
                         />
-                        {isDirty && (
-                            <Button variant='outline' size='icon' icon='sm' onClick={() => form.reset()}>
-                                <X />
-                            </Button>
-                        )}
                     </form>
                 </Form>
             ) : (
-                <h2 className='text-h5 font-bold' onDoubleClick={handleDoubleClick}>
-                    {title}
-                </h2>
+                <div className='flex items-center gap-2'>
+                    <span className={cn(className)} onDoubleClick={handleOnClick}>
+                        {title}
+                    </span>
+                    <Button
+                        variant='outline'
+                        size='icon'
+                        icon='xs'
+                        className={cn(
+                            'group flex size-8 min-w-8 items-center justify-center transition-opacity duration-100 ease-in-out',
+                            {
+                                'opacity-0': !isHover
+                            }
+                        )}
+                        onClick={handleOnClick}
+                    >
+                        <Pencil className='!size-[14px] stroke-[1.75px] transition-transform duration-300 ease-in-out' />
+                    </Button>
+                </div>
             )}
         </div>
     )

@@ -7,7 +7,6 @@ import { useForm } from 'react-hook-form'
 import { useClickAway } from 'react-use'
 
 import { TASKS_MOCK } from '@/shared/api'
-
 import { ScrollArea, SearchInput } from '@/shared/components'
 import { TSearch, searchSchema } from '@/shared/schemas'
 import { cn } from '@/shared/utils'
@@ -80,14 +79,14 @@ export function Tasks() {
                 <ul className='flex h-full w-full flex-col gap-1 p-2'>
                     {!!tasks.length &&
                         tasks.map(item => {
-                            const isSelect = isSelectedTask === item.id
+                            // const isSelect = isSelectedTask === item.id
                             return (
                                 <TaskItem
                                     key={item.id}
                                     ref={taskItemRef}
-                                    className={cn({
-                                        'border-sm-primary hover:border-sm-primary': isSelect
-                                    })}
+                                    // className={cn({
+                                    //     'border-sm-primary hover:border-sm-primary': isSelect
+                                    // })}
                                     item={item}
                                     setIsSelectedTask={() => setIsSelectedTask(item.id)}
                                 />

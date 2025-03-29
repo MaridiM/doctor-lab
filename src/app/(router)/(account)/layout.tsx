@@ -21,7 +21,7 @@ export default async function AccountLayout({
     return (
         <SidebarProvider defaultOpen={false}>
             <AppSidebar />
-            <SidebarInset>
+            <SidebarInset className='overflow-hidden'>
                 {children}
             </SidebarInset>
         </SidebarProvider>

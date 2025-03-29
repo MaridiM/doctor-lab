@@ -8,7 +8,6 @@ import { useForm } from 'react-hook-form'
 import { useClickAway } from 'react-use'
 
 import { Appointment, PATIENTS, User } from '@/shared/api'
-
 import { ScrollArea, SearchInput } from '@/shared/components'
 import { TSearch, searchSchema } from '@/shared/schemas'
 import { cn } from '@/shared/utils'
@@ -54,16 +53,16 @@ export function Patients() {
                 <ul className='flex flex-col gap-1 p-2'>
                     {!!patients.length &&
                         patients.map((patient: any) => {
-                            // const isSelect = selectedPatient?.id === patient.id
+                            const isSelect = selectedPatient?.id === patient.id
                             return (
                                 <PatientCard
                                     ref={patientCardRef}
                                     key={patient.id}
                                     patient={patient}
                                     setSelectedPatient={() => setSelectedPatient(patient)}
-                                    // className={cn({
-                                    //     'border-sm-primary hover:border-sm-primary': isSelect
-                                    // })}
+                                    className={cn({
+                                        'border-sm-primary hover:border-sm-primary': isSelect
+                                    })}
                                 />
                             )
                         })}
