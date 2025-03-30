@@ -73,7 +73,7 @@ export const TasksHeader = memo(function TasksHeader({
                 labelKey: 'tasks.header.dateModified'
             }
         ],
-        [EFilterTasks, t]
+        []
     )
 
     const renderSortMenuItem = ({ value, icon: Icon, labelKey }: (typeof SORT_OPTIONS)[number]) => (

@@ -26,8 +26,10 @@
             "delete": "Delete task"
         },
         "status": {
-            "PENDING": "Pending",
+            "BACKLOG": "Backlog",
+            "IN_REVIEW": "In review",
             "IN_PROGRESS": "In progress",
+            "PENDING": "Pending",
             "COMPLETED": "Completed",
             "CANCELLED": "Cancelled",
             "OVERDUE": "Overdue",
@@ -38,7 +40,8 @@
             "DELEGATED": "Delegated",
             "ARCHIVED": "Archived",
             "DRAFT": "Draft",
-            "RECURRING": "Recurring"
+            "RECURRING": "Recurring",
+            "delete": "Delete"
         }
     },
     "schedule": {

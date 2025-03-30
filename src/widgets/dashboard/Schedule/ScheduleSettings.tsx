@@ -170,7 +170,20 @@ export const ScheduleSettings = memo(function ScheduleSettings({
                 )
             }
         ],
-        [t, operatingHours, timeStep, isTime24Format, isVerticalRestriction, isSmartPlacement]
+        [
+            t,
+            timeStep,
+            menuItems,
+            setTimeStep,
+            operatingHours,
+            isTime24Format,
+            isSmartPlacement,
+            setOperatingHours,
+            setIsTime24Format,
+            setIsSmartPlacement,
+            isVerticalRestriction,
+            setIsVerticalRestriction
+        ]
     )
     return (
         <DropdownMenu open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>

@@ -16,7 +16,6 @@ import { RefObject, useCallback, useState } from 'react'
 
 import { TASKS_MOCK } from '@/shared/api'
 import { TASK_STATUSES } from '@/shared/api/mock/task_statuses'
-
 import {
     Badge,
     Button,
@@ -35,6 +34,8 @@ import { TIcon } from '@/shared/types'
 import { cn } from '@/shared/utils'
 
 import { TaskMenuMore } from './TaskMenuMore'
+
+type TTaskStatus = (typeof TASK_STATUSES)[keyof typeof TASK_STATUSES]
 
 interface IProps {
     className?: string
@@ -62,7 +63,7 @@ export interface IMenu {
 export function TaskItem({ item, className, setIsSelectedTask, ref }: IProps) {
     const t = useTranslations('dashboard')
 
-    const [currentStatus, setCurrentStatus] = useState(item.status)
+    const [currentStatus, setCurrentStatus] = useState<TTaskStatus | null>(null)
 
     const handleMenuSelect = (menu: EMenu) => {
         switch (menu) {
@@ -131,6 +132,9 @@ export function TaskItem({ item, className, setIsSelectedTask, ref }: IProps) {
         },
         [setCurrentStatus]
     )
+    const handleDeleteCurrentStatus = useCallback(() => {
+        setCurrentStatus(null)
+    }, [setCurrentStatus])
 
     return (
         <li
@@ -206,49 +210,63 @@ export function TaskItem({ item, className, setIsSelectedTask, ref }: IProps) {
                             'text-text-tertiary line-through': item.done
                         })}
                     >
-                        {item.text}
+                        {item.title}
                     </p>
 
-                    <footer className='flex h-7 items-center justify-between px-2 border-t-20'>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Badge
-                                    variant='outline'
-                                    className='!text-label-md'
-                                    style={{
-                                        backgroundColor: currentStatus.backgroundColor,
-                                        color: currentStatus.textColor
-                                    }}
-                                >
-                                    {t(`tasks.status.${currentStatus.key}`)}
-                                </Badge>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                {Object.values(TASK_STATUSES).map(status => {
-                                    return (
-                                        <DropdownMenuItem
-                                            key={status.id}
-                                            onSelect={() => handleChangeCurrentStatus(status)}
-                                            onPointerDown={e => e.stopPropagation()}
-                                        >
-                                            <span
-                                                className='size-4 min-w-4 rounded-sm'
-                                                style={{
-                                                    backgroundColor: status.backgroundColor,
-                                                    color: status.textColor
-                                                }}
-                                            />
-                                            <span className='w-full text-p-sm text-text'>
-                                                {t(`tasks.status.${status.key}`)}
-                                            </span>
-                                            {currentStatus.key === status.key && <Check className='ml-2' />}
-                                        </DropdownMenuItem>
-                                    )
-                                })}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                    <footer
+                        className='flex h-7 items-center justify-between px-2 border-t-20'>
+                        {currentStatus && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Badge
+                                        variant='outline'
+                                        className='rounded-sm !text-label-md'
+                                        style={{
+                                            backgroundColor: currentStatus.backgroundColor,
+                                            color: currentStatus.textColor
+                                        }}
+                                    >
+                                        {t(`tasks.status.${currentStatus.key}`)}
+                                    </Badge>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                    {Object.values(TASK_STATUSES).map(status => {
+                                        return (
+                                            <DropdownMenuItem
+                                                key={status.id}
+                                                onSelect={() => handleChangeCurrentStatus(status)}
+                                                onPointerDown={e => e.stopPropagation()}
+                                            >
+                                                <span
+                                                    className='size-4 min-w-4 rounded-sm'
+                                                    style={{
+                                                        backgroundColor: status.backgroundColor,
+                                                        color: status.textColor
+                                                    }}
+                                                />
+                                                <span className='w-full text-p-sm text-text'>
+                                                    {t(`tasks.status.${status.key}`)}
+                                                </span>
+                                                {currentStatus.key === status.key && <Check className='ml-2' />}
+                                            </DropdownMenuItem>
+                                        )
+                                    })}
+                                    <DropdownMenuItem
+                                        onSelect={() => handleDeleteCurrentStatus()}
+                                        onPointerDown={e => e.stopPropagation()}
+                                    >
+                                        <span className='flex size-6 min-w-6 items-center justify-center'>
+                                            <Trash2 className='size-[18px] stroke-[1.75px]' />
+                                        </span>
+                                        <span className='w-full pt-px text-p-sm text-text'>
+                                            {t(`tasks.status.delete`)}
+                                        </span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
 
-                        <span className='flex gap-1 text-label-md text-text-secondary'>
+                        <span className='flex gap-1 text-label-md text-text-secondary ml-auto'>
                             <UserAvatar
                                 className='size-5'
                                 fullName='Emma Stone'

@@ -26,8 +26,10 @@
             "delete": "Удалить"
         },
         "status": {
-            "PENDING": "В ожидании",
+            "BACKLOG": "Невыполненные",
+            "IN_REVIEW": "На проверке",
             "IN_PROGRESS": "В процессе",
+            "PENDING": "В ожидании",
             "COMPLETED": "Завершена",
             "CANCELLED": "Отменена",
             "OVERDUE": "Просрочена",
@@ -38,7 +40,8 @@
             "DELEGATED": "Делегирована",
             "ARCHIVED": "Архивирована",
             "DRAFT": "Черновик",
-            "RECURRING": "Повторяющаяся"
+            "RECURRING": "Повторяющаяся",
+            "delete": "Удалить"
         }
     },
     "schedule": {

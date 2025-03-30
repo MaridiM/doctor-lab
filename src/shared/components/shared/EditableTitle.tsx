@@ -52,17 +52,17 @@ export function EditableTitle({
         setTempTitle(title)
         setIsEditing(true)
         form.setValue('title', title)
-    }, [title, setTempTitle, setIsEditing])
+    }, [title, setTempTitle, setIsEditing, form])
 
     const handleSave = useCallback(() => {
         setTitle(tempTitle)
         setIsEditing(false)
-    }, [tempTitle, title, setTitle, setIsEditing])
+    }, [tempTitle, setTitle, setIsEditing])
 
     const handleCancel = useCallback(() => {
         setTempTitle(title)
         setIsEditing(false)
-    }, [title, setTempTitle, setIsEditing])
+    }, [title])
 
     const handleOnChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,14 +80,14 @@ export function EditableTitle({
 
     return (
         <div
-            className='flex items-center gap-2'
+            className='flex w-full items-center'
             onMouseEnter={() => setIsHover(true)}
             onMouseLeave={() => setIsHover(false)}
             onDoubleClick={handleOnClick}
         >
             {isEditing ? (
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleSave)}>
+                    <form onSubmit={form.handleSubmit(handleSave)} className='flex w-full items-center'>
                         <FormField
                             control={form.control}
                             name='title'
@@ -97,7 +97,7 @@ export function EditableTitle({
                                         <div
                                             ref={ref}
                                             className={cn(
-                                                'relative flex w-fit items-center gap-1 pr-px',
+                                                'relative flex w-full items-center gap-1 pr-px',
                                                 classNameWrapper
                                             )}
                                             style={{ width }}
@@ -144,7 +144,7 @@ export function EditableTitle({
                     </form>
                 </Form>
             ) : (
-                <div className='flex items-center gap-2'>
+                <div className='flex items-center gap-1'>
                     <span className={cn(className)} onDoubleClick={handleOnClick}>
                         {title}
                     </span>
@@ -153,14 +153,14 @@ export function EditableTitle({
                         size='icon'
                         icon='xs'
                         className={cn(
-                            'group flex size-8 min-w-8 items-center justify-center transition-opacity duration-100 ease-in-out',
+                            'group flex size-7 min-w-7 items-center justify-center transition-opacity duration-100 ease-in-out',
                             {
                                 'opacity-0': !isHover
                             }
                         )}
                         onClick={handleOnClick}
                     >
-                        <Pencil className='!size-[14px] stroke-[1.75px] transition-transform duration-300 ease-in-out' />
+                        <Pencil className='!size-[14px] stroke-[1.75px]' />
                     </Button>
                 </div>
             )}

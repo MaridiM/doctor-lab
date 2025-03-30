@@ -1,10 +1,35 @@
 import { TASK_STATUSES } from './task_statuses'
 
+export const PRIORITY_OPTIONS = {
+    HIGH: {
+        id: '77bcdce7-4dc9-4f9b-9b6a-92d799be93c1',
+        key: 'HIGH',
+        value: 'HIGH',
+        backgroundColor: '#EDE9FE',
+        textColor: '#6B21A8'
+    },
+    MEDIUM: {
+        id: '77bcdce7-4dc9-4f9b-9b6a-92d799be9323',
+        key: 'MEDIUM',
+        value: 'MEDIUM',
+        backgroundColor: '#FDE68A',
+        textColor: '#92400E'
+    },
+    LOW: {
+        id: '77bcdce7-4dc9-4f9b-9b6a-92d799be9345',
+        key: 'LOW',
+        value: 'LOW',
+        backgroundColor: '#E0E7FF',
+        textColor: '#3730A3'
+    }
+}
+
 export const TASKS_MOCK = [
     {
         id: '77bcdce7-4dc9-4f9b-9b6a-92d799be93c8',
         done: false,
         important: true,
+        title: 'prototype client urgent review consultation budget support review bug plan feature important optimization strategy update integration invoice submission migration debugging plan migration document budget research submission support integration report disc',
         text: 'prototype client urgent review consultation budget support review bug plan feature important optimization strategy update integration invoice submission migration debugging plan migration document budget research submission support integration report discussion feedback enhancement review testing budget debugging deployment email invoice testing fix approval research summary security urgent refactoring',
         pinned: true,
         author: '6530a0b8-3d87-472b-9c1d-7d12e3c86af2',
@@ -13,12 +38,18 @@ export const TASKS_MOCK = [
         createdAt: '2025-01-26T09:45:30.706015Z',
         updatedAt: '2025-02-05T05:50:30.706072Z',
         generated: false,
-        status: TASK_STATUSES.PENDING
+        status: TASK_STATUSES.BACKLOG,
+        tags: ['DOCTOR', 'TO DO', 'REVIEW'],
+        priority: PRIORITY_OPTIONS.HIGH,
+        comments: [],
+        attachments: [],
+        reminders: [1]
     },
     {
         id: 'e574c70d-2758-47b6-92fa-dd1a5369ab78',
         done: false,
         important: true,
+        title: 'training fix fix client budget invoice project submission',
         text: 'training fix fix client budget invoice project submission report client invoice implementation important presentation support integration discussion',
         pinned: true,
         author: 'dee0821c-fde7-4c0e-a267-674515de61ea',
@@ -27,12 +58,18 @@ export const TASKS_MOCK = [
         createdAt: '2025-01-25T08:20:30.706257Z',
         updatedAt: '2025-02-15T15:55:30.706284Z',
         generated: false,
-        status: TASK_STATUSES.IN_PROGRESS
+        status: TASK_STATUSES.IN_PROGRESS,
+        tags: ['DOCTOR', 'TO DO', 'REVIEW'],
+        priority: PRIORITY_OPTIONS.LOW,
+        comments: [],
+        attachments: [],
+        reminders: []
     },
     {
         id: 'fb93389f-390f-46bf-9062-0badb0a5517b',
-        done: false,
+        done: true,
         important: false,
+        title: 'invoice consultation important training',
         text: 'invoice consultation important training security implementation submission budget task evaluation contract review meeting project task budget analysis review team',
         pinned: true,
         author: '09c31701-d5bb-49e4-8f80-4ff3b32ce479',
@@ -41,12 +78,18 @@ export const TASKS_MOCK = [
         createdAt: '2025-02-17T19:38:30.706652Z',
         updatedAt: '2025-01-29T02:44:30.706666Z',
         generated: false,
-        status: TASK_STATUSES.COMPLETED
+        status: TASK_STATUSES.COMPLETED,
+        tags: ['DOCTOR', 'TO DO'],
+        priority: PRIORITY_OPTIONS.LOW,
+        comments: [],
+        attachments: [],
+        reminders: []
     },
     {
         id: 'd118183d-ee52-45a3-822c-71528f2bcc9a',
-        done: true,
+        done: false,
         important: true,
+        title: 'email budget debugging',
         text: 'email budget debugging enhancement negotiation contract meeting email prototype enhancement backend database schedule analysis urgent document submission enhancement team integration enhancement email support research discussion report deployment budget project schedule project optimization integration submission submission research review project budget refactoring email consultation support report consultation',
         pinned: false,
         author: '1ac57a11-3a36-423e-a5cb-f04a254481f1',
@@ -55,12 +98,18 @@ export const TASKS_MOCK = [
         createdAt: '2025-02-19T10:23:30.706856Z',
         updatedAt: '2025-01-24T09:00:30.706877Z',
         generated: false,
-        status: TASK_STATUSES.CANCELLED
+        status: TASK_STATUSES.IN_REVIEW,
+        tags: ['DOCTOR', 'TO DO'],
+        priority: PRIORITY_OPTIONS.MEDIUM,
+        comments: [],
+        attachments: [],
+        reminders: []
     },
     {
         id: 'f4a15140-1712-4c16-890e-8beffa2a9280',
         done: false,
         important: false,
+        title: 'consultation integration client plan urgent release contract strategy design design support',
         text: 'consultation integration client plan urgent release contract strategy design design support discussion negotiation document testing document training email deadline design research bug',
         pinned: false,
         author: '077f91d6-03d8-45b5-a458-1fcf02ebe2ea',
@@ -69,12 +118,18 @@ export const TASKS_MOCK = [
         createdAt: '2025-02-12T07:57:30.706977Z',
         updatedAt: '2025-02-08T23:44:30.706989Z',
         generated: false,
-        status: TASK_STATUSES.OVERDUE
+        status: TASK_STATUSES.BACKLOG,
+        tags: ['DOCTOR', 'TO DO', 'REVIEW'],
+        priority: PRIORITY_OPTIONS.MEDIUM,
+        comments: [],
+        attachments: [],
+        reminders: [1]
     },
     {
         id: '2077ee7e-238d-4109-88ea-4e2d1d3d5853',
-        done: false,
+        done: true,
         important: false,
+        title: 'task invoice client fix bug strategy task',
         text: 'task invoice client fix bug strategy task',
         pinned: false,
         author: '3c2e97bc-fddd-47ec-85b8-f8ca477a77bd',
@@ -83,12 +138,18 @@ export const TASKS_MOCK = [
         createdAt: '2025-02-01T19:27:30.707037Z',
         updatedAt: '2025-02-15T00:41:30.707044Z',
         generated: false,
-        status: TASK_STATUSES.SCHEDULED
+        status: TASK_STATUSES.COMPLETED,
+        tags: ['DOCTOR', 'TO DO'],
+        priority: PRIORITY_OPTIONS.MEDIUM,
+        comments: [],
+        attachments: [],
+        reminders: []
     },
     {
         id: 'a023aace-247e-4bd0-8c70-4394809d06bf',
         done: true,
         important: false,
+        title: 'email database frontend integration strategy implementation support consultation meeting important plan frontend email important',
         text: 'email database frontend integration strategy implementation support consultation meeting important plan frontend email important',
         pinned: false,
         author: 'db2d5ef0-6955-4348-8b87-538dc53cf3f3',
@@ -97,12 +158,18 @@ export const TASKS_MOCK = [
         createdAt: '2025-02-05T05:25:30.707081Z',
         updatedAt: '2025-02-09T07:59:30.707087Z',
         generated: false,
-        status: TASK_STATUSES.ON_HOLD
+        status: TASK_STATUSES.COMPLETED,
+        tags: ['DOCTOR', 'TO DO'],
+        priority: PRIORITY_OPTIONS.MEDIUM,
+        comments: [],
+        attachments: [],
+        reminders: []
     },
     {
         id: '863f9e90-322a-477b-825a-11f53593dccc',
         done: false,
         important: true,
+        title: 'backend discussion schedule evaluation release training negotiation security meeting deployment',
         text: 'backend discussion schedule evaluation release training negotiation security meeting deployment',
         pinned: false,
         author: '57bfd3b6-cd42-43b8-a4e1-b1497f2db81e',
@@ -111,12 +178,18 @@ export const TASKS_MOCK = [
         createdAt: '2025-01-25T21:08:30.707122Z',
         updatedAt: '2025-01-22T14:01:30.707127Z',
         generated: false,
-        status: TASK_STATUSES.FAILED
+        status: TASK_STATUSES.IN_PROGRESS,
+        tags: ['DOCTOR', 'TO DO'],
+        priority: PRIORITY_OPTIONS.MEDIUM,
+        comments: [2,1,4],
+        attachments: [],
+        reminders: []
     },
     {
         id: '240248ff-4557-4e2c-9e2f-bdf818d46c6e',
-        done: true,
+        done: false,
         important: true,
+        title: 'review project report team backend plan release',
         text: 'review project report team backend plan release',
         pinned: false,
         author: 'e3671b10-a700-468a-ad1b-928ff237bc0e',
@@ -125,12 +198,18 @@ export const TASKS_MOCK = [
         createdAt: '2025-02-11T23:59:30.707202Z',
         updatedAt: '2025-02-14T05:18:30.707208Z',
         generated: false,
-        status: TASK_STATUSES.DELEGATED
+        status: TASK_STATUSES.IN_PROGRESS,
+        tags: ['DOCTOR', 'TO DO'],
+        priority: PRIORITY_OPTIONS.MEDIUM,
+        comments: [1],
+        attachments: [],
+        reminders: []
     },
     {
         id: '5a8a9c55-d529-4c00-b1a1-74061d1251f9',
         done: false,
         important: true,
+        title: 'team deployment update prototype negotiation negotiation summary deadline presentation negotiation discussion review',
         text: 'team deployment update prototype negotiation negotiation summary deadline presentation negotiation discussion review',
         pinned: false,
         author: '703831b3-1ba2-40d9-87fd-85f15669b79e',
@@ -139,6 +218,11 @@ export const TASKS_MOCK = [
         createdAt: '2025-01-28T10:51:30.707738Z',
         updatedAt: '2025-02-05T00:48:30.707747Z',
         generated: false,
-        status: TASK_STATUSES.ARCHIVED
+        status: TASK_STATUSES.IN_PROGRESS,
+        tags: ['DOCTOR', 'TO DO'],
+        priority: PRIORITY_OPTIONS.MEDIUM,
+        comments: [],
+        attachments: [],
+        reminders: []
     }
 ]

@@ -3,5 +3,4 @@ export * from './user.mock'
 export * from './patients.mock'
 export * from './reservedTime'
 export * from './appointmentStatuses'
-export * from './appointmentStatuses'
-
+export * from './task_statuses'
