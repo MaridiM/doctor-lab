@@ -1,15 +1,14 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Columns3, GripVertical, MoreVertical, Plus, Rows3, Settings } from 'lucide-react'
+import { Columns3, MoreVertical, Plus, Rows3, Settings } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { memo, useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useClickAway } from 'react-use'
 
 import { Header } from '@/widgets/Header'
 
-import { Button, EditableTitle, Icon } from '@/shared/components'
+import { Button, EditableTitle } from '@/shared/components'
 import { TEditableTitle, editableTitleSchema } from '@/shared/schemas'
 import { cn } from '@/shared/utils'
 
