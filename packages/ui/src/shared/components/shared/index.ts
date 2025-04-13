@@ -1,2 +1,1 @@
-export * from './Hint'
-export * from './UserAvatar'
+export * from './user-avatar'

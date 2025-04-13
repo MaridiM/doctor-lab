@@ -2,7 +2,7 @@ import { Slot } from '@radix-ui/react-slot'
 import { type VariantProps, cva } from 'class-variance-authority'
 import { ButtonHTMLAttributes, ComponentProps, forwardRef } from 'react'
 
-import { cn } from '@/shared/utils'
+import { cn } from '../../utils'
 
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
@@ -14,7 +14,7 @@ const buttonVariants = cva(
                 default: '',
                 primary: 'bg-primary !text-primary-foreground hover:bg-primary-hover',
                 outline: 'bg-transparent !text-text-primary hover:bg-hover',
-                ghost: 'border-10 bg-transparent !text-text-primary hover:bg-hover hover:border-40 text-text'
+                ghost: 'border border-opacity-10 bg-transparent !text-text-primary hover:bg-hover hover:border-opacity-40 text-text'
             },
             size: {
                 default: 'h-10 px-4 text-button-md [&_svg]:size-6',
@@ -44,8 +44,12 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, Va
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className, variant, size, icon, tooltip, asChild = false, ...props }, ref) => {
-        size !== 'icon' && !!icon ? ((size = 'icon'), icon) : size
-        size === 'icon' && !icon ? (icon = 'default') : icon
+        if (size !== 'icon' && !!icon) {
+            size = 'icon'
+        }
+        if (size === 'icon' && !icon) {
+            icon = 'default'
+        }
 
         const Comp = asChild ? Slot : 'button'
 
