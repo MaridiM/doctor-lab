@@ -1,14 +1,22 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "ui": "tui",
-  "tasks": {
+  "pipeline": {
     "patients#build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [
-        ".next/**", "!.next/cache/**", ".vercel/output/**"
-      ]
+      "outputs": [".next/**", "!.next/cache/**", ".vercel/output/**"]
     },
+
+    "@doctorlab/ui#build": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": ["dist/**"]
+    },
+
+    "patients#dev": {
+      "cache": false,
+      "persistent": true
+    },
+
     "lint": {
       "dependsOn": ["^lint"]
     },
