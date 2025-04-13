@@ -1,0 +1,14 @@
+{
+    "importOrder": [
+        "<THIRD_PARTY_MODULES>",
+        "^@/app/(.*)$",
+        "^@/screens/(.*)$",
+        "^@/widgets/(.*)$",
+        "^@/features/(.*)$",
+        "^@/entities/(.*)$",
+        "^@/shared/(.*)$",
+        "^../(.*)$",
+        "^./(.*)$",
+        "(.scss)$"
+    ]
+}

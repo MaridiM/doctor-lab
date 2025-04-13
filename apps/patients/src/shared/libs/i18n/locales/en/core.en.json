@@ -1,0 +1,33 @@
+{
+    "organizationMenu": {
+        "title": "Organizations",
+        "button": "Create organization"
+    },
+    "sidebar": {
+        "button": {
+            "open": "Open menu",
+            "close": "Close menu"
+        },
+        "dashboard": "Dashboard",
+        "patients": "Patients",
+        "appointments": "Appointments",
+        "tasks": "Tasks",
+        "staff": "Staff",
+        "messenger": "Messenger",
+        "news": "News",
+        "organizations": "Organizations",
+        "settings": "Settings",
+        "support": "Support",
+        "feedback": "Feedback"
+    },
+    "userMenu": {
+        "upgrade": "Upgrade to Pro",
+        "account": "Account",
+        "billing": "Billing",
+        "notifications": "Notifications",
+        "logout": "Log out"
+    },
+    "notifications": "Notifications",
+    "addNewAppointment": "Add new appointment",
+    "addNewPatient": "Add new patient"
+}

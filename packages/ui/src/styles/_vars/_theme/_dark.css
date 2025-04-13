@@ -1,0 +1,58 @@
+.dark {
+    --text-primary: var(--gray-50);
+    --text-secondary: var(--gray-300);
+    --text-tertiary: var(--gray-400);
+    --text-foreground: var(--gray-50);
+
+    --hover: var(--gray-900);
+
+    --background: var(--gray-800);
+    --foreground: var(--text-primary);
+
+    --card: var(--gray-950);
+    --card-foreground: var(--text-primary);
+
+    --popover: var(--gray-950);
+    --popover-foreground: var(--text-primary);
+
+    --primary: var(--primary-400);
+    --primary-hover: var(--primary-500);
+    --primary-disabled: var(--primary-300);
+    --primary-foreground: var(--text-foreground);
+
+    --secondary: var(--secondary-400);
+    --secondary-hover: var(--secondary-500);
+    --secondary-disabled: var(--secondary-300);
+    --secondary-foreground: var(--text-primary);
+
+    --ettention: var(--ettention-400);
+    --ettention-hover: var(--ettention-600);
+
+    --positive: var(--positive-400);
+    --positive-hover: var(--positive-600);
+
+    --negative: var(--negative-400);
+    --negative-hover: var(--negative-500);
+
+
+    --muted: var(--gray-900);
+    --muted-foreground: var(--text-tertiary);
+
+    --accent: var(--gray-900);
+    --accent-foreground: var(--text-foreground);
+
+    --destructive: var(--negative-400);
+    --destructive-foreground: var(--text-foreground);
+
+    --border-color: var(--rgb-white);
+
+    --input: var(--gray-900);
+
+    --ring: var(--white);
+
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+}
