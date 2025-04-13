@@ -1,5 +1,5 @@
 @import './_vars/index.css';
-/* @import './_border.css'; */
+@import './_border.css';
 
 @import 'tailwindcss';
 @import 'tw-animate-css';

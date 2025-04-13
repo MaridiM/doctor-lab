@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "buildCommand": "cd ../.. && turbo run build --filter=patients...",
+  "installCommand": "cd ../.. && npm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next"
+} 
