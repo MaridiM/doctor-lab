@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { FC, useEffect, useState } from 'react'
 
-import { Button } from '@/shared/components'
+import { Button, Separator } from '@/shared/components'
 import { cn } from '@/shared/utils'
 
 import { Header } from '@/widgets'
@@ -64,13 +64,10 @@ const Dashboard: FC = () => {
                 <div className='bg-card w-1/3 rounded-md p-2'>
                     <section className='flex flex-col gap-2'>
                         <header className='flex min-h-9 items-center justify-between px-1.5'>
-                            <span className='text-p-md text-text font-semibold'>{month}</span>
-                            <span className='text-p-md text-text-secondary font-normal'>
-                                {format(selectedDate ? selectedDate : currentDate, 'EEEE, dd')}
-                            </span>
-                            <span className='text-p-md text-text-tertiary font-normal'>{year}</span>
+                            <span className='text-h5 text-text font-semibold'>{month}</span>
+                            <span className='text-h5 text-text-tertiary font-medium'>{year}</span>
                         </header>
-                        <div className='flex items-center justify-between gap-2'>
+                        <div className='flex items-center justify-between gap-1'>
                             <Button variant='ghost' className='min-h-[72px] w-4' onClick={handlePrevWeek}>
                                 <ChevronLeft />
                             </Button>
@@ -104,7 +101,7 @@ const Dashboard: FC = () => {
                                                 className={cn(
                                                     '!text-text-tertiary text-p-sm flex min-h-10 min-w-11 items-center justify-center',
                                                     {
-                                                        'text-primary !text-p-md font-medium': isToday,
+                                                        'text-primary !text-p-md !font-medium': isToday,
                                                         'text-text !text-p-md font-medium': isSelected
                                                     }
                                                 )}
@@ -113,7 +110,7 @@ const Dashboard: FC = () => {
                                             </span>
                                             <span
                                                 className={cn(
-                                                    'text-text !text-p-lg flex min-h-10 min-w-11 cursor-pointer items-center justify-center font-normal',
+                                                    'text-text !text-h3 flex min-h-10 min-w-11 cursor-pointer items-center justify-center font-normal',
                                                     {
                                                         'text-primary font-medium': isToday,
                                                         'text-text font-medium': isSelected
@@ -131,9 +128,20 @@ const Dashboard: FC = () => {
                                 <ChevronRight />
                             </Button>
                         </div>
-                        {/* <span className='text-p-md text-text-secondary border-border/20 m-auto w-fit rounded border px-2 font-normal'>
-                            {format(currentTime, 'HH:mm:ss')}
-                        </span> */}
+                        <Separator className='bg-border/10 mt-2' />
+                        <div className='flex justify-between px-1.5'>
+                            <div className='flex gap-2'>
+                                <span className='text-p-sm text-text-secondary font-semibold uppercase'>
+                                    {format(selectedDate ? selectedDate : currentDate, 'MMM dd,')}
+                                </span>
+                                <span className='text-p-sm text-text-tertiary font-semibold uppercase'>
+                                    {format(selectedDate ? selectedDate : currentDate, 'EEEE')}
+                                </span>
+                            </div>
+                            <span className='text-p-sm text-text-secondary w-fit rounded px-2 font-semibold'>
+                                {format(currentTime, 'HH:mm:ss')}
+                            </span>
+                        </div>
                     </section>
                     <section></section>
                 </div>
