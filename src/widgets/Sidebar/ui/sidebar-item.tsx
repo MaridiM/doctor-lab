@@ -29,7 +29,7 @@ export const SidebarItem: FC<IProps> = ({ item, isActive, isSidebarOpen, title }
                 </span>
                 <span
                     className={cn(
-                        '!text-p-sm text-text overflow-hidden pt-[1px] transition-opacity duration-300 ease-in-out',
+                        '!text-p-sm text-text text-nowrap nowrap overflow-hidden pt-[1px] transition-opacity duration-300 ease-in-out',
                         {
                             'opacity-0': isSidebarOpen,
                             'text-text-foreground': isActive
