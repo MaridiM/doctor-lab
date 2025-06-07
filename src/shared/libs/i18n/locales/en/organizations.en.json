@@ -1,0 +1,113 @@
+{
+    "heading": "Organizations",
+    "title": "Organizations",
+    "page": {
+        "createOrganization": {
+            "title": "Create a new organization",
+            "description": "Please select the professional activity type to properly configure the system and optimize your workflow.",
+            "whatYouGet": "What you get?",
+            "typeOfOrganization": "Type of organization:"
+        }
+    },
+    "individual": {
+        "title": "Individual Specialist:",
+        "card": {
+            "title": "I am a private practitioner",
+            "description": "For doctors, cosmetologists, and other professionals who provide personalized services independently.",
+            "benefits": {
+                "0": "Personal schedule and online booking",
+                "1": "Patient visit histories and recommendations",
+                "2": "Templates for prescriptions and forms",
+                "3": "Revenue tracking including self-employment options",
+                "4": "Secure and fast access to",
+                "5": "Automatic patient notifications",
+                "6": "Simple module for workload and"
+            }
+        }
+    },
+    "organizations": {
+        "title": "Select your organization type:",
+        "clinic": {
+            "title": "Medical Clinic",
+            "description": "Comprehensive patient management including medical data storage and treatment process coordination.",
+            "benefits": {
+                "0": "Complete medical records with visit",
+                "1": "Scheduling by specialists and rooms",
+                "2": "Automation of services, appointments, and",
+                "3": "Patient notifications and reminders",
+                "4": "Statistics on doctor workload and",
+                "5": "Internal quality control and audit",
+                "6": "Secure data storage compliant with"
+            }
+        },
+        "dentistry": {
+            "title": "Dental Clinic",
+            "description": "Full range of dental services tailored to the specifics of dental offices and clinics.",
+            "benefits": {
+                "0": "Tracking of appointments, procedures, and",
+                "1": "Photo and x-ray gallery for",
+                "2": "Separate accounting of consumables and",
+                "3": "Quick access to treatment protocol",
+                "4": "Convenient cost agreement module",
+                "5": "Support for insurance and subscription",
+                "6": "Analytics on doctor efficiency and"
+            }
+        },
+        "cosmetology": {
+            "title": "Cosmetology Center",
+            "description": "Offering a wide range of skin care and aesthetic procedures in a beauty salon setting.",
+            "benefits": {
+                "0": "Digital client cards with before/after",
+                "1": "Tracking procedures, courses, and products",
+                "2": "Scheduling with online booking",
+                "3": "Integration with CRM and marketing",
+                "4": "Inventory of professional cosmetics",
+                "5": "Analytics on services and procedure",
+                "6": "Monitoring of staff qualifications and"
+            }
+        },
+        "pharmacy": {
+            "title": "Pharmacy and Pharmaceuticals",
+            "description": "Management of pharmacy outlets and sale of medicinal products in compliance with regulations.",
+            "benefits": {
+                "0": "Stock tracking and expiration control",
+                "1": "Fast search by name, code",
+                "2": "Support for prescription and non-prescription",
+                "3": "Compliance reporting",
+                "4": "Integration with e-prescriptions",
+                "5": "Discounts, promotions, and loyalty program",
+                "6": "Analytics on sales, suppliers, and"
+            }
+        },
+        "warehouse": {
+            "title": "Warehouse",
+            "description": "Management of warehouse inventory, tracking incoming and outgoing medical supplies and equipment.",
+            "benefits": {
+                "0": "Precise tracking of deliveries, batches",
+                "1": "Expiration alerts and write-off notifications",
+                "2": "Integration with pharmacies, clinics, or",
+                "3": "Data import/export via Excel/1C/API",
+                "4": "Multi-warehouse roles and access control",
+                "5": "Temperature storage monitoring",
+                "6": "Audit trail for every product"
+            }
+        },
+        "other": {
+            "title": "Other Medical Field",
+            "description": "For organizations with unique medical profiles and specialized services.",
+            "benefits": {
+                "0": "Flexible configuration for your unique",
+                "1": "Workflow for referrals, samples, and",
+                "2": "Reporting and third-party system integration",
+                "3": "Online access to results for",
+                "4": "Personal account and notification system",
+                "5": "Quality control and accuracy monitoring",
+                "6": "Support for audit and accreditation"
+            }
+        }
+    },
+    "buttons": {
+        "back": "Back",
+        "continue": "Continue"
+    }
+}

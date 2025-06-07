@@ -1,2 +1,2 @@
-export * from './ChangeLanguage'
-export * from './ChangeTheme'
+export * from './change-language'
+export * from './change-theme'

@@ -1,9 +1,10 @@
+import { TAuthRoutes, TOrganizationRoutes } from './types'
+
 export const PATHS = {
     home: '/',
 
     // Auth routes
-    auth: (page: 'create-account' | 'verify' | 'forgot' | 'change-password' | '' = ''): string =>
-        `/auth${page.length ? `/${page}` : ''}`,
+    auth: (page: TAuthRoutes = ''): string => `/auth${page.length ? `/${page}` : ''}`,
 
     // Guest dashboard routes
     dashboard: '/dashboard',
@@ -15,6 +16,6 @@ export const PATHS = {
     staff: '/staff',
     messenger: '/messenger',
     news: '/news',
-    organizations: '/organizations',
+    organizations: (page: TOrganizationRoutes = ''): string => `/organizations${page.length ? `/${page}` : ''}`,
     settings: '/settings'
 }

@@ -1,5 +1,5 @@
 import core from './core.ru.json'
+import organizations from './organizations.ru.json'
 import dashboard from './dashboard.ru.json'
-import tasks from './tasks.ru.json'
 
-export default { core, dashboard, tasks }
+export default { core, organizations, dashboard }

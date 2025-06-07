@@ -4,10 +4,6 @@
         "button": "Create organization"
     },
     "sidebar": {
-        "button": {
-            "open": "Open menu",
-            "close": "Close menu"
-        },
         "dashboard": "Dashboard",
         "patients": "Patients",
         "appointments": "Appointments",

@@ -1,9 +1,0 @@
-{
-    "heading": "Tasks",
-    "title": "Tasks",
-    "priority": {
-        "HIGH": "High",
-        "MEDIUM": "Medium",
-        "LOW": "Low"
-    }
-}

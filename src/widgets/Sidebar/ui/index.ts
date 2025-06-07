@@ -1,5 +1,1 @@
-export * from './BaseHeader'
-export * from './NavMain'
-export * from './NavSecondary'
-export * from './NavUser'
-export * from './OrganizationSwitcher'
+export * from './sidebar'

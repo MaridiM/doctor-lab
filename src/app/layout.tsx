@@ -7,7 +7,7 @@ import { ReactNode } from 'react'
 import { ThemeProvider } from '@/shared/config'
 import { SITE_DESCRIPTION, SITE_NAME } from '@/shared/constants'
 
-import './styles/globals.scss'
+import './styles/globals.css'
 
 const roboto = Roboto({
     variable: '--font-roboto',
@@ -32,7 +32,7 @@ export default async function RootLayout({
     const messages = await getMessages()
 
     return (
-        <html lang={locale}>
+        <html lang={locale} suppressHydrationWarning>
             <body className={`${roboto.variable} antialiased`}>
                 <NextIntlClientProvider messages={messages}>
                     <ThemeProvider attribute='class' defaultTheme='light' enableSystem disableTransitionOnChange>

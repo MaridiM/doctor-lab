@@ -1,79 +1,75 @@
 'use client'
 
-import { Bell, CalendarPlus2, Menu, UserPlus2 } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { Bell, Menu, PanelLeftOpen, Settings } from 'lucide-react'
+import { FC } from 'react'
 
-import {
-    Button,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-    SidebarTrigger
-} from '@/shared/components'
+import { Button, LogoIcon, UserAvatar } from '@/shared/components'
+import { useStore } from '@/shared/libs'
+import { cn } from '@/shared/utils'
 
 import { ChangeLanguage, ChangeTheme } from '@/features'
 
-interface IProps {
-    title: string
+interface HeaderProps {
+    heading?: string
+    headingCount?: number
 }
 
-export function Header({title}: IProps) {
-    const t = useTranslations('core')
+export const Header: FC<HeaderProps> = ({ heading, headingCount }) => {
+    const { isSidebarOpen, setIsSidebarOpen } = useStore()
 
     return (
-        <header className='flex h-16 shrink-0 items-center justify-between gap-2 bg-card px-4 transition-[width,height] ease-linear border-b-20'>
-            <div className='flex items-center gap-4'>
-                <SidebarTrigger className='-ml-1' />
-                <span className='text-h4 !text-text drop-shadow-sm'>{title}</span>
+        <header className='flex h-14 min-h-14 w-full items-center justify-between gap-4 pr-2 pl-0 md:pl-2'>
+            <div className='flex items-center gap-2'>
+                <span className='flex size-16 items-center justify-center md:hidden'>
+                    <LogoIcon className='size-8' />
+                </span>
+                <Button
+                    variant='ghost'
+                    size='icon'
+                    className={cn('hidden opacity-0 transition-opacity duration-300 ease-in-out', {
+                        'flex opacity-100': isSidebarOpen
+                    })}
+                    onClick={() => setIsSidebarOpen(false)}
+                >
+                    <PanelLeftOpen className='stroke-text hidden md:block' />
+                    <Menu className='stroke-text md:hidden' />
+                </Button>
+
+                <h1 className='text-h4 text-text hidden items-center gap-1 font-medium tracking-wide md:flex'>
+                    {heading}
+                    {headingCount && <span className='text-text-secondary text-p-md pt-px font-normal'>(10)</span>}
+                </h1>
             </div>
-            <div className='flex items-center gap-4'>
-                <ChangeLanguage />
+
+            <div className='flex items-center gap-2'>
+                {/* <Button variant='primary' className='cursor-pointer' onClick={() => console.log('Add patient')}>
+                    <Plus className='stroke-text-foreground' />
+                    <span className='text-text-foreground tracking-wide'>Add patient</span>
+                </Button> */}
                 <ChangeTheme />
+                <ChangeLanguage />
                 <Button
+                    variant='ghost'
                     size='icon'
-                    variant='primary'
-                    tooltip={t('addNewPatient')}
-                    onClick={() => console.log('Add patient')}
+                    className='hover:bg-hover cursor-pointer'
+                    onClick={() => console.log('Notifications')}
                 >
-                    <UserPlus2 className='stroke-text-foreground' />
+                    <Bell className='stroke-text' />
                 </Button>
                 <Button
+                    variant='ghost'
                     size='icon'
-                    variant='primary'
-                    tooltip={t('addNewAppointment')}
-                    onClick={() => console.log('Add appointment')}
+                    className='hover:bg-hover cursor-pointer'
+                    onClick={() => console.log('Settings')}
                 >
-                    <CalendarPlus2 className='stroke-text-foreground' />
-                </Button>
-
-                <Button
-                    size='icon'
-                    variant='outline'
-                    tooltip={t('notifications')}
-                    onClick={() => console.log('Add patient')}
-                >
-                    <Bell className='!stroke-text' />
+                    <Settings className='stroke-text' />
                 </Button>
 
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            variant='outline'
-                            size='icon'
-                            icon='sm'
-                            tooltip={{ children: 'Menu', align: 'center', side: 'bottom' }}
-                        >
-                            <Menu />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align='end'>
-                        <DropdownMenuItem>Profile</DropdownMenuItem>
-                        <DropdownMenuItem>Billing</DropdownMenuItem>
-                        <DropdownMenuItem>Team</DropdownMenuItem>
-                        <DropdownMenuItem>Subscription</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <UserAvatar
+                    className='size-9 min-w-9'
+                    username='Marlow Grand'
+                    src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyBnY2OmVc4EJcVSkmvrVZFHgFDVedUQ56GA&s'
+                />
             </div>
         </header>
     )
