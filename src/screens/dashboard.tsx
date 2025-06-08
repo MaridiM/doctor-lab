@@ -12,6 +12,7 @@ import {
     Phone,
     Plus
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { FC, useEffect, useState } from 'react'
 
 import {
@@ -28,37 +29,9 @@ import { cn } from '@/shared/utils'
 
 import { Header } from '@/widgets'
 
-const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-// const lightColors = [
-//     'bg-blue-50',
-//     'bg-red-50',
-//     'bg-green-50',
-//     'bg-yellow-50',
-//     'bg-purple-50',
-//     'bg-pink-50',
-//     'bg-indigo-50',
-//     'bg-teal-50',
-//     'bg-orange-50',
-//   ]
-
-function getStartOfWeek(date: Date) {
-    const d = new Date(date)
-    const day = d.getDay()
-    // В JS неделя начинается с воскресенья (0), нам нужно с понедельника (1)
-    const diff = d.getDate() - ((day === 0 ? 7 : day) - 1)
-    return new Date(d.setDate(diff))
-}
-
-function getWeekDays(date: Date) {
-    const start = getStartOfWeek(date)
-    return Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(start)
-        d.setDate(start.getDate() + i)
-        return d
-    })
-}
-
 const Dashboard: FC = () => {
+    const t = useTranslations('dashboard')
+
     const [currentDate, setCurrentDate] = useState(new Date())
     const [selectedDate, setSelectedDate] = useState<Date | null>(null)
     const weekDates = getWeekDays(currentDate)
@@ -66,6 +39,37 @@ const Dashboard: FC = () => {
     const year = currentDate.getFullYear()
     const [currentTime, setCurrentTime] = useState(new Date())
     const [isClient, setIsClient] = useState(false)
+
+    // Переносим weekDays внутрь компонента, чтобы использовать t
+    const weekDays = t.raw('widgets.schedules.calendar.weekdays.short')
+    // const lightColors = [
+    //     'bg-blue-50',
+    //     'bg-red-50',
+    //     'bg-green-50',
+    //     'bg-yellow-50',
+    //     'bg-purple-50',
+    //     'bg-pink-50',
+    //     'bg-indigo-50',
+    //     'bg-teal-50',
+    //     'bg-orange-50',
+    //   ]
+
+    function getStartOfWeek(date: Date) {
+        const d = new Date(date)
+        const day = d.getDay()
+        // В JS неделя начинается с воскресенья (0), нам нужно с понедельника (1)
+        const diff = d.getDate() - ((day === 0 ? 7 : day) - 1)
+        return new Date(d.setDate(diff))
+    }
+
+    function getWeekDays(date: Date) {
+        const start = getStartOfWeek(date)
+        return Array.from({ length: 7 }, (_, i) => {
+            const d = new Date(start)
+            d.setDate(start.getDate() + i)
+            return d
+        })
+    }
 
     useEffect(() => {
         setIsClient(true)
@@ -96,11 +100,18 @@ const Dashboard: FC = () => {
                 <div className='bg-card border-border/20 flex w-1/3 flex-col gap-4 overflow-hidden rounded-md border py-2'>
                     <section className='flex flex-col gap-2 px-2'>
                         <header className='flex min-h-9 items-center justify-between px-1.5'>
-                            <span className='text-h5 text-text font-semibold'>{month}</span>
+                            <span className='text-h5 text-text font-semibold'>
+                                {t(`widgets.schedules.calendar.months.full.${currentDate.getMonth()}`)}
+                            </span>
                             <span className='text-h5 text-text-tertiary font-medium'>{year}</span>
                         </header>
                         <div className='flex items-center justify-between gap-1'>
-                            <Button variant='ghost' className='min-h-[72px] w-4' onClick={handlePrevWeek}>
+                            <Button
+                                variant='ghost'
+                                className='min-h-[72px] w-4'
+                                onClick={handlePrevWeek}
+                                tooltip={t('widgets.schedules.calendar.tooltip.backToCurrent')}
+                            >
                                 <ChevronLeft />
                             </Button>
                             <ul className='flex justify-between gap-1'>
@@ -156,26 +167,41 @@ const Dashboard: FC = () => {
                                     )
                                 })}
                             </ul>
-                            <Button variant='ghost' className='min-h-[72px] w-4' onClick={handleNextWeek}>
+                            <Button
+                                variant='ghost'
+                                className='min-h-[72px] w-4'
+                                onClick={handleNextWeek}
+                                tooltip={t('widgets.schedules.calendar.tooltip.backToCurrent')}
+                            >
                                 <ChevronRight />
                             </Button>
                         </div>
                         <Separator className='bg-border/10 mt-2' />
                         <div className='flex h-6 items-center justify-between px-1.5'>
                             <div className='flex min-w-36 items-center gap-2'>
-                                <span className='text-p-sm text-text-secondary font-semibold uppercase'>
-                                    {format(selectedDate ? selectedDate : new Date(), 'MMM dd,')}
-                                </span>
-                                <span className='text-p-sm text-text-tertiary font-semibold uppercase'>
-                                    {format(selectedDate ? selectedDate : new Date(), 'EEEE')}
-                                </span>
+                                {(() => {
+                                    const date = selectedDate ? selectedDate : new Date()
+                                    const monthShort = t.raw('widgets.schedules.calendar.months.short')[date.getMonth()]
+                                    const day = date.getDate().toString().padStart(2, '0')
+                                    const weekday = t.raw('widgets.schedules.calendar.weekdays.full')[date.getDay()]
+                                    return (
+                                        <>
+                                            <span className='text-p-sm text-text-secondary font-semibold uppercase'>
+                                                {monthShort} {day},
+                                            </span>
+                                            <span className='text-p-sm text-text-tertiary font-semibold uppercase'>
+                                                {weekday}
+                                            </span>
+                                        </>
+                                    )
+                                })()}
                             </div>
                             <div>
                                 {selectedDate !== null && (
                                     <Button
                                         variant='ghost'
                                         size='icon'
-                                        tooltip='Reset selected date'
+                                        tooltip={t('widgets.schedules.calendar.tooltip.resetDate')}
                                         onClick={() => setSelectedDate(null)}
                                     >
                                         <CalendarSync />
@@ -190,7 +216,7 @@ const Dashboard: FC = () => {
                                         onClick={() => {
                                             setCurrentDate(new Date())
                                         }}
-                                        tooltip='Back to current week'
+                                        tooltip={t('widgets.schedules.calendar.tooltip.backToCurrent')}
                                     >
                                         <CalendarDays />
                                     </Button>
@@ -204,8 +230,8 @@ const Dashboard: FC = () => {
                         </div>
                     </section>
                     <div className='flex items-center justify-end gap-2 px-4'>
-                        <Button variant='ghost'>All</Button>
-                        <Button size='icon' tooltip='Add to Schedule' className='size-9'>
+                        <Button variant='ghost'>{t('widgets.schedules.buttons.all')}</Button>
+                        <Button size='icon' tooltip={t('widgets.schedules.tooltip.addToSchedule')} className='size-9'>
                             <Plus className='stroke-text-foreground' />
                         </Button>
                     </div>
@@ -222,11 +248,21 @@ const Dashboard: FC = () => {
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align='end'>
-                                            <DropdownMenuItem>View Profile</DropdownMenuItem>
-                                            <DropdownMenuItem>Edit Appointment</DropdownMenuItem>
-                                            <DropdownMenuItem>Reschedule</DropdownMenuItem>
-                                            <DropdownMenuItem>Cancel Appointment</DropdownMenuItem>
-                                            <DropdownMenuItem>Add Note</DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                {t('widgets.schedules.cards.appointment.menu.viewProfile')}
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                {t('widgets.schedules.cards.appointment.menu.edit')}
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                {t('widgets.schedules.cards.appointment.menu.reschedule')}
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                {t('widgets.schedules.cards.appointment.menu.cancel')}
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                {t('widgets.schedules.cards.appointment.menu.addNote')}
+                                            </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </header>
@@ -244,7 +280,9 @@ const Dashboard: FC = () => {
                                         </ul>
                                     </div>
                                     <div className='flex gap-1'>
-                                        <span className='text-text text-p-xs font-semibold'>Note:</span>
+                                        <span className='text-text text-p-xs font-semibold'>
+                                            {t('widgets.schedules.cards.appointment.note')}:
+                                        </span>
                                         <span className='text-text-secondary text-p-xs'>
                                             Some note for breack Some description for breack
                                         </span>
@@ -253,16 +291,31 @@ const Dashboard: FC = () => {
                                 <Separator className='mt-2 bg-blue-100' />
                                 <footer className='flex h-8 items-center justify-between pl-2'>
                                     <span className='text-text-tertiary text-p-xs font-semibold uppercase'>
-                                        TO PAY: $120
+                                        {t('widgets.schedules.cards.appointment.toPay')}: $120
                                     </span>
                                     <div className='flex gap-2'>
-                                        <Button variant='ghost' size='icon' className='size-8 hover:bg-blue-100'>
+                                        <Button
+                                            variant='ghost'
+                                            size='icon'
+                                            className='size-8 hover:bg-blue-100'
+                                            tooltip={t('widgets.schedules.cards.appointment.tooltip.sendMessage')}
+                                        >
                                             <MessageSquare />
                                         </Button>
-                                        <Button variant='ghost' size='icon' className='size-8 hover:bg-blue-100'>
+                                        <Button
+                                            variant='ghost'
+                                            size='icon'
+                                            className='size-8 hover:bg-blue-100'
+                                            tooltip={t('widgets.schedules.cards.appointment.tooltip.callPatient')}
+                                        >
                                             <Phone />
                                         </Button>
-                                        <Button variant='ghost' size='icon' className='size-8 hover:bg-blue-100'>
+                                        <Button
+                                            variant='ghost'
+                                            size='icon'
+                                            className='size-8 hover:bg-blue-100'
+                                            tooltip={t('widgets.schedules.cards.appointment.tooltip.viewPatientCard')}
+                                        >
                                             <IdCard />
                                         </Button>
                                     </div>
@@ -287,10 +340,18 @@ const Dashboard: FC = () => {
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align='end'>
-                                            <DropdownMenuItem>Edit Break</DropdownMenuItem>
-                                            <DropdownMenuItem>Extend Time</DropdownMenuItem>
-                                            <DropdownMenuItem>Remove Break</DropdownMenuItem>
-                                            <DropdownMenuItem>Add Note</DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                {t('widgets.schedules.cards.break.menu.edit')}
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                {t('widgets.schedules.cards.break.menu.extend')}
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                {t('widgets.schedules.cards.break.menu.remove')}
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                {t('widgets.schedules.cards.break.menu.addNote')}
+                                            </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </header>
@@ -313,11 +374,12 @@ const Dashboard: FC = () => {
                             <Button
                                 size='lg'
                                 variant='ghost'
-                                tooltip='Add new ppointment'
                                 className='border-border/20 mt-1.5 min-h-16 w-full border border-dashed'
                             >
                                 <Plus className='stroke-text-tertiary' />
-                                <span className='text-text-tertiary pt-px'>Add to Schedule</span>
+                                <span className='text-text-tertiary pt-px'>
+                                    {t('widgets.schedules.buttons.addToSchedule')}
+                                </span>
                             </Button>
                         </li>
                     </ul>

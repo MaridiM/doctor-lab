@@ -1,4 +1,68 @@
 {
     "heading": "Dashboard",
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "widgets": {
+        "schedules": {
+            "calendar": {
+                "months": {
+                    "short": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    "full": [
+                        "January",
+                        "February",
+                        "March",
+                        "April",
+                        "May",
+                        "June",
+                        "July",
+                        "August",
+                        "September",
+                        "October",
+                        "November",
+                        "December"
+                    ]
+                },
+                "weekdays": {
+                    "short": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                    "full": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+                },
+                "tooltip": {
+                    "resetDate": "Reset selected date",
+                    "backToCurrent": "Back to current week"
+                }
+            },
+            "buttons": {
+                "all": "All",
+                "addToSchedule": "Add to Schedule"
+            },
+            "tooltip": {
+                "addToSchedule": "Add to Schedule"
+            },
+            "cards": {
+                "appointment": {
+                    "note": "Note",
+                    "toPay": "TO PAY",
+                    "menu": {
+                        "edit": "Edit Appointment",
+                        "reschedule": "Reschedule",
+                        "cancel": "Cancel Appointment",
+                        "viewProfile": "View Profile",
+                        "addNote": "Add Note"
+                    },
+                    "tooltip": {
+                        "sendMessage": "Send message",
+                        "callPatient": "Call patient",
+                        "viewPatientCard": "View patient card"
+                    }
+                },
+                "break": {
+                    "menu": {
+                        "edit": "Edit Break",
+                        "extend": "Extend Time",
+                        "remove": "Remove Break",
+                        "addNote": "Add Note"
+                    }
+                }
+            }
+        }
+    }
 }
