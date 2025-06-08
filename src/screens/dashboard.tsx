@@ -2,26 +2,32 @@
 
 import { format } from 'date-fns'
 import {
+    BellRing,
+    CalendarClock,
     CalendarDays,
+    CalendarPlus2,
     CalendarSync,
+    CalendarX2,
     ChevronLeft,
     ChevronRight,
     Ellipsis,
+    FilePenLine,
     IdCard,
     MessageSquare,
     Phone,
-    Plus
+    Plus,
+    Settings
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect, useMemo, useState } from 'react'
 
+import '@/shared/components'
 import {
     Button,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-    Input,
     Separator,
     UserAvatar
 } from '@/shared/components'
@@ -29,360 +35,1001 @@ import { cn } from '@/shared/utils'
 
 import { Header } from '@/widgets'
 
+export type TTimeStep = 15 | 20 | 30 | 60
+
+const SLOT_COUNT = 24
+const SLOT_HEIGHT = 56
+const MAX_SLOT_HEIGHT = SLOT_HEIGHT * 4
+const DEFAULT_TIME_STEP: TTimeStep = 15
+
 const Dashboard: FC = () => {
     const t = useTranslations('dashboard')
 
-    const [currentDate, setCurrentDate] = useState(new Date())
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-    const weekDates = getWeekDays(currentDate)
-    const month = currentDate.toLocaleString('en-US', { month: 'long' })
-    const year = currentDate.getFullYear()
-    const [currentTime, setCurrentTime] = useState(new Date())
-    const [isClient, setIsClient] = useState(false)
+    const stepsPerHour = useMemo(() => 60 / DEFAULT_TIME_STEP, [DEFAULT_TIME_STEP])
+    const slotHeight = useMemo(() => MAX_SLOT_HEIGHT / stepsPerHour, [stepsPerHour])
 
-    // Переносим weekDays внутрь компонента, чтобы использовать t
-    const weekDays = t.raw('widgets.schedules.calendar.weekdays.short')
-    // const lightColors = [
-    //     'bg-blue-50',
-    //     'bg-red-50',
-    //     'bg-green-50',
-    //     'bg-yellow-50',
-    //     'bg-purple-50',
-    //     'bg-pink-50',
-    //     'bg-indigo-50',
-    //     'bg-teal-50',
-    //     'bg-orange-50',
-    //   ]
+    const [isSlotHover, setIsSlotHover] = useState<number | null>(null)
+    const [isCardHover, setIsCardHover] = useState<number | null>(null)
+    const [selectedSlot, setSelectedSlot] = useState<number | null>(null)
 
-    function getStartOfWeek(date: Date) {
-        const d = new Date(date)
-        const day = d.getDay()
-        // В JS неделя начинается с воскресенья (0), нам нужно с понедельника (1)
-        const diff = d.getDate() - ((day === 0 ? 7 : day) - 1)
-        return new Date(d.setDate(diff))
-    }
-
-    function getWeekDays(date: Date) {
-        const start = getStartOfWeek(date)
-        return Array.from({ length: 7 }, (_, i) => {
-            const d = new Date(start)
-            d.setDate(start.getDate() + i)
-            return d
-        })
-    }
-
-    useEffect(() => {
-        setIsClient(true)
-        const timer = setInterval(() => {
-            setCurrentTime(new Date())
-        }, 1000)
-        return () => clearInterval(timer)
-    }, [])
-
-    const handlePrevWeek = () => {
-        const prev = new Date(currentDate)
-        prev.setDate(currentDate.getDate() - 7)
-        setCurrentDate(prev)
-    }
-    const handleNextWeek = () => {
-        const next = new Date(currentDate)
-        next.setDate(currentDate.getDate() + 7)
-        setCurrentDate(next)
-    }
-    const handleSelectDate = (date: Date) => {
-        setSelectedDate(date)
-    }
+    const menuAppointmentItems = useMemo(
+        () => [
+            { icon: IdCard, label: 'Appointment chart' },
+            { icon: BellRing, label: 'Notify patient of appointment' },
+            { icon: FilePenLine, label: 'Edit appointment' },
+            { icon: CalendarClock, label: 'Reschedule appointment' },
+            { icon: CalendarX2, label: 'Cancel appointment' }
+        ],
+        []
+    )
+    const menuReservedItems = useMemo(
+        () => [
+            { icon: FilePenLine, label: 'Edit reserved' },
+            { icon: CalendarX2, label: 'Cancel reserved' }
+        ],
+        []
+    )
 
     return (
         <div className='flex flex-1 flex-col'>
             <Header />
             <div className='flex flex-1 gap-2 px-2 pb-2'>
-                <div className='bg-card border-border/20 flex w-1/3 flex-col gap-4 overflow-hidden rounded-md border py-2'>
-                    <section className='flex flex-col gap-2 px-2'>
-                        <header className='flex min-h-9 items-center justify-between px-1.5'>
-                            <span className='text-h5 text-text font-semibold'>
-                                {t(`widgets.schedules.calendar.months.full.${currentDate.getMonth()}`)}
-                            </span>
-                            <span className='text-h5 text-text-tertiary font-medium'>{year}</span>
-                        </header>
-                        <div className='flex items-center justify-between gap-1'>
-                            <Button
-                                variant='ghost'
-                                className='min-h-[72px] w-4'
-                                onClick={handlePrevWeek}
-                                tooltip={t('widgets.schedules.calendar.tooltip.backToCurrent')}
-                            >
-                                <ChevronLeft />
+                <div className='bg-card border-border/20 flex w-full max-w-[480px] min-w-[400px] flex-col gap-2 overflow-hidden rounded-md border py-2'>
+                    <header className='flex h-8 w-full items-center justify-between px-2'>
+                        <h3 className='text-p-md font-semibold'>Schedules</h3>
+                        <div className='flex items-center gap-2'>
+                            <Button variant='ghost' className='h-8'>
+                                All
                             </Button>
-                            <ul className='flex justify-between gap-1'>
-                                {weekDates.map((date, idx) => {
-                                    const isToday = (() => {
-                                        const now = new Date()
-                                        return (
-                                            date.getDate() === now.getDate() &&
-                                            date.getMonth() === now.getMonth() &&
-                                            date.getFullYear() === now.getFullYear()
-                                        )
-                                    })()
-                                    const isSelected =
-                                        selectedDate &&
-                                        date.getDate() === selectedDate.getDate() &&
-                                        date.getMonth() === selectedDate.getMonth() &&
-                                        date.getFullYear() === selectedDate.getFullYear()
-                                    return (
-                                        <li
-                                            key={date.toDateString()}
-                                            className={cn(
-                                                'hover:bg-hover flex min-h-20 min-w-11 cursor-pointer flex-col overflow-hidden rounded',
-                                                {
-                                                    'bg-primary-100 hover:bg-primary-100': isToday,
-                                                    'bg-secondary-200 hover:bg-secondary-200': isSelected
-                                                }
-                                            )}
-                                            onClick={() => handleSelectDate(date)}
-                                        >
-                                            <span
-                                                className={cn(
-                                                    '!text-text-tertiary text-p-sm flex min-h-10 min-w-11 items-center justify-center',
-                                                    {
-                                                        'text-primary !text-p-md !font-medium': isToday,
-                                                        'text-text !text-p-md font-medium': isSelected
-                                                    }
-                                                )}
-                                            >
-                                                {weekDays[idx]}
-                                            </span>
-                                            <span
-                                                className={cn(
-                                                    'text-text-tertiary !text-h3 flex min-h-10 min-w-11 items-center justify-center',
-                                                    {
-                                                        'text-primary font-medium': isToday,
-                                                        'text-text font-medium': isSelected
-                                                    }
-                                                )}
-                                            >
-                                                {date.getDate().toString().padStart(2, '0')}
-                                            </span>
-                                        </li>
-                                    )
-                                })}
-                            </ul>
-                            <Button
-                                variant='ghost'
-                                className='min-h-[72px] w-4'
-                                onClick={handleNextWeek}
-                                tooltip={t('widgets.schedules.calendar.tooltip.backToCurrent')}
-                            >
-                                <ChevronRight />
+                            <Button variant='ghost' size='icon' tooltip='Add to Schedule' className='size-8'>
+                                <Plus />
+                            </Button>
+                            <Button variant='ghost' size='icon' className='size-8'>
+                                <Settings />
                             </Button>
                         </div>
-                        <Separator className='bg-border/10 mt-2' />
-                        <div className='flex h-6 items-center justify-between px-1.5'>
-                            <div className='flex min-w-36 items-center gap-2'>
-                                {(() => {
-                                    const date = selectedDate ? selectedDate : new Date()
-                                    const monthShort = t.raw('widgets.schedules.calendar.months.short')[date.getMonth()]
-                                    const day = date.getDate().toString().padStart(2, '0')
-                                    const weekday = t.raw('widgets.schedules.calendar.weekdays.full')[date.getDay()]
-                                    return (
-                                        <>
-                                            <span className='text-p-sm text-text-secondary font-semibold uppercase'>
-                                                {monthShort} {day},
-                                            </span>
-                                            <span className='text-p-sm text-text-tertiary font-semibold uppercase'>
-                                                {weekday}
-                                            </span>
-                                        </>
-                                    )
-                                })()}
-                            </div>
-                            <div>
-                                {selectedDate !== null && (
-                                    <Button
-                                        variant='ghost'
-                                        size='icon'
-                                        tooltip={t('widgets.schedules.calendar.tooltip.resetDate')}
-                                        onClick={() => setSelectedDate(null)}
-                                    >
-                                        <CalendarSync />
-                                    </Button>
-                                )}
-                                {(currentDate.getDate() !== new Date().getDate() ||
-                                    currentDate.getMonth() !== new Date().getMonth() ||
-                                    currentDate.getFullYear() !== new Date().getFullYear()) && (
-                                    <Button
-                                        variant='ghost'
-                                        size='icon'
-                                        onClick={() => {
-                                            setCurrentDate(new Date())
-                                        }}
-                                        tooltip={t('widgets.schedules.calendar.tooltip.backToCurrent')}
-                                    >
-                                        <CalendarDays />
-                                    </Button>
-                                )}
-                            </div>
-                            {isClient && (
-                                <span className='text-p-lg text-text-secondary w-fit min-w-36 rounded px-2 text-right font-medium'>
-                                    {format(currentTime, 'HH:mm:ss')}
+                    </header>
+                    <section className='border-border/10 relative flex max-h-[calc(100vh-124px)] flex-1 overflow-scroll border-t'>
+                        <ul className='relative flex max-w-14 min-w-14 flex-1 flex-col overflow-hidden pl-2'>
+                            <li
+                                className='flex w-full items-center justify-end pr-1.5'
+                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
+                            >
+                                <span className='text-text-secondary text-label-lg text-right font-semibold text-nowrap'>
+                                    09:00
                                 </span>
-                            )}
-                        </div>
-                    </section>
-                    <div className='flex items-center justify-end gap-2 px-4'>
-                        <Button variant='ghost'>{t('widgets.schedules.buttons.all')}</Button>
-                        <Button size='icon' tooltip={t('widgets.schedules.tooltip.addToSchedule')} className='size-9'>
-                            <Plus className='stroke-text-foreground' />
-                        </Button>
-                    </div>
-                    <ul className='max-h-[calc(100vh-278px)] w-full overflow-auto px-3.5'>
-                        <li className='flex w-full gap-2'>
-                            <span className='text-text text-p-x min-w-10 font-semibold'>9:00</span>
-                            <article className='mt-1.5 flex min-h-[138] w-full flex-col gap-1 rounded border border-blue-200 bg-blue-50 px-2 py-1 transition-[border] duration-300 ease-in-out hover:border-blue-400'>
-                                <header className='flex h-8 items-center justify-between pl-2'>
-                                    <span className='text-text text-p-xs font-semibold'>9:00 - 9:30</span>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant='ghost' size='icon' className='size-8 hover:bg-blue-100'>
-                                                <Ellipsis />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align='end'>
-                                            <DropdownMenuItem>
-                                                {t('widgets.schedules.cards.appointment.menu.viewProfile')}
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem>
-                                                {t('widgets.schedules.cards.appointment.menu.edit')}
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem>
-                                                {t('widgets.schedules.cards.appointment.menu.reschedule')}
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem>
-                                                {t('widgets.schedules.cards.appointment.menu.cancel')}
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem>
-                                                {t('widgets.schedules.cards.appointment.menu.addNote')}
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </header>
-
-                                <div className='flex flex-col gap-2 pl-2'>
-                                    <div className='flex items-center gap-2'>
-                                        <UserAvatar
-                                            src='https://randomuser.me/api/portraits/women/44.jpg'
-                                            username='Emma Thomson'
-                                            className='h-8 w-8'
-                                        />
-                                        <ul>
-                                            <li className='text-text font-semibold'>Emma Thomson</li>
-                                            <li className='text-text-secondary'>Emergency appointment</li>
-                                        </ul>
-                                    </div>
-                                    <div className='flex gap-1'>
-                                        <span className='text-text text-p-xs font-semibold'>
-                                            {t('widgets.schedules.cards.appointment.note')}:
-                                        </span>
-                                        <span className='text-text-secondary text-p-xs'>
-                                            Some note for breack Some description for breack
-                                        </span>
-                                    </div>
-                                </div>
-                                <Separator className='mt-2 bg-blue-100' />
-                                <footer className='flex h-8 items-center justify-between pl-2'>
-                                    <span className='text-text-tertiary text-p-xs font-semibold uppercase'>
-                                        {t('widgets.schedules.cards.appointment.toPay')}: $120
-                                    </span>
-                                    <div className='flex gap-2'>
-                                        <Button
-                                            variant='ghost'
-                                            size='icon'
-                                            className='size-8 hover:bg-blue-100'
-                                            tooltip={t('widgets.schedules.cards.appointment.tooltip.sendMessage')}
-                                        >
-                                            <MessageSquare />
-                                        </Button>
-                                        <Button
-                                            variant='ghost'
-                                            size='icon'
-                                            className='size-8 hover:bg-blue-100'
-                                            tooltip={t('widgets.schedules.cards.appointment.tooltip.callPatient')}
-                                        >
-                                            <Phone />
-                                        </Button>
-                                        <Button
-                                            variant='ghost'
-                                            size='icon'
-                                            className='size-8 hover:bg-blue-100'
-                                            tooltip={t('widgets.schedules.cards.appointment.tooltip.viewPatientCard')}
-                                        >
-                                            <IdCard />
-                                        </Button>
-                                    </div>
-                                </footer>
-                            </article>
-                        </li>
-                        <li className='flex w-full gap-2'>
-                            <span className='text-text text-p-x min-w-10 font-semibold'>10:00</span>
-                            <article
-                                className='border-border/20 bg-background hover:border-border/40 mt-1.5 flex min-h-[138] w-full flex-col gap-1 rounded border px-2 py-1 transition-[border] duration-300 ease-in-out'
+                            </li>
+                            <li
+                                className='flex w-full items-center justify-end pr-1.5'
+                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
+                            >
+                                <span className='text-text-tertiary text-label-md text-right font-semibold text-nowrap'>
+                                    15
+                                </span>
+                            </li>
+                            <li
+                                className='flex w-full items-center justify-end pr-1.5'
+                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
+                            >
+                                <span className='text-text-tertiary text-label-md text-right font-semibold text-nowrap'>
+                                    30
+                                </span>
+                            </li>
+                            <li
+                                className='flex w-full items-center justify-end pr-1.5'
+                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
+                            >
+                                <span className='text-text-tertiary text-label-md text-right font-semibold text-nowrap'>
+                                    45
+                                </span>
+                            </li>
+                            <li
+                                className='flex w-full items-center justify-end pr-1.5'
+                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
+                            >
+                                <span className='text-text-secondary text-label-lg text-right font-semibold text-nowrap'>
+                                    10:00
+                                </span>
+                            </li>
+                            <li
+                                className='flex w-full items-center justify-end pr-1.5'
+                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
+                            >
+                                <span className='text-text-tertiary text-label-md text-right font-semibold text-nowrap'>
+                                    15
+                                </span>
+                            </li>
+                            <li
+                                className='flex w-full items-center justify-end pr-1.5'
+                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
+                            >
+                                <span className='text-text-tertiary text-label-md text-right font-semibold text-nowrap'>
+                                    30
+                                </span>
+                            </li>
+                            <li
+                                className='flex w-full items-center justify-end pr-1.5'
+                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
+                            >
+                                <span className='text-text-tertiary text-label-md text-right font-semibold text-nowrap'>
+                                    45
+                                </span>
+                            </li>
+                        </ul>
+                        <ul className='relative flex flex-1 flex-col'>
+                            <li
+                                className='border-border/20 flex flex-1 items-center justify-center border-b'
                                 style={{
-                                    backgroundImage:
-                                        'repeating-linear-gradient(45deg, #DEDFE1 0px, #DEDFE1 1px, transparent 1px, transparent 8px)'
+                                    minHeight: slotHeight / 2,
+                                    maxHeight: slotHeight / 2
+                                }}
+                                onMouseEnter={() => (isSlotHover === 0 ? undefined : setIsSlotHover(0))}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => (isSlotHover === 0 ? undefined : setSelectedSlot(0))}
+                            />
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 1 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(1)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(1)}
+                            >
+                                {isSlotHover === 1 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary pt-0.5'>Add new schedule - 09:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 2 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(2)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(2)}
+                            >
+                                {isSlotHover === 2 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 09:15</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 3 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(3)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(3)}
+                            >
+                                {isSlotHover === 3 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 09:30</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn('border-border/10 flex flex-1 items-center justify-center border-b', {
+                                    'bg-hover': isSlotHover === 4
+                                })}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(4)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(4)}
+                            >
+                                {isSlotHover === 4 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 09:45</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 6 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(6)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(6)}
+                            >
+                                {isSlotHover === 6 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 7 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(7)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(7)}
+                            >
+                                {isSlotHover === 7 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 7 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(7)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(7)}
+                            >
+                                {isSlotHover === 5 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 8 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(8)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(8)}
+                            >
+                                {isSlotHover === 8 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 9 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(9)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(9)}
+                            >
+                                {isSlotHover === 9 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 10 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(10)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(10)}
+                            >
+                                {isSlotHover === 10 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 11 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(11)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(11)}
+                            >
+                                {isSlotHover === 11 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 12 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(12)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(12)}
+                            >
+                                {isSlotHover === 12 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 13 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(13)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(13)}
+                            >
+                                {isSlotHover === 13 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 13 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(13)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(13)}
+                            >
+                                {isSlotHover === 13 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 14 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(14)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(14)}
+                            >
+                                {isSlotHover === 14 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 15 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(15)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(15)}
+                            >
+                                {isSlotHover === 15 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 16 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(16)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(16)}
+                            >
+                                {isSlotHover === 16 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 17 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(17)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(17)}
+                            >
+                                {isSlotHover === 17 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 18 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(18)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(18)}
+                            >
+                                {isSlotHover === 18 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 19 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(19)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(19)}
+                            >
+                                {isSlotHover === 19 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 20 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(20)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(20)}
+                            >
+                                {isSlotHover === 20 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 21 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(21)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(21)}
+                            >
+                                {isSlotHover === 21 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 22 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(22)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(22)}
+                            >
+                                {isSlotHover === 22 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 23 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(23)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(23)}
+                            >
+                                {isSlotHover === 23 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 24 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(24)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(24)}
+                            >
+                                {isSlotHover === 5 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+                            <li
+                                className={cn(
+                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
+                                    { 'bg-hover': isSlotHover === 5 }
+                                )}
+                                style={{
+                                    minHeight: slotHeight,
+                                    maxHeight: slotHeight
+                                }}
+                                onMouseEnter={() => setIsSlotHover(5)}
+                                onMouseLeave={() => setIsSlotHover(null)}
+                                onClick={() => setSelectedSlot(5)}
+                            >
+                                {isSlotHover === 5 && (
+                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                        <Plus className='stroke-text-secondary size-4' />
+                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
+                                    </div>
+                                )}
+                            </li>
+
+                            <li
+                                className='absolute w-full p-0.5'
+                                style={{
+                                    top: SLOT_HEIGHT / 2, // 9:00, first time slot
+                                    height: '100%',
+                                    minHeight: SLOT_HEIGHT,
+                                    maxHeight: 3 * SLOT_HEIGHT // 45 min
                                 }}
                             >
-                                <header className='flex h-8 items-center justify-between pl-2'>
-                                    <li className='text-text text-p-xs font-semibold'>9:00 - 9:30</li>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant='ghost' size='icon' className='size-8'>
-                                                <Ellipsis />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align='end'>
-                                            <DropdownMenuItem>
-                                                {t('widgets.schedules.cards.break.menu.edit')}
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem>
-                                                {t('widgets.schedules.cards.break.menu.extend')}
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem>
-                                                {t('widgets.schedules.cards.break.menu.remove')}
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem>
-                                                {t('widgets.schedules.cards.break.menu.addNote')}
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </header>
-
-                                <div className='flex flex-col gap-2 pb-2 pl-2'>
-                                    <div className='flex items-center gap-2'>
-                                        <ul>
-                                            <li className='text-text font-semibold'>Lunch break</li>
-                                            <li className='text-text-secondary text-p-xs'>
-                                                Some description for breack Some description for breack
-                                            </li>
-                                        </ul>
+                                <div className='flex h-full overflow-hidden rounded border border-blue-200 bg-blue-50 transition-[border] duration-300 ease-in-out hover:border-blue-400'>
+                                    <UserAvatar
+                                        src='https://randomuser.me/api/portraits/women/44.jpg'
+                                        username='Emma Thomson'
+                                        className='size-6 min-w-6'
+                                        radius='rounded'
+                                    />
+                                    <div className='flex flex-1 flex-col gap-0.5'>
+                                        <header className='flex max-h-6 flex-1 items-center justify-between gap-1'>
+                                            <span className='text-text line-clamp-1 px-1 font-semibold'>
+                                                Emma Thomson
+                                            </span>
+                                            <div className='flex items-center gap-1'>
+                                                <span className='text-text text-p-xs px-1 font-semibold'>
+                                                    9:00 - 9:45
+                                                </span>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button
+                                                            variant='ghost'
+                                                            size='icon'
+                                                            className='size-6 hover:bg-blue-100'
+                                                            onPointerDown={e => e.stopPropagation()}
+                                                        >
+                                                            <Ellipsis />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align='end' className='min-w-[280px]'>
+                                                        {menuAppointmentItems.map((item, idx) => (
+                                                            <DropdownMenuItem
+                                                                key={idx}
+                                                                onSelect={() =>
+                                                                    console.log('Appointment action:', item.label)
+                                                                }
+                                                                onPointerDown={e => e.stopPropagation()}
+                                                            >
+                                                                <item.icon className='size-4' />
+                                                                <span className='text-p-sm text-text w-full'>
+                                                                    {item.label}
+                                                                </span>
+                                                            </DropdownMenuItem>
+                                                        ))}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+                                        </header>
+                                        <div className='flex flex-col gap-2'>
+                                            <span className='text-text-secondary text-p-xs min-h-6 px-1'>
+                                                Emergency appointment
+                                            </span>
+                                            <div className='flex gap-1 px-1'>
+                                                <span className='text-text text-p-xs font-semibold'>Note:</span>
+                                                <span className='text-text-secondary text-p-xs'>
+                                                    Some note for breack Some description for breack
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <Separator className='mt-auto bg-blue-100' />
+                                        <footer className='flex h-8 items-center justify-between px-1'>
+                                            <span className='text-text-tertiary text-p-xs font-semibold uppercase'>
+                                                TO PAY: $120
+                                            </span>
+                                            <div className='flex gap-1'>
+                                                <Button
+                                                    variant='ghost'
+                                                    size='icon'
+                                                    className='size-6 hover:bg-blue-100'
+                                                    tooltip='Send message'
+                                                >
+                                                    <MessageSquare className='size-4' />
+                                                </Button>
+                                                <Button
+                                                    variant='ghost'
+                                                    size='icon'
+                                                    className='size-6 hover:bg-blue-100'
+                                                    tooltip='Call patient'
+                                                >
+                                                    <Phone className='size-4' />
+                                                </Button>
+                                                <Button
+                                                    variant='ghost'
+                                                    size='icon'
+                                                    className='size-6 hover:bg-blue-100'
+                                                    tooltip='View patient card'
+                                                >
+                                                    <IdCard className='size-4' />
+                                                </Button>
+                                            </div>
+                                        </footer>
                                     </div>
-
-                                    <div className='flex gap-1'></div>
                                 </div>
-                            </article>
-                        </li>
-                        <li className='mt-auto flex w-full gap-2 pl-12'>
-                            <Button
-                                size='lg'
-                                variant='ghost'
-                                className='border-border/20 mt-1.5 min-h-16 w-full border border-dashed'
+                            </li>
+                            <li
+                                className='absolute w-full p-0.5'
+                                style={{
+                                    top: SLOT_HEIGHT * 3 + SLOT_HEIGHT / 2, // 9:45,
+                                    height: '100%',
+                                    minHeight: SLOT_HEIGHT,
+                                    maxHeight: 1 * SLOT_HEIGHT // 15 min
+                                }}
+                                onMouseEnter={() => setIsCardHover(1)}
+                                onMouseLeave={() => setIsCardHover(null)}
                             >
-                                <Plus className='stroke-text-tertiary' />
-                                <span className='text-text-tertiary pt-px'>
-                                    {t('widgets.schedules.buttons.addToSchedule')}
-                                </span>
-                            </Button>
-                        </li>
-                    </ul>
+                                <div className='flex h-full gap-1 overflow-hidden rounded border border-red-200 bg-red-50 transition-[border] duration-300 ease-in-out hover:border-red-400'>
+                                    <UserAvatar
+                                        src='https://randomuser.me/api/portraits/women/44.jpg'
+                                        username='Emma Thomson'
+                                        className='size-6 min-w-6'
+                                        radius='rounded'
+                                    />
+                                    <div className='flex flex-1 flex-col gap-0.5'>
+                                        <header className='flex max-h-6 flex-1 items-center justify-between'>
+                                            <span className='text-text line-clamp-1 px-1 font-semibold'>
+                                                Emma Thomson
+                                            </span>
+                                            <div className='flex items-center gap-1'>
+                                                <span className='text-text text-p-xs px-1 font-semibold'>
+                                                    9:00 - 9:30
+                                                </span>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button
+                                                            variant='ghost'
+                                                            size='icon'
+                                                            className='size-6 hover:bg-red-100'
+                                                        >
+                                                            <Ellipsis />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align='end' className='min-w-[280px]'>
+                                                        {menuAppointmentItems.map((item, idx) => (
+                                                            <DropdownMenuItem
+                                                                key={idx}
+                                                                onSelect={() =>
+                                                                    console.log('Appointment action:', item.label)
+                                                                }
+                                                                onPointerDown={e => e.stopPropagation()}
+                                                            >
+                                                                <item.icon className='size-4' />
+                                                                <span className='text-p-sm text-text w-full'>
+                                                                    {item.label}
+                                                                </span>
+                                                            </DropdownMenuItem>
+                                                        ))}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+                                        </header>
+
+                                        <div
+                                            className={cn(
+                                                'flex min-h-6 flex-col transition-transform duration-300 ease-in-out',
+                                                {
+                                                    'translate-y-6': isCardHover === 1
+                                                }
+                                            )}
+                                        >
+                                            <span className='text-text-secondary text-p-xs line-clamp-1 px-1'>
+                                                Emergency appointment
+                                            </span>
+                                            {/* <div className='flex gap-1 px-1'>
+                                                <span className='text-text text-p-xs font-semibold'>Note:</span>
+                                                <span className='text-text-secondary text-p-xs'>
+                                                    Some note for breack Some description for breack
+                                                </span>
+                                            </div> */}
+                                        </div>
+                                        <footer
+                                            className={cn(
+                                                'flex h-6 items-center justify-between bg-red-50 px-1 transition-transform duration-300 ease-in-out',
+                                                {
+                                                    '-translate-y-7': isCardHover === 1
+                                                }
+                                            )}
+                                        >
+                                            <span className='text-text-tertiary text-p-xs font-semibold uppercase'>
+                                                TO PAY: $120
+                                            </span>
+                                            <div className='flex gap-1'>
+                                                <Button
+                                                    variant='ghost'
+                                                    size='icon'
+                                                    className='size-6 hover:bg-red-100'
+                                                    tooltip='Send message'
+                                                >
+                                                    <MessageSquare className='size-4' />
+                                                </Button>
+                                                <Button
+                                                    variant='ghost'
+                                                    size='icon'
+                                                    className='size-6 hover:bg-red-100'
+                                                    tooltip='Call patient'
+                                                >
+                                                    <Phone className='size-4' />
+                                                </Button>
+                                                <Button
+                                                    variant='ghost'
+                                                    size='icon'
+                                                    className='size-6 hover:bg-red-100'
+                                                    tooltip='View patient card'
+                                                >
+                                                    <IdCard className='size-4' />
+                                                </Button>
+                                            </div>
+                                        </footer>
+                                    </div>
+                                </div>
+                            </li>
+                            <li
+                                className='absolute w-full p-0.5'
+                                style={{
+                                    top: SLOT_HEIGHT * 4 + SLOT_HEIGHT / 2, // 9:45, // 9:00, first time slot
+                                    height: '100%',
+                                    minHeight: SLOT_HEIGHT,
+                                    maxHeight: 3 * SLOT_HEIGHT // 45 min
+                                }}
+                            >
+                                <div
+                                    className='border-border/20 bg-background hover:border-border/40 flex h-full overflow-hidden rounded border transition-[border] duration-300 ease-in-out'
+                                    style={{
+                                        backgroundImage:
+                                            'repeating-linear-gradient(45deg, #DEDFE1 0px, #DEDFE1 1px, transparent 1px, transparent 8px)'
+                                    }}
+                                >
+                                    <div className='flex flex-1 flex-col gap-0.5'>
+                                        <header className='flex max-h-6 flex-1 items-center justify-between gap-1'>
+                                            <span className='text-text line-clamp-1 px-1 font-semibold'>
+                                                Lunch break
+                                            </span>
+                                            <div className='flex items-center gap-1'>
+                                                <span className='text-text text-p-xs px-1 font-semibold'>
+                                                    10:00 - 10:45
+                                                </span>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button
+                                                            variant='ghost'
+                                                            size='icon'
+                                                            className='hover:bg-hover size-6'
+                                                        >
+                                                            <Ellipsis />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align='end' className='min-w-[280px]'>
+                                                        {menuReservedItems.map((item, idx) => (
+                                                            <DropdownMenuItem
+                                                                key={idx}
+                                                                onSelect={() =>
+                                                                    console.log('Appointment action:', item.label)
+                                                                }
+                                                                onPointerDown={e => e.stopPropagation()}
+                                                            >
+                                                                <item.icon className='size-4' />
+                                                                <span className='text-p-sm text-text w-full'>
+                                                                    {item.label}
+                                                                </span>
+                                                            </DropdownMenuItem>
+                                                        ))}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+                                        </header>
+                                        <div className='flex min-h-6 flex-col'>
+                                            <span className='text-text-secondary text-p-xs line-clamp-1 px-1'>
+                                                Some description for breack Some description for breack
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li
+                                className='absolute w-full p-0.5'
+                                style={{
+                                    top: SLOT_HEIGHT * 7 + SLOT_HEIGHT / 2, // 9:45, // 9:00, first time slot
+                                    height: '100%',
+                                    minHeight: SLOT_HEIGHT,
+                                    maxHeight: 1 * SLOT_HEIGHT // 15 min
+                                }}
+                            >
+                                <div
+                                    className='border-border/20 bg-background hover:border-border/40 flex h-full overflow-hidden rounded border transition-[border] duration-300 ease-in-out'
+                                    style={{
+                                        backgroundImage:
+                                            'repeating-linear-gradient(45deg, #DEDFE1 0px, #DEDFE1 1px, transparent 1px, transparent 8px)'
+                                    }}
+                                >
+                                    <div className='flex flex-1 flex-col gap-0.5'>
+                                        <header className='flex max-h-6 flex-1 items-center justify-between gap-1'>
+                                            <span className='text-text line-clamp-1 px-1 font-semibold'>
+                                                Lunch break
+                                            </span>
+                                            <div className='flex items-center gap-1'>
+                                                <span className='text-text text-p-xs px-1 font-semibold'>
+                                                    10:00 - 10:45
+                                                </span>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button
+                                                            variant='ghost'
+                                                            size='icon'
+                                                            className='hover:bg-hover size-6'
+                                                        >
+                                                            <Ellipsis />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align='end' className='min-w-[280px]'>
+                                                        {menuReservedItems.map((item, idx) => (
+                                                            <DropdownMenuItem
+                                                                key={idx}
+                                                                onSelect={() =>
+                                                                    console.log('Appointment action:', item.label)
+                                                                }
+                                                                onPointerDown={e => e.stopPropagation()}
+                                                            >
+                                                                <item.icon className='size-4' />
+                                                                <span className='text-p-sm text-text w-full'>
+                                                                    {item.label}
+                                                                </span>
+                                                            </DropdownMenuItem>
+                                                        ))}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+                                        </header>
+                                        <div className='flex min-h-6 flex-col'>
+                                            <span className='text-text-secondary text-p-xs line-clamp-1 px-1'>
+                                                Some description for breack Some description for breack
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
                 </div>
 
                 <div className='flex w-1/3 flex-col gap-2'>
