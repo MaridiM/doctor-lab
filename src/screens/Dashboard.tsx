@@ -186,7 +186,6 @@ const Dashboard: FC = () => {
                                         variant='ghost'
                                         size='icon'
                                         onClick={() => {
-                                            setSelectedDate(null)
                                             setCurrentDate(new Date())
                                         }}
                                         tooltip='Back to current week'
