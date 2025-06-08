@@ -9,7 +9,8 @@ import {
     Ellipsis,
     IdCard,
     MessageSquare,
-    Phone
+    Phone,
+    Plus
 } from 'lucide-react'
 import { FC, useEffect, useState } from 'react'
 
@@ -19,6 +20,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    Input,
     Separator,
     UserAvatar
 } from '@/shared/components'
@@ -91,7 +93,7 @@ const Dashboard: FC = () => {
         <div className='flex flex-1 flex-col'>
             <Header />
             <div className='flex flex-1 gap-2 px-2 pb-2'>
-                <div className='bg-card flex w-1/3 flex-col gap-8 overflow-hidden rounded-md py-2'>
+                <div className='bg-card border-border/20 flex w-1/3 flex-col gap-4 overflow-hidden rounded-md border py-2'>
                     <section className='flex flex-col gap-2 px-2'>
                         <header className='flex min-h-9 items-center justify-between px-1.5'>
                             <span className='text-h5 text-text font-semibold'>{month}</span>
@@ -201,11 +203,16 @@ const Dashboard: FC = () => {
                             )}
                         </div>
                     </section>
-
-                    <ul className='max-h-[calc(100vh-278px)] overflow-auto px-3.5'>
-                        <li className='flex gap-4'>
-                            <span className='text-text text-p-x font-semibold'>9:00</span>
-                            <article className='mt-1.5 flex min-h-[138] w-full flex-col gap-1 rounded border border-blue-200 bg-blue-50 px-2 py-1 shadow-lg transition-[border] duration-300 ease-in-out hover:border-blue-400'>
+                    <div className='flex items-center justify-end gap-2 px-4'>
+                        <Button variant='ghost'>All</Button>
+                        <Button size='icon' tooltip='Add to Schedule' className='size-9'>
+                            <Plus className='stroke-text-foreground' />
+                        </Button>
+                    </div>
+                    <ul className='max-h-[calc(100vh-278px)] w-full overflow-auto px-3.5'>
+                        <li className='flex w-full gap-2'>
+                            <span className='text-text text-p-x min-w-10 font-semibold'>9:00</span>
+                            <article className='mt-1.5 flex min-h-[138] w-full flex-col gap-1 rounded border border-blue-200 bg-blue-50 px-2 py-1 transition-[border] duration-300 ease-in-out hover:border-blue-400'>
                                 <header className='flex h-8 items-center justify-between pl-2'>
                                     <span className='text-text text-p-xs font-semibold'>9:00 - 9:30</span>
                                     <DropdownMenu>
@@ -224,21 +231,29 @@ const Dashboard: FC = () => {
                                     </DropdownMenu>
                                 </header>
 
-                                <div className='flex items-center gap-2 pl-2'>
-                                    <UserAvatar
-                                        src='https://randomuser.me/api/portraits/women/44.jpg'
-                                        username='Emma Thomson'
-                                        className='h-8 w-8'
-                                    />
-                                    <ul className=''>
-                                        <li className='text-text font-semibold'>Emma Thomson</li>
-                                        <li className='text-text-secondary'>Emergency appointment</li>
-                                    </ul>
+                                <div className='flex flex-col gap-2 pl-2'>
+                                    <div className='flex items-center gap-2'>
+                                        <UserAvatar
+                                            src='https://randomuser.me/api/portraits/women/44.jpg'
+                                            username='Emma Thomson'
+                                            className='h-8 w-8'
+                                        />
+                                        <ul>
+                                            <li className='text-text font-semibold'>Emma Thomson</li>
+                                            <li className='text-text-secondary'>Emergency appointment</li>
+                                        </ul>
+                                    </div>
+                                    <div className='flex gap-1'>
+                                        <span className='text-text text-p-xs font-semibold'>Note:</span>
+                                        <span className='text-text-secondary text-p-xs'>
+                                            Some note for breack Some description for breack
+                                        </span>
+                                    </div>
                                 </div>
                                 <Separator className='mt-2 bg-blue-100' />
                                 <footer className='flex h-8 items-center justify-between pl-2'>
                                     <span className='text-text-tertiary text-p-xs font-semibold uppercase'>
-                                        TO PAY: $ 120
+                                        TO PAY: $120
                                     </span>
                                     <div className='flex gap-2'>
                                         <Button variant='ghost' size='icon' className='size-8 hover:bg-blue-100'>
@@ -254,13 +269,13 @@ const Dashboard: FC = () => {
                                 </footer>
                             </article>
                         </li>
-                        <li className='flex gap-4'>
-                            <span className='text-text text-p-x font-semibold'>9:30</span>
+                        <li className='flex w-full gap-2'>
+                            <span className='text-text text-p-x min-w-10 font-semibold'>10:00</span>
                             <article
-                                className='border-border/20 bg-background hover:border-border/40 mt-1.5 flex min-h-[138] w-full flex-col gap-1 rounded border px-2 py-1 shadow-lg transition-[border] duration-300 ease-in-out'
+                                className='border-border/20 bg-background hover:border-border/40 mt-1.5 flex min-h-[138] w-full flex-col gap-1 rounded border px-2 py-1 transition-[border] duration-300 ease-in-out'
                                 style={{
                                     backgroundImage:
-                                        'repeating-linear-gradient(45deg, #DEDFE1  0px, #DEDFE1  1px, transparent 1px, transparent 8px);'
+                                        'repeating-linear-gradient(45deg, #DEDFE1 0px, #DEDFE1 1px, transparent 1px, transparent 8px)'
                                 }}
                             >
                                 <header className='flex h-8 items-center justify-between pl-2'>
@@ -280,15 +295,30 @@ const Dashboard: FC = () => {
                                     </DropdownMenu>
                                 </header>
 
-                                <div className='flex items-center gap-2 pb-2 pl-2'>
-                                    <ul>
-                                        <li className='text-text font-semibold'>Lunch break</li>
-                                        <li className='text-text-secondary'>
-                                            Some description for breack Some description for breack
-                                        </li>
-                                    </ul>
+                                <div className='flex flex-col gap-2 pb-2 pl-2'>
+                                    <div className='flex items-center gap-2'>
+                                        <ul>
+                                            <li className='text-text font-semibold'>Lunch break</li>
+                                            <li className='text-text-secondary text-p-xs'>
+                                                Some description for breack Some description for breack
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div className='flex gap-1'></div>
                                 </div>
                             </article>
+                        </li>
+                        <li className='mt-auto flex w-full gap-2 pl-12'>
+                            <Button
+                                size='lg'
+                                variant='ghost'
+                                tooltip='Add new ppointment'
+                                className='border-border/20 mt-1.5 min-h-16 w-full border border-dashed'
+                            >
+                                <Plus className='stroke-text-tertiary' />
+                                <span className='text-text-tertiary pt-px'>Add to Schedule</span>
+                            </Button>
                         </li>
                     </ul>
                 </div>

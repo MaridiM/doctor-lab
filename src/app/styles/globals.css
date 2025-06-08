@@ -208,6 +208,7 @@
 
 ::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -279,4 +280,9 @@
       0 0 0 30px rgba(var(--rgb-primary), 0.1) inset;
     -ms-background-clip: text;
   }
+}
+
+.scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scroll) transparent;
 }
