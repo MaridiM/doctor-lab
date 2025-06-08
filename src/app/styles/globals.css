@@ -1,0 +1,282 @@
+@import './_vars/index.css';
+
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --breakpoint-*: initial;
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 976px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1440px;
+
+  /* ========================= */
+  /*          COLORS          */
+  /* ========================= */
+
+  /* Базовые цвета */
+  --color-white: var(--white);
+  --color-dark: var(--dark);
+  --color-hover: var(--hover);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  /* Primary */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-disabled: var(--primary-disabled);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-primary-50: var(--primary-50);
+  --color-primary-100: var(--primary-100);
+  --color-primary-200: var(--primary-200);
+  --color-primary-300: var(--primary-300);
+  --color-primary-400: var(--primary-400);
+  --color-primary-500: var(--primary-500);
+  --color-primary-600: var(--primary-600);
+  --color-primary-700: var(--primary-700);
+  --color-primary-800: var(--primary-800);
+  --color-primary-900: var(--primary-900);
+
+  /* Secondary */
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-disabled: var(--secondary-disabled);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-secondary-50: var(--secondary-50);
+  --color-secondary-100: var(--secondary-100);
+  --color-secondary-200: var(--secondary-200);
+  --color-secondary-300: var(--secondary-300);
+  --color-secondary-400: var(--secondary-400);
+  --color-secondary-500: var(--secondary-500);
+  --color-secondary-600: var(--secondary-600);
+  --color-secondary-700: var(--secondary-700);
+  --color-secondary-800: var(--secondary-800);
+  --color-secondary-900: var(--secondary-900);
+  --color-secondary-950: var(--secondary-950);
+
+  /* Positive */
+  --color-positive: var(--positive);
+  --color-positive-hover: var(--positive-hover);
+
+  --color-positive-50: var(--positive-50);
+  --color-positive-100: var(--positive-100);
+  --color-positive-200: var(--positive-200);
+  --color-positive-300: var(--positive-300);
+  --color-positive-400: var(--positive-400);
+  --color-positive-500: var(--positive-500);
+  --color-positive-600: var(--positive-600);
+  --color-positive-700: var(--positive-700);
+  --color-positive-800: var(--positive-800);
+  --color-positive-900: var(--positive-900);
+  --color-positive-950: var(--positive-950);
+
+  /* Ettention (оригинальное написание) */
+  --color-ettention: var(--ettention);
+  --color-ettention-hover: var(--ettention-hover);
+
+  --color-ettention-50: var(--ettention-50);
+  --color-ettention-100: var(--ettention-100);
+  --color-ettention-200: var(--ettention-200);
+  --color-ettention-300: var(--ettention-300);
+  --color-ettention-400: var(--ettention-400);
+  --color-ettention-500: var(--ettention-500);
+  --color-ettention-600: var(--ettention-600);
+  --color-ettention-700: var(--ettention-700);
+  --color-ettention-800: var(--ettention-800);
+  --color-ettention-900: var(--ettention-900);
+  --color-ettention-950: var(--ettention-950);
+
+  /* Negative */
+  --color-negative: var(--negative);
+  --color-negative-hover: var(--negative-hover);
+
+  --color-negative-50: var(--negative-50);
+  --color-negative-100: var(--negative-100);
+  --color-negative-200: var(--negative-200);
+  --color-negative-300: var(--negative-300);
+  --color-negative-400: var(--negative-400);
+  --color-negative-500: var(--negative-500);
+  --color-negative-600: var(--negative-600);
+  --color-negative-700: var(--negative-700);
+  --color-negative-800: var(--negative-800);
+  --color-negative-900: var(--negative-900);
+  --color-negative-950: var(--negative-950);
+
+  /* Muted / Accent / Destructive */
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* Прочие цвета */
+  --color-border: rgb(var(--border-color));
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Chart */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Текст */
+  --color-text: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-foreground: var(--text-foreground);
+
+  /* Gray */
+  --color-gray: var(--gray-400);
+  --color-gray-50: var(--gray-50);
+  --color-gray-100: var(--gray-100);
+  --color-gray-200: var(--gray-200);
+  --color-gray-300: var(--gray-300);
+  --color-gray-400: var(--gray-400);
+  --color-gray-500: var(--gray-500);
+  --color-gray-600: var(--gray-600);
+  --color-gray-700: var(--gray-700);
+  --color-gray-800: var(--gray-800);
+  --color-gray-900: var(--gray-900);
+  --color-gray-950: var(--gray-950);
+
+  --color-scroll: var(--scroll);
+
+
+  /* ========================= */
+  /*       BORDER RADII        */
+  /* ========================= */
+  --radius-default: var(--radius-sm, 4px);
+  --radius-xs: var(--radius-xs, 2px);
+  --radius-sm: var(--radius-sm, 4px);
+  --radius-md: var(--radius-md, 6px);
+  --radius-lg: var(--radius-lg, 8px);
+  --radius-xl: var(--radius-xl, 12px);
+  --radius-2xl: var(--radius-2xl, 16px);
+  --radius-3xl: var(--radius-3xl, 20px);
+  --radius-4xl: var(--radius-4xl, 24px);
+
+  /* ========================= */
+  /*       FONT SIZES          */
+  /* (размер + spacing)    */
+  /* ========================= */
+
+  /* Заголовки */
+  --text-h1: var(--h1, 36px);
+  --text-h2: var(--h2, 32px);
+  --text-h3: var(--h3, 24px);
+  --text-h4: var(--h4, 20px);
+  --text-h5: var(--h5, 18px);
+
+  /* Параграфы (p) */
+  --text-p: var(--p-sm, 14px);
+  --text-p-lg: var(--p-lg, 18px);
+  --text-p-md: var(--p-md, 16px);
+  --text-p-sm: var(--p-sm, 14px);
+  --text-p-xs: var(--p-xs, 12px);
+
+  /* Кнопки (button) */
+  --text-button: var(--button-md, 14px);
+  --text-button-lg: var(--button-lg, 16px);
+  --text-button-md: var(--button-md, 14px);
+  --text-button-sm: var(--button-sm, 12px);
+
+  /* Ярлыки (label) */
+  --text-label: var(--label-md, 10px);
+  --text-label-lg: var(--label-lg, 12px);
+  --text-label-md: var(--label-md, 10px);
+  --text-label-sm: var(--label-sm, 8px);
+
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 5px;
+
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-scroll);
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scroll);
+}
+
+
+@layer base {
+  * {
+    @apply box-border outline-none text-text;
+  }
+
+  body {
+    font-family: var(--font-roboto);
+    font-weight: 400;
+    @apply bg-background text-foreground font-mono tracking-wide text-p-sm;
+
+    /* unselectable */
+    /* iOS Safari */
+    -webkit-touch-callout: none;
+    /* Chrome/Safari/Opera */
+    -webkit-user-select: none;
+    /* Konqueror */
+    -khtml-user-select: none;
+    /* Firefox */
+    -moz-user-select: none;
+    /* Internet Explorer/Edge */
+    -ms-user-select: none;
+    /* Non-prefixed version, currently */
+    /* not supported by any browser */
+    user-select: none;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--font-color);
+    -webkit-box-shadow: var(--primary-outline-shadow-hover) inset,
+      0 0 0 30px rgba(var(--rgb-primary), 0.1) inset;
+    -webkit-background-clip: text;
+
+    /* Эти свойства для -moz и -ms практически не работают
+            с autofill, но приведены для полноты */
+    -moz-text-fill-color: var(--font-color);
+    -moz-box-shadow: var(--primary-outline-shadow-hover) inset,
+      0 0 0 30px rgba(var(--rgb-primary), 0.1) inset;
+    -moz-background-clip: text;
+
+    -ms-text-fill-color: var(--font-color);
+    -ms-box-shadow: var(--primary-outline-shadow-hover) inset,
+      0 0 0 30px rgba(var(--rgb-primary), 0.1) inset;
+    -ms-background-clip: text;
+  }
+}

@@ -1,0 +1,57 @@
+:root {
+    --text-primary: var(--gray-950);
+    --text-secondary: var(--gray-800);
+    --text-tertiary: var(--gray-500);
+    --text-foreground: var(--gray-50);
+
+    --hover: var(--gray-50);
+
+    --background: var(--gray-100);
+    --foreground: var(--text-primary);
+
+    --card: var(--white);
+    --card-foreground: var(--text-primary);
+
+    --popover: var(--white);
+    --popover-foreground: var(--text-primary);
+
+    --primary: var(--primary-500);
+    --primary-hover: var(--primary-700);
+    --primary-disabled: var(--primary-300);
+    --primary-foreground: var(--text-foreground);
+
+    --secondary: var(--secondary-400);
+    --secondary-hover: var(--secondary-700);
+    --secondary-disabled: var(--secondary-300);
+    --secondary-foreground: var(--text-secondary);
+
+    --ettention: var(--ettention-500);
+    --ettention-hover: var(--ettention-700);
+
+    --positive: var(--positive-500);
+    --positive-hover: var(--positive-700);
+
+    --negative: var(--negative-500);
+    --negative-hover: var(--negative-700);
+
+    --muted: var(--gray-50);
+    --muted-foreground: var(--text-tertiary);
+
+    --accent: var(--gray-50);
+    --accent-foreground: var(--text-primary);
+
+    --destructive: var(--negative-500);
+    --destructive-foreground: var(--text-foreground);
+
+    --border-color: var(--rgb-dark);
+
+    --input: var(--gray-50);
+
+    --ring: var(--dark);
+
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+}

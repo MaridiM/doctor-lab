@@ -1,0 +1,35 @@
+@import './_colors.css';
+@import './_theme/index.css';
+
+
+:root {
+    --scroll: var(--gray-300);
+
+    --radius-xs: 2px;
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+    --radius-2xl: 16px;
+    --radius-3xl: 20px;
+    --radius-4xl: 24px;
+
+    --h1: 36px;
+    --h2: 32px;
+    --h4: 24px;
+    --h4: 20px;
+    --h5: 18px;
+
+    --p-lg: 18px;
+    --p-md: 16px;
+    --p-sm: 14px;
+    --p-xs: 12px;
+
+    --button-lg: 16px;
+    --button-md: 14px;
+    --button-sm: 12px;
+
+    --label-lg: 12px;
+    --label-md: 10px;
+    --label-sm: 8px;
+}
