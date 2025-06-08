@@ -235,7 +235,7 @@
   body {
     font-family: var(--font-roboto);
     font-weight: 400;
-    @apply bg-background text-foreground font-mono tracking-wide;
+    @apply bg-background text-foreground font-mono tracking-wide text-p-sm;
 
     /* unselectable */
     /* iOS Safari */

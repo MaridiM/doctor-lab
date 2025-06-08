@@ -1,15 +1,43 @@
 'use client'
 
 import { format } from 'date-fns'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+    CalendarDays,
+    CalendarSync,
+    ChevronLeft,
+    ChevronRight,
+    Ellipsis,
+    IdCard,
+    MessageSquare,
+    Phone
+} from 'lucide-react'
 import { FC, useEffect, useState } from 'react'
 
-import { Button, Separator } from '@/shared/components'
+import {
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    Separator,
+    UserAvatar
+} from '@/shared/components'
 import { cn } from '@/shared/utils'
 
 import { Header } from '@/widgets'
 
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+// const lightColors = [
+//     'bg-blue-50',
+//     'bg-red-50',
+//     'bg-green-50',
+//     'bg-yellow-50',
+//     'bg-purple-50',
+//     'bg-pink-50',
+//     'bg-indigo-50',
+//     'bg-teal-50',
+//     'bg-orange-50',
+//   ]
 
 function getStartOfWeek(date: Date) {
     const d = new Date(date)
@@ -35,8 +63,10 @@ const Dashboard: FC = () => {
     const month = currentDate.toLocaleString('en-US', { month: 'long' })
     const year = currentDate.getFullYear()
     const [currentTime, setCurrentTime] = useState(new Date())
+    const [isClient, setIsClient] = useState(false)
 
     useEffect(() => {
+        setIsClient(true)
         const timer = setInterval(() => {
             setCurrentTime(new Date())
         }, 1000)
@@ -61,8 +91,8 @@ const Dashboard: FC = () => {
         <div className='flex flex-1 flex-col'>
             <Header />
             <div className='flex flex-1 gap-2 px-2 pb-2'>
-                <div className='bg-card w-1/3 rounded-md p-2'>
-                    <section className='flex flex-col gap-2'>
+                <div className='bg-card flex w-1/3 flex-col gap-8 overflow-hidden rounded-md py-2'>
+                    <section className='flex flex-col gap-2 px-2'>
                         <header className='flex min-h-9 items-center justify-between px-1.5'>
                             <span className='text-h5 text-text font-semibold'>{month}</span>
                             <span className='text-h5 text-text-tertiary font-medium'>{year}</span>
@@ -90,12 +120,13 @@ const Dashboard: FC = () => {
                                         <li
                                             key={date.toDateString()}
                                             className={cn(
-                                                'hover:bg-hover flex min-h-20 min-w-11 flex-col overflow-hidden rounded',
+                                                'hover:bg-hover flex min-h-20 min-w-11 cursor-pointer flex-col overflow-hidden rounded',
                                                 {
                                                     'bg-primary-100 hover:bg-primary-100': isToday,
                                                     'bg-secondary-200 hover:bg-secondary-200': isSelected
                                                 }
                                             )}
+                                            onClick={() => handleSelectDate(date)}
                                         >
                                             <span
                                                 className={cn(
@@ -110,13 +141,12 @@ const Dashboard: FC = () => {
                                             </span>
                                             <span
                                                 className={cn(
-                                                    'text-text !text-h3 flex min-h-10 min-w-11 cursor-pointer items-center justify-center font-normal',
+                                                    'text-text-tertiary !text-h3 flex min-h-10 min-w-11 items-center justify-center',
                                                     {
                                                         'text-primary font-medium': isToday,
                                                         'text-text font-medium': isSelected
                                                     }
                                                 )}
-                                                onClick={() => handleSelectDate(date)}
                                             >
                                                 {date.getDate().toString().padStart(2, '0')}
                                             </span>
@@ -129,21 +159,139 @@ const Dashboard: FC = () => {
                             </Button>
                         </div>
                         <Separator className='bg-border/10 mt-2' />
-                        <div className='flex justify-between px-1.5'>
-                            <div className='flex gap-2'>
+                        <div className='flex h-6 items-center justify-between px-1.5'>
+                            <div className='flex min-w-36 items-center gap-2'>
                                 <span className='text-p-sm text-text-secondary font-semibold uppercase'>
-                                    {format(selectedDate ? selectedDate : currentDate, 'MMM dd,')}
+                                    {format(selectedDate ? selectedDate : new Date(), 'MMM dd,')}
                                 </span>
                                 <span className='text-p-sm text-text-tertiary font-semibold uppercase'>
-                                    {format(selectedDate ? selectedDate : currentDate, 'EEEE')}
+                                    {format(selectedDate ? selectedDate : new Date(), 'EEEE')}
                                 </span>
                             </div>
-                            <span className='text-p-sm text-text-secondary w-fit rounded px-2 font-semibold'>
-                                {format(currentTime, 'HH:mm:ss')}
-                            </span>
+                            <div>
+                                {selectedDate !== null && (
+                                    <Button
+                                        variant='ghost'
+                                        size='icon'
+                                        tooltip='Reset selected date'
+                                        onClick={() => setSelectedDate(null)}
+                                    >
+                                        <CalendarSync />
+                                    </Button>
+                                )}
+                                {(currentDate.getDate() !== new Date().getDate() ||
+                                    currentDate.getMonth() !== new Date().getMonth() ||
+                                    currentDate.getFullYear() !== new Date().getFullYear()) && (
+                                    <Button
+                                        variant='ghost'
+                                        size='icon'
+                                        onClick={() => {
+                                            setSelectedDate(null)
+                                            setCurrentDate(new Date())
+                                        }}
+                                        tooltip='Back to current week'
+                                    >
+                                        <CalendarDays />
+                                    </Button>
+                                )}
+                            </div>
+                            {isClient && (
+                                <span className='text-p-lg text-text-secondary w-fit min-w-36 rounded px-2 text-right font-medium'>
+                                    {format(currentTime, 'HH:mm:ss')}
+                                </span>
+                            )}
                         </div>
                     </section>
-                    <section></section>
+
+                    <ul className='max-h-[calc(100vh-278px)] overflow-auto px-3.5'>
+                        <li className='flex gap-4'>
+                            <span className='text-text text-p-x font-semibold'>9:00</span>
+                            <article className='mt-1.5 flex min-h-[138] w-full flex-col gap-1 rounded border border-blue-200 bg-blue-50 px-2 py-1 shadow-lg transition-[border] duration-300 ease-in-out hover:border-blue-400'>
+                                <header className='flex h-8 items-center justify-between pl-2'>
+                                    <span className='text-text text-p-xs font-semibold'>9:00 - 9:30</span>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant='ghost' size='icon' className='size-8 hover:bg-blue-100'>
+                                                <Ellipsis />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align='end'>
+                                            <DropdownMenuItem>View Profile</DropdownMenuItem>
+                                            <DropdownMenuItem>Edit Appointment</DropdownMenuItem>
+                                            <DropdownMenuItem>Reschedule</DropdownMenuItem>
+                                            <DropdownMenuItem>Cancel Appointment</DropdownMenuItem>
+                                            <DropdownMenuItem>Add Note</DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </header>
+
+                                <div className='flex items-center gap-2 pl-2'>
+                                    <UserAvatar
+                                        src='https://randomuser.me/api/portraits/women/44.jpg'
+                                        username='Emma Thomson'
+                                        className='h-8 w-8'
+                                    />
+                                    <ul className=''>
+                                        <li className='text-text font-semibold'>Emma Thomson</li>
+                                        <li className='text-text-secondary'>Emergency appointment</li>
+                                    </ul>
+                                </div>
+                                <Separator className='mt-2 bg-blue-100' />
+                                <footer className='flex h-8 items-center justify-between pl-2'>
+                                    <span className='text-text-tertiary text-p-xs font-semibold uppercase'>
+                                        TO PAY: $ 120
+                                    </span>
+                                    <div className='flex gap-2'>
+                                        <Button variant='ghost' size='icon' className='size-8 hover:bg-blue-100'>
+                                            <MessageSquare />
+                                        </Button>
+                                        <Button variant='ghost' size='icon' className='size-8 hover:bg-blue-100'>
+                                            <Phone />
+                                        </Button>
+                                        <Button variant='ghost' size='icon' className='size-8 hover:bg-blue-100'>
+                                            <IdCard />
+                                        </Button>
+                                    </div>
+                                </footer>
+                            </article>
+                        </li>
+                        <li className='flex gap-4'>
+                            <span className='text-text text-p-x font-semibold'>9:30</span>
+                            <article
+                                className='border-border/20 bg-background hover:border-border/40 mt-1.5 flex min-h-[138] w-full flex-col gap-1 rounded border px-2 py-1 shadow-lg transition-[border] duration-300 ease-in-out'
+                                style={{
+                                    backgroundImage:
+                                        'repeating-linear-gradient(45deg, #DEDFE1  0px, #DEDFE1  1px, transparent 1px, transparent 8px);'
+                                }}
+                            >
+                                <header className='flex h-8 items-center justify-between pl-2'>
+                                    <li className='text-text text-p-xs font-semibold'>9:00 - 9:30</li>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant='ghost' size='icon' className='size-8'>
+                                                <Ellipsis />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align='end'>
+                                            <DropdownMenuItem>Edit Break</DropdownMenuItem>
+                                            <DropdownMenuItem>Extend Time</DropdownMenuItem>
+                                            <DropdownMenuItem>Remove Break</DropdownMenuItem>
+                                            <DropdownMenuItem>Add Note</DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </header>
+
+                                <div className='flex items-center gap-2 pb-2 pl-2'>
+                                    <ul>
+                                        <li className='text-text font-semibold'>Lunch break</li>
+                                        <li className='text-text-secondary'>
+                                            Some description for breack Some description for breack
+                                        </li>
+                                    </ul>
+                                </div>
+                            </article>
+                        </li>
+                    </ul>
                 </div>
 
                 <div className='flex w-1/3 flex-col gap-2'>

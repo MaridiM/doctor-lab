@@ -13,7 +13,7 @@ import {
     SelectTrigger,
     SelectValue
 } from '@/shared/components'
-import { COOKIE_NAME, languages, setLanguage } from '@/shared/libs/i18n'
+import { languages, setLanguage } from '@/shared/libs/i18n'
 import { type TChangeLanguageSchema, changeLanguageSchema } from '@/shared/schemas'
 import { cn } from '@/shared/utils'
 
@@ -41,7 +41,6 @@ export function ChangeLanguage({ className }: IProps) {
 
     return (
         <Form {...form}>
-
             <FormField
                 control={form.control}
                 name='language'

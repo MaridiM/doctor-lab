@@ -3,7 +3,17 @@
 import { Bell, Menu, PanelLeftOpen, Settings } from 'lucide-react'
 import { FC } from 'react'
 
-import { Button, LogoIcon, UserAvatar } from '@/shared/components'
+import {
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    LogoIcon,
+    UserAvatar
+} from '@/shared/components'
 import { useStore } from '@/shared/libs'
 import { cn } from '@/shared/utils'
 
@@ -42,10 +52,6 @@ export const Header: FC<HeaderProps> = ({ heading, headingCount }) => {
             </div>
 
             <div className='flex items-center gap-2'>
-                {/* <Button variant='primary' className='cursor-pointer' onClick={() => console.log('Add patient')}>
-                    <Plus className='stroke-text-foreground' />
-                    <span className='text-text-foreground tracking-wide'>Add patient</span>
-                </Button> */}
                 <ChangeTheme />
                 <ChangeLanguage />
                 <Button
@@ -64,12 +70,28 @@ export const Header: FC<HeaderProps> = ({ heading, headingCount }) => {
                 >
                     <Settings className='stroke-text' />
                 </Button>
-
-                <UserAvatar
-                    className='size-9 min-w-9'
-                    username='Marlow Grand'
-                    src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyBnY2OmVc4EJcVSkmvrVZFHgFDVedUQ56GA&s'
-                />
+                <DropdownMenu>
+                    <DropdownMenuTrigger>
+                        <UserAvatar
+                            className='size-9 min-w-9'
+                            username='Marlow Grand'
+                            src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyBnY2OmVc4EJcVSkmvrVZFHgFDVedUQ56GA&s'
+                        />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align='end'>
+                        <DropdownMenuLabel>
+                            <div className='flex flex-col'>
+                                <span className='text-text text-p-sm font-semibold'>Marlow Grand</span>
+                                <span className='text-text-tertiary text-p-sm'>marlow.grand@gmail.com</span>
+                            </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>Profile</DropdownMenuItem>
+                        <DropdownMenuItem>Billing</DropdownMenuItem>
+                        <DropdownMenuItem>Team</DropdownMenuItem>
+                        <DropdownMenuItem>Subscription</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </header>
     )

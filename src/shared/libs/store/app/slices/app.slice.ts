@@ -7,5 +7,5 @@ export const appSlice: StateCreator<IAppSlice> = (set, get) => ({
     isSidebarOpen: true,
 
     // Actions
-    setIsSidebarOpen: (isSidebarOpen: boolean) => set({ isSidebarOpen }),
+    setIsSidebarOpen: (isSidebarOpen: boolean) => set({ isSidebarOpen })
 })
