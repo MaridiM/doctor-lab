@@ -46,7 +46,7 @@ export interface IAppointment {
 
 export const APPOINTMENTS: IAppointment[] = [
     {
-        id: 'c0dbda3e-6f81-454b-b562-4d29fd9dea54',
+        id: 'c0dbda3e-6f81-454b-b562-4d29fd9dea88',
         date: '2025-06-06T08:30:00.000Z',
         startMiridiem: null,
         room: 1,

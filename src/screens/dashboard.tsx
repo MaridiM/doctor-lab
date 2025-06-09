@@ -16,7 +16,7 @@ import {
 import { useTranslations } from 'next-intl'
 import { FC, useMemo, useState } from 'react'
 
-import { APPOINTMENTS } from '@/shared/api'
+import { APPOINTMENTS, RESERVEDS } from '@/shared/api'
 import '@/shared/components'
 import {
     Button,
@@ -79,7 +79,62 @@ const Dashboard: FC = () => {
         })
     }, [totalHours, stepsPerHour, startHour24])
 
-    // console.log(APPOINTMENTS[0].date, APPOINTMENTS[0].service.duration / DEFAULT_TIME_STEP)
+    console.log(APPOINTMENTS[0].date, APPOINTMENTS[0].service.duration / DEFAULT_TIME_STEP)
+
+    // Функция для вычисления top и height
+    const getSlotPosition = (date: string, duration: number) => {
+        const start = new Date(date)
+        const startMinutes = start.getUTCHours() * 60 + start.getUTCMinutes()
+        const scheduleStartMinutes = (DEFAULT_START_HOUR - 1) * 60
+        const diffSteps = Math.floor((startMinutes - scheduleStartMinutes) / DEFAULT_TIME_STEP)
+        const top = diffSteps * slotHeight + slotHeight / 2
+        const height = (duration / DEFAULT_TIME_STEP) * slotHeight
+        return { top, height }
+    }
+
+    // Функция для вычисления timeRange
+    const getTimeRange = (date: string, duration: number) => {
+        const start = new Date(date)
+        const end = new Date(start.getTime() + duration * 60000)
+        const pad = (n: number) => n.toString().padStart(2, '0')
+        return `${pad(start.getUTCHours())}:${pad(start.getUTCMinutes())} - ${pad(end.getUTCHours())}:${pad(end.getUTCMinutes())}`
+    }
+
+    // Рендер карточек
+    const appointmentCards = APPOINTMENTS.map((a, idx) => {
+        const { top, height } = getSlotPosition(a.date, a.service.duration)
+        return (
+            <ScheduleAppointmentCard
+                key={a.id}
+                top={top}
+                height={height}
+                slotHeight={slotHeight}
+                timeRange={getTimeRange(a.date, a.service.duration)}
+                service={a.service.name}
+                note={a.notes}
+                amount={a.service.price.amount}
+                user={{
+                    username: a.patient.fullName,
+                    avatarUrl: a.patient.avatar
+                }}
+            />
+        )
+    })
+
+    const reservedCards = RESERVEDS.map((r, idx) => {
+        const { top, height } = getSlotPosition(r.date, r.duration)
+        return (
+            <ScheduleReservedCard
+                key={r.id}
+                top={top}
+                height={height}
+                slotHeight={slotHeight}
+                timeRange={getTimeRange(r.date, r.duration)}
+                title={r.title}
+                note={r.notes}
+            />
+        )
+    })
 
     return (
         <div className='flex flex-1 flex-col'>
@@ -102,64 +157,10 @@ const Dashboard: FC = () => {
                     </header>
                     <section className='border-border/10 relative flex max-h-[calc(100vh-122px)] flex-1 overflow-scroll border-t'>
                         <ScheduleTimeLine slots={slots} isTime24Format={isTime24Format} slotHeight={slotHeight} />
-                        {/* Schedule Slots */}
                         <ul className='relative flex flex-1 flex-col'>
-                            {/* Slots */}
                             <ScheduleSlots slots={slots} isTime24Format={isTime24Format} slotHeight={slotHeight} />
-                            <ScheduleAppointmentCard
-                                top={SLOT_HEIGHT * 0 + SLOT_HEIGHT / 2}
-                                height={1 * SLOT_HEIGHT}
-                                slotHeight={SLOT_HEIGHT}
-                                timeRange='10:00 - 10-45'
-                                service='Emergency appointment'
-                                amount={65}
-                                user={{
-                                    username: 'Emma Thomson',
-                                    avatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg'
-                                }}
-                            />
-                            <ScheduleAppointmentCard
-                                top={SLOT_HEIGHT * 1 + SLOT_HEIGHT / 2}
-                                height={2 * SLOT_HEIGHT}
-                                slotHeight={SLOT_HEIGHT}
-                                timeRange='10:00 - 10-45'
-                                service='Emergency appointment'
-                                amount={120}
-                                user={{
-                                    username: 'Emma Thomson',
-                                    avatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg'
-                                }}
-                            />
-                            <ScheduleAppointmentCard
-                                top={SLOT_HEIGHT * 3 + SLOT_HEIGHT / 2}
-                                height={3 * SLOT_HEIGHT}
-                                slotHeight={SLOT_HEIGHT}
-                                timeRange='10:00 - 10-45'
-                                service='Emergency appointment'
-                                note='Some note for breack Some description for breack'
-                                amount={300}
-                                user={{
-                                    username: 'Emma Thomson',
-                                    avatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg'
-                                }}
-                            />
-
-                            <ScheduleReservedCard
-                                top={SLOT_HEIGHT * 6 + SLOT_HEIGHT / 2}
-                                height={3 * SLOT_HEIGHT}
-                                slotHeight={SLOT_HEIGHT}
-                                timeRange='10:00 - 10-45'
-                                title='Lunch break'
-                                note='Some description for breack Some description for breack'
-                            />
-                            <ScheduleReservedCard
-                                top={SLOT_HEIGHT * 10 + SLOT_HEIGHT / 2}
-                                height={1 * SLOT_HEIGHT}
-                                slotHeight={SLOT_HEIGHT}
-                                timeRange='10:00 - 10-45'
-                                title='Lunch break'
-                                note='Some description for breack Some description for breack'
-                            />
+                            {appointmentCards}
+                            {reservedCards}
                         </ul>
                     </section>
                 </div>
@@ -187,7 +188,6 @@ interface IScheduleTimeLineProps {
     slots: IScheduleSlot[]
     className?: string
 }
-
 const ScheduleTimeLine: FC<IScheduleTimeLineProps> = ({ slots, isTime24Format, slotHeight, className }) => {
     return (
         <ul
@@ -230,7 +230,6 @@ interface IScheduleSlotsProps {
     slots: IScheduleSlot[]
     className?: string
 }
-
 const ScheduleSlots: FC<IScheduleSlotsProps> = ({ slots, isTime24Format, slotHeight, className }) => {
     const [isSlotHover, setIsSlotHover] = useState<number | null>(null)
     const [selectedSlot, setSelectedSlot] = useState<number | null>(null)
@@ -288,7 +287,6 @@ interface IScheduleAppointmentCardProps {
         avatarUrl: string
     }
 }
-
 const ScheduleAppointmentCard: FC<IScheduleAppointmentCardProps> = ({
     top,
     height,
@@ -437,7 +435,6 @@ interface IScheduleReservedCardProps {
     title: string
     note?: string
 }
-
 const ScheduleReservedCard: FC<IScheduleReservedCardProps> = ({ top, height, slotHeight, timeRange, title, note }) => {
     const menuItems: { icon: LucideIcon; label: string }[] = useMemo(
         () => [
