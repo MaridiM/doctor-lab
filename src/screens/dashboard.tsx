@@ -19,7 +19,7 @@ import {
     Settings
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { FC, useEffect, useMemo, useState } from 'react'
+import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 
 import '@/shared/components'
 import {
@@ -35,39 +35,51 @@ import { cn } from '@/shared/utils'
 
 import { Header } from '@/widgets'
 
+interface IScheduleSlot {
+    adjustedHour: number
+    minute: number
+}
+
 export type TTimeStep = 15 | 20 | 30 | 60
 
-const SLOT_COUNT = 24
 const SLOT_HEIGHT = 56
 const MAX_SLOT_HEIGHT = SLOT_HEIGHT * 4
 const DEFAULT_TIME_STEP: TTimeStep = 15
 
+const DEFAULT_START_HOUR = 8
+const DEFAULT_OPERATING_HOURS = 8
+
 const Dashboard: FC = () => {
     const t = useTranslations('dashboard')
 
+    const [isTime24Format, setIsTime24Format] = useState(true)
+    const operatingHours = DEFAULT_OPERATING_HOURS
+    const startHour24 = DEFAULT_START_HOUR
+
+    // Новый диапазон: от (startHour24 - 1) до (startHour24 - 1 + operatingHours + 1)
+    const totalHours = operatingHours + 2 // +1 до и +1 после
     const stepsPerHour = useMemo(() => 60 / DEFAULT_TIME_STEP, [DEFAULT_TIME_STEP])
     const slotHeight = useMemo(() => MAX_SLOT_HEIGHT / stepsPerHour, [stepsPerHour])
 
-    const [isSlotHover, setIsSlotHover] = useState<number | null>(null)
-    const [isCardHover, setIsCardHover] = useState<number | null>(null)
-    const [selectedSlot, setSelectedSlot] = useState<number | null>(null)
+    const slots: IScheduleSlot[] = useMemo(() => {
+        return Array.from({ length: totalHours * stepsPerHour + 1 }, (_, idx) => {
+            const baseHour = startHour24 - 1
+            const hour = baseHour + Math.floor(idx / stepsPerHour)
+            const adjustedHour = (hour + 24) % 24
+            const minute = (idx % stepsPerHour) * DEFAULT_TIME_STEP
+            return { adjustedHour, minute }
+        })
+    }, [totalHours, stepsPerHour, startHour24])
 
-    const menuAppointmentItems = useMemo(
-        () => [
-            { icon: IdCard, label: 'Appointment chart' },
-            { icon: BellRing, label: 'Notify patient of appointment' },
-            { icon: FilePenLine, label: 'Edit appointment' },
-            { icon: CalendarClock, label: 'Reschedule appointment' },
-            { icon: CalendarX2, label: 'Cancel appointment' }
-        ],
-        []
-    )
-    const menuReservedItems = useMemo(
-        () => [
-            { icon: FilePenLine, label: 'Edit reserved' },
-            { icon: CalendarX2, label: 'Cancel reserved' }
-        ],
-        []
+    const calculateTime = useCallback(
+        (idx: number) => {
+            const baseHour = startHour24 - 1
+            const hour = baseHour + Math.floor(idx / stepsPerHour)
+            const adjustedHour = (hour + 24) % 24
+            const minute = (idx % stepsPerHour) * DEFAULT_TIME_STEP
+            return { adjustedHour, minute }
+        },
+        [startHour24, stepsPerHour]
     )
 
     return (
@@ -89,945 +101,66 @@ const Dashboard: FC = () => {
                             </Button>
                         </div>
                     </header>
-                    <section className='border-border/10 relative flex max-h-[calc(100vh-124px)] flex-1 overflow-scroll border-t'>
-                        <ul className='relative flex max-w-14 min-w-14 flex-1 flex-col overflow-hidden pl-2'>
-                            <li
-                                className='flex w-full items-center justify-end pr-1.5'
-                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
-                            >
-                                <span className='text-text-secondary text-label-lg text-right font-semibold text-nowrap'>
-                                    09:00
-                                </span>
-                            </li>
-                            <li
-                                className='flex w-full items-center justify-end pr-1.5'
-                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
-                            >
-                                <span className='text-text-tertiary text-label-md text-right font-semibold text-nowrap'>
-                                    15
-                                </span>
-                            </li>
-                            <li
-                                className='flex w-full items-center justify-end pr-1.5'
-                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
-                            >
-                                <span className='text-text-tertiary text-label-md text-right font-semibold text-nowrap'>
-                                    30
-                                </span>
-                            </li>
-                            <li
-                                className='flex w-full items-center justify-end pr-1.5'
-                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
-                            >
-                                <span className='text-text-tertiary text-label-md text-right font-semibold text-nowrap'>
-                                    45
-                                </span>
-                            </li>
-                            <li
-                                className='flex w-full items-center justify-end pr-1.5'
-                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
-                            >
-                                <span className='text-text-secondary text-label-lg text-right font-semibold text-nowrap'>
-                                    10:00
-                                </span>
-                            </li>
-                            <li
-                                className='flex w-full items-center justify-end pr-1.5'
-                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
-                            >
-                                <span className='text-text-tertiary text-label-md text-right font-semibold text-nowrap'>
-                                    15
-                                </span>
-                            </li>
-                            <li
-                                className='flex w-full items-center justify-end pr-1.5'
-                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
-                            >
-                                <span className='text-text-tertiary text-label-md text-right font-semibold text-nowrap'>
-                                    30
-                                </span>
-                            </li>
-                            <li
-                                className='flex w-full items-center justify-end pr-1.5'
-                                style={{ minHeight: slotHeight, maxHeight: slotHeight }}
-                            >
-                                <span className='text-text-tertiary text-label-md text-right font-semibold text-nowrap'>
-                                    45
-                                </span>
-                            </li>
-                        </ul>
+                    <section className='border-border/10 relative flex max-h-[calc(100vh-122px)] flex-1 overflow-scroll border-t'>
+                        <ScheduleTimeLine slots={slots} isTime24Format={isTime24Format} slotHeight={slotHeight} />
+                        {/* Schedule Slots */}
                         <ul className='relative flex flex-1 flex-col'>
-                            <li
-                                className='border-border/20 flex flex-1 items-center justify-center border-b'
-                                style={{
-                                    minHeight: slotHeight / 2,
-                                    maxHeight: slotHeight / 2
+                            {/* Slots */}
+                            <ScheduleSlots slots={slots} isTime24Format={isTime24Format} slotHeight={slotHeight} />
+                            <ScheduleAppointmentCard
+                                top={SLOT_HEIGHT * 0 + SLOT_HEIGHT / 2}
+                                height={1 * SLOT_HEIGHT}
+                                slotHeight={SLOT_HEIGHT}
+                                timeRange='10:00 - 10-45'
+                                service='Emergency appointment'
+                                amount={65}
+                                user={{
+                                    username: 'Emma Thomson',
+                                    avatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg'
                                 }}
-                                onMouseEnter={() => (isSlotHover === 0 ? undefined : setIsSlotHover(0))}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => (isSlotHover === 0 ? undefined : setSelectedSlot(0))}
                             />
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 1 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
+                            <ScheduleAppointmentCard
+                                top={SLOT_HEIGHT * 1 + SLOT_HEIGHT / 2}
+                                height={2 * SLOT_HEIGHT}
+                                slotHeight={SLOT_HEIGHT}
+                                timeRange='10:00 - 10-45'
+                                service='Emergency appointment'
+                                amount={120}
+                                user={{
+                                    username: 'Emma Thomson',
+                                    avatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg'
                                 }}
-                                onMouseEnter={() => setIsSlotHover(1)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(1)}
-                            >
-                                {isSlotHover === 1 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary pt-0.5'>Add new schedule - 09:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 2 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
+                            />
+                            <ScheduleAppointmentCard
+                                top={SLOT_HEIGHT * 3 + SLOT_HEIGHT / 2}
+                                height={3 * SLOT_HEIGHT}
+                                slotHeight={SLOT_HEIGHT}
+                                timeRange='10:00 - 10-45'
+                                service='Emergency appointment'
+                                note='Some note for breack Some description for breack'
+                                amount={300}
+                                user={{
+                                    username: 'Emma Thomson',
+                                    avatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg'
                                 }}
-                                onMouseEnter={() => setIsSlotHover(2)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(2)}
-                            >
-                                {isSlotHover === 2 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 09:15</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 3 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(3)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(3)}
-                            >
-                                {isSlotHover === 3 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 09:30</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn('border-border/10 flex flex-1 items-center justify-center border-b', {
-                                    'bg-hover': isSlotHover === 4
-                                })}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(4)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(4)}
-                            >
-                                {isSlotHover === 4 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 09:45</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 6 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(6)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(6)}
-                            >
-                                {isSlotHover === 6 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 7 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(7)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(7)}
-                            >
-                                {isSlotHover === 7 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 7 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(7)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(7)}
-                            >
-                                {isSlotHover === 5 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 8 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(8)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(8)}
-                            >
-                                {isSlotHover === 8 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 9 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(9)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(9)}
-                            >
-                                {isSlotHover === 9 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 10 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(10)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(10)}
-                            >
-                                {isSlotHover === 10 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 11 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(11)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(11)}
-                            >
-                                {isSlotHover === 11 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 12 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(12)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(12)}
-                            >
-                                {isSlotHover === 12 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 13 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(13)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(13)}
-                            >
-                                {isSlotHover === 13 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 13 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(13)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(13)}
-                            >
-                                {isSlotHover === 13 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 14 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(14)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(14)}
-                            >
-                                {isSlotHover === 14 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 15 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(15)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(15)}
-                            >
-                                {isSlotHover === 15 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 16 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(16)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(16)}
-                            >
-                                {isSlotHover === 16 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 17 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(17)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(17)}
-                            >
-                                {isSlotHover === 17 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 18 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(18)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(18)}
-                            >
-                                {isSlotHover === 18 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 19 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(19)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(19)}
-                            >
-                                {isSlotHover === 19 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 20 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(20)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(20)}
-                            >
-                                {isSlotHover === 20 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 21 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(21)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(21)}
-                            >
-                                {isSlotHover === 21 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 22 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(22)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(22)}
-                            >
-                                {isSlotHover === 22 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 23 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(23)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(23)}
-                            >
-                                {isSlotHover === 23 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 24 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(24)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(24)}
-                            >
-                                {isSlotHover === 5 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
-                            <li
-                                className={cn(
-                                    'border-border/10 flex flex-1 items-center justify-center border-b border-dashed',
-                                    { 'bg-hover': isSlotHover === 5 }
-                                )}
-                                style={{
-                                    minHeight: slotHeight,
-                                    maxHeight: slotHeight
-                                }}
-                                onMouseEnter={() => setIsSlotHover(5)}
-                                onMouseLeave={() => setIsSlotHover(null)}
-                                onClick={() => setSelectedSlot(5)}
-                            >
-                                {isSlotHover === 5 && (
-                                    <div className='flex h-full flex-1 items-center justify-center gap-2'>
-                                        <Plus className='stroke-text-secondary size-4' />
-                                        <span className='text-text-secondary'>Add new schedule - 10:00</span>
-                                    </div>
-                                )}
-                            </li>
+                            />
 
-                            <li
-                                className='absolute w-full p-0.5'
-                                style={{
-                                    top: SLOT_HEIGHT / 2, // 9:00, first time slot
-                                    height: '100%',
-                                    minHeight: SLOT_HEIGHT,
-                                    maxHeight: 3 * SLOT_HEIGHT // 45 min
-                                }}
-                            >
-                                <div className='flex h-full overflow-hidden rounded border border-blue-200 bg-blue-50 transition-[border] duration-300 ease-in-out hover:border-blue-400'>
-                                    <UserAvatar
-                                        src='https://randomuser.me/api/portraits/women/44.jpg'
-                                        username='Emma Thomson'
-                                        className='size-6 min-w-6'
-                                        radius='rounded'
-                                    />
-                                    <div className='flex flex-1 flex-col gap-0.5'>
-                                        <header className='flex max-h-6 flex-1 items-center justify-between gap-1'>
-                                            <span className='text-text line-clamp-1 px-1 font-semibold'>
-                                                Emma Thomson
-                                            </span>
-                                            <div className='flex items-center gap-1'>
-                                                <span className='text-text text-p-xs px-1 font-semibold'>
-                                                    9:00 - 9:45
-                                                </span>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button
-                                                            variant='ghost'
-                                                            size='icon'
-                                                            className='size-6 hover:bg-blue-100'
-                                                            onPointerDown={e => e.stopPropagation()}
-                                                        >
-                                                            <Ellipsis />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align='end' className='min-w-[280px]'>
-                                                        {menuAppointmentItems.map((item, idx) => (
-                                                            <DropdownMenuItem
-                                                                key={idx}
-                                                                onSelect={() =>
-                                                                    console.log('Appointment action:', item.label)
-                                                                }
-                                                                onPointerDown={e => e.stopPropagation()}
-                                                            >
-                                                                <item.icon className='size-4' />
-                                                                <span className='text-p-sm text-text w-full'>
-                                                                    {item.label}
-                                                                </span>
-                                                            </DropdownMenuItem>
-                                                        ))}
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </div>
-                                        </header>
-                                        <div className='flex flex-col gap-2'>
-                                            <span className='text-text-secondary text-p-xs min-h-6 px-1'>
-                                                Emergency appointment
-                                            </span>
-                                            <div className='flex gap-1 px-1'>
-                                                <span className='text-text text-p-xs font-semibold'>Note:</span>
-                                                <span className='text-text-secondary text-p-xs'>
-                                                    Some note for breack Some description for breack
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <Separator className='mt-auto bg-blue-100' />
-                                        <footer className='flex h-8 items-center justify-between px-1'>
-                                            <span className='text-text-tertiary text-p-xs font-semibold uppercase'>
-                                                TO PAY: $120
-                                            </span>
-                                            <div className='flex gap-1'>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='size-6 hover:bg-blue-100'
-                                                    tooltip='Send message'
-                                                >
-                                                    <MessageSquare className='size-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='size-6 hover:bg-blue-100'
-                                                    tooltip='Call patient'
-                                                >
-                                                    <Phone className='size-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='size-6 hover:bg-blue-100'
-                                                    tooltip='View patient card'
-                                                >
-                                                    <IdCard className='size-4' />
-                                                </Button>
-                                            </div>
-                                        </footer>
-                                    </div>
-                                </div>
-                            </li>
-                            <li
-                                className='absolute w-full p-0.5'
-                                style={{
-                                    top: SLOT_HEIGHT * 3 + SLOT_HEIGHT / 2, // 9:45,
-                                    height: '100%',
-                                    minHeight: SLOT_HEIGHT,
-                                    maxHeight: 1 * SLOT_HEIGHT // 15 min
-                                }}
-                                onMouseEnter={() => setIsCardHover(1)}
-                                onMouseLeave={() => setIsCardHover(null)}
-                            >
-                                <div className='flex h-full gap-1 overflow-hidden rounded border border-red-200 bg-red-50 transition-[border] duration-300 ease-in-out hover:border-red-400'>
-                                    <UserAvatar
-                                        src='https://randomuser.me/api/portraits/women/44.jpg'
-                                        username='Emma Thomson'
-                                        className='size-6 min-w-6'
-                                        radius='rounded'
-                                    />
-                                    <div className='flex flex-1 flex-col gap-0.5'>
-                                        <header className='flex max-h-6 flex-1 items-center justify-between'>
-                                            <span className='text-text line-clamp-1 px-1 font-semibold'>
-                                                Emma Thomson
-                                            </span>
-                                            <div className='flex items-center gap-1'>
-                                                <span className='text-text text-p-xs px-1 font-semibold'>
-                                                    9:00 - 9:30
-                                                </span>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button
-                                                            variant='ghost'
-                                                            size='icon'
-                                                            className='size-6 hover:bg-red-100'
-                                                        >
-                                                            <Ellipsis />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align='end' className='min-w-[280px]'>
-                                                        {menuAppointmentItems.map((item, idx) => (
-                                                            <DropdownMenuItem
-                                                                key={idx}
-                                                                onSelect={() =>
-                                                                    console.log('Appointment action:', item.label)
-                                                                }
-                                                                onPointerDown={e => e.stopPropagation()}
-                                                            >
-                                                                <item.icon className='size-4' />
-                                                                <span className='text-p-sm text-text w-full'>
-                                                                    {item.label}
-                                                                </span>
-                                                            </DropdownMenuItem>
-                                                        ))}
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </div>
-                                        </header>
-
-                                        <div
-                                            className={cn(
-                                                'flex min-h-6 flex-col transition-transform duration-300 ease-in-out',
-                                                {
-                                                    'translate-y-6': isCardHover === 1
-                                                }
-                                            )}
-                                        >
-                                            <span className='text-text-secondary text-p-xs line-clamp-1 px-1'>
-                                                Emergency appointment
-                                            </span>
-                                            {/* <div className='flex gap-1 px-1'>
-                                                <span className='text-text text-p-xs font-semibold'>Note:</span>
-                                                <span className='text-text-secondary text-p-xs'>
-                                                    Some note for breack Some description for breack
-                                                </span>
-                                            </div> */}
-                                        </div>
-                                        <footer
-                                            className={cn(
-                                                'flex h-6 items-center justify-between bg-red-50 px-1 transition-transform duration-300 ease-in-out',
-                                                {
-                                                    '-translate-y-7': isCardHover === 1
-                                                }
-                                            )}
-                                        >
-                                            <span className='text-text-tertiary text-p-xs font-semibold uppercase'>
-                                                TO PAY: $120
-                                            </span>
-                                            <div className='flex gap-1'>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='size-6 hover:bg-red-100'
-                                                    tooltip='Send message'
-                                                >
-                                                    <MessageSquare className='size-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='size-6 hover:bg-red-100'
-                                                    tooltip='Call patient'
-                                                >
-                                                    <Phone className='size-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='size-6 hover:bg-red-100'
-                                                    tooltip='View patient card'
-                                                >
-                                                    <IdCard className='size-4' />
-                                                </Button>
-                                            </div>
-                                        </footer>
-                                    </div>
-                                </div>
-                            </li>
-                            <li
-                                className='absolute w-full p-0.5'
-                                style={{
-                                    top: SLOT_HEIGHT * 4 + SLOT_HEIGHT / 2, // 9:45, // 9:00, first time slot
-                                    height: '100%',
-                                    minHeight: SLOT_HEIGHT,
-                                    maxHeight: 3 * SLOT_HEIGHT // 45 min
-                                }}
-                            >
-                                <div
-                                    className='border-border/20 bg-background hover:border-border/40 flex h-full overflow-hidden rounded border transition-[border] duration-300 ease-in-out'
-                                    style={{
-                                        backgroundImage:
-                                            'repeating-linear-gradient(45deg, #DEDFE1 0px, #DEDFE1 1px, transparent 1px, transparent 8px)'
-                                    }}
-                                >
-                                    <div className='flex flex-1 flex-col gap-0.5'>
-                                        <header className='flex max-h-6 flex-1 items-center justify-between gap-1'>
-                                            <span className='text-text line-clamp-1 px-1 font-semibold'>
-                                                Lunch break
-                                            </span>
-                                            <div className='flex items-center gap-1'>
-                                                <span className='text-text text-p-xs px-1 font-semibold'>
-                                                    10:00 - 10:45
-                                                </span>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button
-                                                            variant='ghost'
-                                                            size='icon'
-                                                            className='hover:bg-hover size-6'
-                                                        >
-                                                            <Ellipsis />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align='end' className='min-w-[280px]'>
-                                                        {menuReservedItems.map((item, idx) => (
-                                                            <DropdownMenuItem
-                                                                key={idx}
-                                                                onSelect={() =>
-                                                                    console.log('Appointment action:', item.label)
-                                                                }
-                                                                onPointerDown={e => e.stopPropagation()}
-                                                            >
-                                                                <item.icon className='size-4' />
-                                                                <span className='text-p-sm text-text w-full'>
-                                                                    {item.label}
-                                                                </span>
-                                                            </DropdownMenuItem>
-                                                        ))}
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </div>
-                                        </header>
-                                        <div className='flex min-h-6 flex-col'>
-                                            <span className='text-text-secondary text-p-xs line-clamp-1 px-1'>
-                                                Some description for breack Some description for breack
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li
-                                className='absolute w-full p-0.5'
-                                style={{
-                                    top: SLOT_HEIGHT * 7 + SLOT_HEIGHT / 2, // 9:45, // 9:00, first time slot
-                                    height: '100%',
-                                    minHeight: SLOT_HEIGHT,
-                                    maxHeight: 1 * SLOT_HEIGHT // 15 min
-                                }}
-                            >
-                                <div
-                                    className='border-border/20 bg-background hover:border-border/40 flex h-full overflow-hidden rounded border transition-[border] duration-300 ease-in-out'
-                                    style={{
-                                        backgroundImage:
-                                            'repeating-linear-gradient(45deg, #DEDFE1 0px, #DEDFE1 1px, transparent 1px, transparent 8px)'
-                                    }}
-                                >
-                                    <div className='flex flex-1 flex-col gap-0.5'>
-                                        <header className='flex max-h-6 flex-1 items-center justify-between gap-1'>
-                                            <span className='text-text line-clamp-1 px-1 font-semibold'>
-                                                Lunch break
-                                            </span>
-                                            <div className='flex items-center gap-1'>
-                                                <span className='text-text text-p-xs px-1 font-semibold'>
-                                                    10:00 - 10:45
-                                                </span>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button
-                                                            variant='ghost'
-                                                            size='icon'
-                                                            className='hover:bg-hover size-6'
-                                                        >
-                                                            <Ellipsis />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align='end' className='min-w-[280px]'>
-                                                        {menuReservedItems.map((item, idx) => (
-                                                            <DropdownMenuItem
-                                                                key={idx}
-                                                                onSelect={() =>
-                                                                    console.log('Appointment action:', item.label)
-                                                                }
-                                                                onPointerDown={e => e.stopPropagation()}
-                                                            >
-                                                                <item.icon className='size-4' />
-                                                                <span className='text-p-sm text-text w-full'>
-                                                                    {item.label}
-                                                                </span>
-                                                            </DropdownMenuItem>
-                                                        ))}
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </div>
-                                        </header>
-                                        <div className='flex min-h-6 flex-col'>
-                                            <span className='text-text-secondary text-p-xs line-clamp-1 px-1'>
-                                                Some description for breack Some description for breack
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
+                            <ScheduleReservedCard
+                                top={SLOT_HEIGHT * 6 + SLOT_HEIGHT / 2}
+                                height={3 * SLOT_HEIGHT}
+                                slotHeight={SLOT_HEIGHT}
+                                timeRange='10:00 - 10-45'
+                                title='Lunch break'
+                                note='Some description for breack Some description for breack'
+                            />
+                            <ScheduleReservedCard
+                                top={SLOT_HEIGHT * 10 + SLOT_HEIGHT / 2}
+                                height={1 * SLOT_HEIGHT}
+                                slotHeight={SLOT_HEIGHT}
+                                timeRange='10:00 - 10-45'
+                                title='Lunch break'
+                                note='Some description for breack Some description for breack'
+                            />
                         </ul>
                     </section>
                 </div>
@@ -1048,3 +181,325 @@ const Dashboard: FC = () => {
 }
 
 export default Dashboard
+
+interface IScheduleTimeLineProps {
+    slotHeight: number
+    isTime24Format: boolean
+    slots: IScheduleSlot[]
+    className?: string
+}
+
+const ScheduleTimeLine: FC<IScheduleTimeLineProps> = ({ slots, isTime24Format, slotHeight, className }) => {
+    return (
+        <ul
+            className={cn(
+                'border-border/10 relative flex h-fit max-w-12 min-w-12 flex-1 flex-col overflow-hidden border-r pl-2',
+                className
+            )}
+        >
+            {slots.map(({ adjustedHour, minute }, idx) => {
+                const isMinuteZero = minute === 0
+                const displayHour = isTime24Format ? adjustedHour : adjustedHour % 12 || 12
+                const timeMeridiem = adjustedHour < 12 ? 'AM' : 'PM'
+                return (
+                    <li
+                        key={idx}
+                        className='flex w-full items-center justify-end pr-1'
+                        style={{ minHeight: slotHeight, maxHeight: slotHeight }}
+                    >
+                        <span
+                            className={cn('text-text-secondary text-label-md text-right text-nowrap', {
+                                'text-text-tertiary !text-label-md': !isMinuteZero
+                            })}
+                        >
+                            {isMinuteZero
+                                ? `${displayHour}:${minute.toString().padStart(2, '0')}`
+                                : minute.toString().padStart(2, '0')}
+
+                            {!isTime24Format && isMinuteZero && timeMeridiem}
+                        </span>
+                    </li>
+                )
+            })}
+        </ul>
+    )
+}
+
+interface IScheduleSlotsProps {
+    slotHeight: number
+    isTime24Format: boolean
+    slots: IScheduleSlot[]
+    className?: string
+}
+
+const ScheduleSlots: FC<IScheduleSlotsProps> = ({ slots, isTime24Format, slotHeight, className }) => {
+    const [isSlotHover, setIsSlotHover] = useState<number | null>(null)
+    const [selectedSlot, setSelectedSlot] = useState<number | null>(null)
+
+    return (
+        <>
+            {slots.map(({ adjustedHour, minute }, idx) => {
+                const isFirst = idx === 0
+                const isLast = idx === slots.length
+                const isMinuteZero = minute === 0
+
+                const isHover = isSlotHover === idx && !isFirst && !isLast
+
+                const height = isFirst || isLast ? slotHeight / 2 : slotHeight
+                const displayHour = isTime24Format ? adjustedHour : adjustedHour % 12 || 12
+
+                const time = `${displayHour}:${minute.toString().padStart(2, '0')}`
+                return (
+                    <li
+                        key={idx}
+                        className={cn(
+                            'flex flex-1 items-center justify-center border-b',
+                            isMinuteZero ? 'border-border/20' : 'border-border/10 border-dashed',
+                            { 'bg-hover': isHover },
+                            className
+                        )}
+                        style={{ minHeight: height, maxHeight: height }}
+                        onMouseEnter={() => setIsSlotHover(idx)}
+                        onMouseLeave={() => setIsSlotHover(null)}
+                        onClick={() => setSelectedSlot(idx)}
+                    >
+                        {isHover && (
+                            <div className='flex h-full flex-1 items-center justify-center gap-2'>
+                                <Plus className='stroke-text-secondary size-4' />
+                                <span className='text-text-secondary pt-0.5'>Add new schedule - {time}</span>
+                            </div>
+                        )}
+                    </li>
+                )
+            })}
+        </>
+    )
+}
+
+interface IScheduleAppointmentCardProps {
+    top: number
+    height: number
+    slotHeight: number
+    timeRange: string
+    service: string
+    note?: string
+    amount: number
+    user: {
+        username: string
+        avatarUrl: string
+    }
+}
+
+const ScheduleAppointmentCard: FC<IScheduleAppointmentCardProps> = ({
+    top,
+    height,
+    slotHeight,
+    timeRange,
+    service,
+    note,
+    amount,
+    user
+}) => {
+    const [isHover, setIsHover] = useState(false)
+
+    const menuItems = useMemo(
+        () => [
+            { icon: IdCard, label: 'Appointment chart' },
+            { icon: BellRing, label: 'Notify patient of appointment' },
+            { icon: FilePenLine, label: 'Edit appointment' },
+            { icon: CalendarClock, label: 'Reschedule appointment' },
+            { icon: CalendarX2, label: 'Cancel appointment' }
+        ],
+        []
+    )
+
+    // Determine display tiers based on height
+    const isSingle = height <= slotHeight
+    const isDouble = height > slotHeight && height <= 2 * slotHeight
+    const isMulti = height > 2 * slotHeight
+
+    return (
+        <li
+            className='absolute w-full p-0.5'
+            style={{ top, height: '100%', minHeight: slotHeight, maxHeight: height }}
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}
+        >
+            <div
+                className={cn('flex h-full overflow-hidden rounded border transition-colors duration-300 ease-in-out', {
+                    'border-blue-200 bg-blue-50 hover:border-blue-400': true
+                })}
+            >
+                <UserAvatar src={user.avatarUrl} username={user.username} className='size-6 min-w-6' radius='rounded' />
+
+                <div className='flex flex-1 flex-col gap-0.5'>
+                    {/* Header */}
+                    <header className='flex max-h-6 flex-1 items-center justify-between gap-1'>
+                        <span className='text-text line-clamp-1 px-1 font-semibold'>{user.username}</span>
+                        <div className='flex items-center gap-1'>
+                            <span className='text-text text-p-xs px-1 font-semibold'>{timeRange}</span>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant='ghost'
+                                        size='icon'
+                                        className='size-6 hover:bg-blue-100'
+                                        onPointerDown={e => e.stopPropagation()}
+                                    >
+                                        <Ellipsis />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align='end' className='min-w-[280px]'>
+                                    {menuItems.map((item, idx) => (
+                                        <DropdownMenuItem
+                                            key={idx}
+                                            onSelect={() => console.log(item.label)}
+                                            onPointerDown={e => e.stopPropagation()}
+                                        >
+                                            <item.icon className='size-4' />
+                                            <span className='text-p-sm text-text w-full'>{item.label}</span>
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    </header>
+
+                    {/* Body */}
+                    <div
+                        className={cn('flex flex-col gap-1 px-1 transition-transform duration-300 ease-in-out', {
+                            'translate-y-6': isSingle && isHover
+                        })}
+                    >
+                        <span
+                            className={cn('text-text-secondary text-p-xs', {
+                                'line-clamp-1': isSingle,
+                                'line-clamp-2': isDouble,
+                                'line-clamp-none': isMulti
+                            })}
+                        >
+                            {service}
+                        </span>
+
+                        {isMulti && note && (
+                            <div className='flex gap-1'>
+                                <span className='text-text text-p-xs font-semibold'>Note:</span>
+                                <span className='text-text-secondary text-p-xs'>{note}</span>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Separator & Footer */}
+                    {height > slotHeight && <Separator className='mt-auto bg-blue-100' />}
+
+                    <footer
+                        className={cn(
+                            'flex items-center justify-between px-1 transition-transform duration-300 ease-in-out',
+                            {
+                                'h-6 translate-y-0 bg-blue-50': isSingle || isDouble,
+                                '-translate-y-[21px]': isSingle && isHover,
+                                'h-8': isMulti
+                            }
+                        )}
+                    >
+                        <span className='text-text-tertiary text-p-xs font-semibold uppercase'>TO PAY: {amount}</span>
+                        <div className='flex gap-1'>
+                            {[
+                                { icon: MessageSquare, tooltip: 'Send message' },
+                                { icon: Phone, tooltip: 'Call patient' },
+                                { icon: IdCard, tooltip: 'View patient card' }
+                            ].map((btn, i) => (
+                                <Button
+                                    key={i}
+                                    variant='ghost'
+                                    size='icon'
+                                    className='size-6 hover:bg-blue-100'
+                                    tooltip={btn.tooltip}
+                                >
+                                    <btn.icon className='size-4' />
+                                </Button>
+                            ))}
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </li>
+    )
+}
+
+interface IScheduleReservedCardProps {
+    top: number
+    height: number
+    slotHeight: number
+    timeRange: string
+    title: string
+    note?: string
+}
+
+export const ScheduleReservedCard: FC<IScheduleReservedCardProps> = ({
+    top,
+    height,
+    slotHeight,
+    timeRange,
+    title,
+    note
+}) => {
+    const menuItems = useMemo(
+        () => [
+            { icon: FilePenLine, label: 'Edit reserved' },
+            { icon: CalendarX2, label: 'Cancel reserved' }
+        ],
+        []
+    )
+
+    return (
+        <li className='absolute w-full p-0.5' style={{ top, height: '100%', minHeight: slotHeight, maxHeight: height }}>
+            <DropdownMenu>
+                <div
+                    className={cn(
+                        'group bg-background relative flex h-full overflow-hidden rounded border transition-colors duration-300 ease-in-out',
+                        'border-border/20 hover:border-border/40',
+                        note && 'cursor-pointer'
+                    )}
+                >
+                    <div className='flex flex-1 flex-col'>
+                        {/* Header */}
+                        <header className='flex h-6 items-center justify-between px-1'>
+                            <span className='text-text line-clamp-1 font-semibold'>{title}</span>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant='ghost'
+                                    size='icon'
+                                    className='hover:bg-hover size-6'
+                                    onPointerDown={e => e.stopPropagation()}
+                                >
+                                    <Ellipsis />
+                                </Button>
+                            </DropdownMenuTrigger>
+                        </header>
+
+                        {/* Body */}
+                        <div className='flex flex-1 flex-col justify-center px-1'>
+                            <span className='text-text text-p-xs font-semibold'>{timeRange}</span>
+                            {note && <span className='text-text-secondary text-p-xs line-clamp-1'>{note}</span>}
+                        </div>
+
+                        {/* Dropdown content positioned absolutely within li */}
+                        <DropdownMenuContent align='end' className='min-w-[180px]'>
+                            {menuItems.map((item, idx) => (
+                                <DropdownMenuItem
+                                    key={idx}
+                                    onSelect={() => console.log(item.label)}
+                                    onPointerDown={e => e.stopPropagation()}
+                                >
+                                    <item.icon className='size-4' />
+                                    <span className='text-p-sm text-text w-full'>{item.label}</span>
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </div>
+                </div>
+            </DropdownMenu>
+        </li>
+    )
+}
