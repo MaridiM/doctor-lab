@@ -16,6 +16,7 @@ import {
 import { useTranslations } from 'next-intl'
 import { FC, useMemo, useState } from 'react'
 
+import { APPOINTMENTS } from '@/shared/api'
 import '@/shared/components'
 import {
     Button,
@@ -77,6 +78,8 @@ const Dashboard: FC = () => {
             return { adjustedHour, minute }
         })
     }, [totalHours, stepsPerHour, startHour24])
+
+    // console.log(APPOINTMENTS[0].date, APPOINTMENTS[0].service.duration / DEFAULT_TIME_STEP)
 
     return (
         <div className='flex flex-1 flex-col'>
