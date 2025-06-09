@@ -1,15 +1,9 @@
 'use client'
 
-import { format } from 'date-fns'
 import {
     BellRing,
     CalendarClock,
-    CalendarDays,
-    CalendarPlus2,
-    CalendarSync,
     CalendarX2,
-    ChevronLeft,
-    ChevronRight,
     Ellipsis,
     FilePenLine,
     IdCard,
@@ -19,7 +13,7 @@ import {
     Settings
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import { FC, useMemo, useState } from 'react'
 
 import '@/shared/components'
 import {
@@ -39,6 +33,18 @@ interface IScheduleSlot {
     adjustedHour: number
     minute: number
 }
+
+// const lightColors = [
+//     'bg-blue-50',
+//     'bg-red-50',
+//     'bg-green-50',
+//     'bg-yellow-50',
+//     'bg-purple-50',
+//     'bg-pink-50',
+//     'bg-indigo-50',
+//     'bg-teal-50',
+//     'bg-orange-50',
+//   ]
 
 export type TTimeStep = 15 | 20 | 30 | 60
 
