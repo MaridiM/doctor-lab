@@ -1,5 +1,8 @@
+'use client'
+
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useLocale } from 'next-intl'
+import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -13,7 +16,7 @@ import {
     SelectTrigger,
     SelectValue
 } from '@/shared/components'
-import { languages, setLanguage } from '@/shared/libs/i18n'
+import { languages } from '@/shared/libs/i18n'
 import { type TChangeLanguageSchema, changeLanguageSchema } from '@/shared/schemas'
 import { cn } from '@/shared/utils'
 
@@ -22,21 +25,23 @@ interface IProps {
 }
 
 export function ChangeLanguage({ className }: IProps) {
-    const [isPanding, startTransition] = useTransition()
+    const [isPending, startTransition] = useTransition()
     const locale = useLocale()
+    const router = useRouter()
 
     const form = useForm<TChangeLanguageSchema>({
         resolver: zodResolver(changeLanguageSchema)
     })
 
-    function onSubmit(data: TChangeLanguageSchema) {
-        startTransition(async () => {
-            try {
-                await setLanguage(data.language)
-            } catch (error) {
-                console.log(error)
-            }
+    // Обёртка над fetch, которая меняет куку и обновляет страницу
+    async function switchLanguage(lang: string) {
+        await fetch('/api/set-language', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ language: lang })
         })
+        // перезагружаем серверный рендер, чтобы next-intl подхватил новую куку
+        router.refresh()
     }
 
     return (
@@ -47,9 +52,12 @@ export function ChangeLanguage({ className }: IProps) {
                 render={({ field }) => (
                     <FormItem>
                         <Select
+                            // при выборе языка меняем поле и запускаем смену языка
                             onValueChange={value => {
                                 field.onChange(value)
-                                form.handleSubmit(onSubmit)()
+                                startTransition(() => {
+                                    switchLanguage(value)
+                                })
                             }}
                         >
                             <SelectTrigger
@@ -58,20 +66,20 @@ export function ChangeLanguage({ className }: IProps) {
                                     className
                                 )}
                                 arrow={false}
-                                disabled={isPanding}
+                                disabled={isPending}
                             >
                                 <SelectValue placeholder={locale.toLocaleUpperCase()} />
                             </SelectTrigger>
                             <SelectContent className='min-w-10' classNameViewport='flex flex-col gap-0.5'>
                                 {languages.map(language => {
-                                    const currentLanguage = language === locale
+                                    const current = language === locale
                                     return (
                                         <SelectItem
                                             key={language}
                                             value={language}
-                                            disabled={isPanding}
+                                            disabled={isPending}
                                             className={cn('', {
-                                                'bg-primary-100 hover:!bg-primary-100': currentLanguage
+                                                'bg-primary-100 hover:!bg-primary-100': current
                                             })}
                                         >
                                             {language.toLocaleUpperCase()}

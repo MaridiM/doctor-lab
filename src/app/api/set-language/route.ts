@@ -1,11 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server'
+'use server'
+
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
+
 import { COOKIE_NAME } from '@/shared/libs/i18n'
 
-export async function POST(req: NextRequest) {
-  const body = await req.json()
-  const language = body.language
+export async function POST(request: Request) {
+    const { language } = (await request.json()) as { language: string }
+    const cookiesStory = await cookies()
 
-  const response = NextResponse.json({ success: true })
-  response.cookies.set(COOKIE_NAME, language)
-  return response
+    // Устанавливаем куку на сервере
+    cookiesStory.set({
+        name: COOKIE_NAME,
+        value: language,
+        path: '/', // убедитесь, что путь подходит под ваше приложение
+        maxAge: 60 * 60 * 24 * 30 // например, месяц
+    })
+    return NextResponse.json({ success: true })
 }

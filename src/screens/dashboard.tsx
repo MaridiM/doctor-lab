@@ -71,17 +71,6 @@ const Dashboard: FC = () => {
         })
     }, [totalHours, stepsPerHour, startHour24])
 
-    const calculateTime = useCallback(
-        (idx: number) => {
-            const baseHour = startHour24 - 1
-            const hour = baseHour + Math.floor(idx / stepsPerHour)
-            const adjustedHour = (hour + 24) % 24
-            const minute = (idx % stepsPerHour) * DEFAULT_TIME_STEP
-            return { adjustedHour, minute }
-        },
-        [startHour24, stepsPerHour]
-    )
-
     return (
         <div className='flex flex-1 flex-col'>
             <Header />
@@ -436,14 +425,7 @@ interface IScheduleReservedCardProps {
     note?: string
 }
 
-export const ScheduleReservedCard: FC<IScheduleReservedCardProps> = ({
-    top,
-    height,
-    slotHeight,
-    timeRange,
-    title,
-    note
-}) => {
+const ScheduleReservedCard: FC<IScheduleReservedCardProps> = ({ top, height, slotHeight, timeRange, title, note }) => {
     const menuItems = useMemo(
         () => [
             { icon: FilePenLine, label: 'Edit reserved' },
@@ -452,54 +434,55 @@ export const ScheduleReservedCard: FC<IScheduleReservedCardProps> = ({
         []
     )
 
+    const isSingle = height <= slotHeight
     return (
         <li className='absolute w-full p-0.5' style={{ top, height: '100%', minHeight: slotHeight, maxHeight: height }}>
-            <DropdownMenu>
-                <div
-                    className={cn(
-                        'group bg-background relative flex h-full overflow-hidden rounded border transition-colors duration-300 ease-in-out',
-                        'border-border/20 hover:border-border/40',
-                        note && 'cursor-pointer'
-                    )}
-                >
-                    <div className='flex flex-1 flex-col'>
-                        {/* Header */}
-                        <header className='flex h-6 items-center justify-between px-1'>
-                            <span className='text-text line-clamp-1 font-semibold'>{title}</span>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant='ghost'
-                                    size='icon'
-                                    className='hover:bg-hover size-6'
-                                    onPointerDown={e => e.stopPropagation()}
-                                >
-                                    <Ellipsis />
-                                </Button>
-                            </DropdownMenuTrigger>
-                        </header>
-
-                        {/* Body */}
-                        <div className='flex flex-1 flex-col justify-center px-1'>
-                            <span className='text-text text-p-xs font-semibold'>{timeRange}</span>
-                            {note && <span className='text-text-secondary text-p-xs line-clamp-1'>{note}</span>}
+            <div
+                className='border-border/20 bg-background hover:border-border/40 flex h-full overflow-hidden rounded border transition-[border] duration-300 ease-in-out'
+                style={{
+                    backgroundImage:
+                        'repeating-linear-gradient(45deg, #DEDFE1 0px, #DEDFE1 1px, transparent 1px, transparent 8px)'
+                }}
+            >
+                <div className='flex flex-1 flex-col gap-0.5'>
+                    <header className='flex max-h-6 flex-1 items-center justify-between gap-1'>
+                        <span className='text-text line-clamp-1 px-1 font-semibold'>{title}</span>
+                        <div className='flex items-center gap-1'>
+                            <span className='text-text text-p-xs px-1 font-semibold'>{timeRange}</span>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant='ghost' size='icon' className='hover:bg-hover size-6'>
+                                        <Ellipsis />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align='end' className='min-w-[280px]'>
+                                    {menuItems.map((item, idx) => (
+                                        <DropdownMenuItem
+                                            key={idx}
+                                            onSelect={() => console.log('Appointment action:', item.label)}
+                                            onPointerDown={e => e.stopPropagation()}
+                                        >
+                                            <item.icon className='size-4' />
+                                            <span className='text-p-sm text-text w-full'>{item.label}</span>
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
-
-                        {/* Dropdown content positioned absolutely within li */}
-                        <DropdownMenuContent align='end' className='min-w-[180px]'>
-                            {menuItems.map((item, idx) => (
-                                <DropdownMenuItem
-                                    key={idx}
-                                    onSelect={() => console.log(item.label)}
-                                    onPointerDown={e => e.stopPropagation()}
-                                >
-                                    <item.icon className='size-4' />
-                                    <span className='text-p-sm text-text w-full'>{item.label}</span>
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
+                    </header>
+                    <div className='flex min-h-6 flex-col'>
+                        {note && (
+                            <span
+                                className={cn('text-text-secondary text-p-xs px-1', {
+                                    'line-clamp-1': isSingle
+                                })}
+                            >
+                                {note}
+                            </span>
+                        )}
                     </div>
                 </div>
-            </DropdownMenu>
+            </div>
         </li>
     )
 }
