@@ -298,7 +298,7 @@ const ScheduleAppointmentCard: FC<IScheduleAppointmentCardProps> = ({
 }) => {
     const [isHover, setIsHover] = useState(false)
 
-    const menuItems = useMemo(
+    const menuItems: { icon: LucideIcon; label: string }[] = useMemo(
         () => [
             { icon: IdCard, label: 'Appointment chart' },
             { icon: BellRing, label: 'Notify patient of appointment' },
@@ -347,14 +347,14 @@ const ScheduleAppointmentCard: FC<IScheduleAppointmentCardProps> = ({
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align='end' className='min-w-[280px]'>
                                     {menuItems.map((item, idx) => {
-                                        const Icon: LucideIcon = item.icon
+                                        const Icon = item.icon
                                         return (
                                             <DropdownMenuItem
                                                 key={idx}
                                                 onSelect={() => console.log(item.label)}
                                                 onPointerDown={e => e.stopPropagation()}
                                             >
-                                                <Icon className='size-4' />
+                                                {typeof Icon === 'function' ? <Icon className='size-4' /> : null}
                                                 <span className='text-p-sm text-text w-full'>{item.label}</span>
                                             </DropdownMenuItem>
                                         )
@@ -436,7 +436,7 @@ interface IScheduleReservedCardProps {
 }
 
 const ScheduleReservedCard: FC<IScheduleReservedCardProps> = ({ top, height, slotHeight, timeRange, title, note }) => {
-    const menuItems = useMemo(
+    const menuItems: { icon: LucideIcon; label: string }[] = useMemo(
         () => [
             { icon: FilePenLine, label: 'Edit reserved' },
             { icon: CalendarX2, label: 'Cancel reserved' }
@@ -467,14 +467,14 @@ const ScheduleReservedCard: FC<IScheduleReservedCardProps> = ({ top, height, slo
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align='end' className='min-w-[280px]'>
                                     {menuItems.map((item, idx) => {
-                                        const Icon: LucideIcon = item.icon
+                                        const Icon = item.icon
                                         return (
                                             <DropdownMenuItem
                                                 key={idx}
                                                 onSelect={() => console.log(item.label)}
                                                 onPointerDown={e => e.stopPropagation()}
                                             >
-                                                <Icon className='size-4' />
+                                                {typeof Icon === 'function' ? <Icon className='size-4' /> : null}
                                                 <span className='text-p-sm text-text w-full'>{item.label}</span>
                                             </DropdownMenuItem>
                                         )
