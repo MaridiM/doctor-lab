@@ -7,6 +7,7 @@ import {
     Ellipsis,
     FilePenLine,
     IdCard,
+    type LucideIcon,
     MessageSquare,
     Phone,
     Plus,
@@ -345,16 +346,19 @@ const ScheduleAppointmentCard: FC<IScheduleAppointmentCardProps> = ({
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align='end' className='min-w-[280px]'>
-                                    {menuItems.map((item, idx) => (
-                                        <DropdownMenuItem
-                                            key={idx}
-                                            onSelect={() => console.log(item.label)}
-                                            onPointerDown={e => e.stopPropagation()}
-                                        >
-                                            <item.icon className='size-4' />
-                                            <span className='text-p-sm text-text w-full'>{item.label}</span>
-                                        </DropdownMenuItem>
-                                    ))}
+                                    {menuItems.map((item, idx) => {
+                                        const Icon: LucideIcon = item.icon
+                                        return (
+                                            <DropdownMenuItem
+                                                key={idx}
+                                                onSelect={() => console.log(item.label)}
+                                                onPointerDown={e => e.stopPropagation()}
+                                            >
+                                                <Icon className='size-4' />
+                                                <span className='text-p-sm text-text w-full'>{item.label}</span>
+                                            </DropdownMenuItem>
+                                        )
+                                    })}
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
@@ -462,16 +466,19 @@ const ScheduleReservedCard: FC<IScheduleReservedCardProps> = ({ top, height, slo
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align='end' className='min-w-[280px]'>
-                                    {menuItems.map((item, idx) => (
-                                        <DropdownMenuItem
-                                            key={idx}
-                                            onSelect={() => console.log('Appointment action:', item.label)}
-                                            onPointerDown={e => e.stopPropagation()}
-                                        >
-                                            <item.icon className='size-4' />
-                                            <span className='text-p-sm text-text w-full'>{item.label}</span>
-                                        </DropdownMenuItem>
-                                    ))}
+                                    {menuItems.map((item, idx) => {
+                                        const Icon: LucideIcon = item.icon
+                                        return (
+                                            <DropdownMenuItem
+                                                key={idx}
+                                                onSelect={() => console.log(item.label)}
+                                                onPointerDown={e => e.stopPropagation()}
+                                            >
+                                                <Icon className='size-4' />
+                                                <span className='text-p-sm text-text w-full'>{item.label}</span>
+                                            </DropdownMenuItem>
+                                        )
+                                    })}
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>

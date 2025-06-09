@@ -25,7 +25,7 @@ interface IProps {
 }
 
 export function ChangeLanguage({ className }: IProps) {
-    const [isPending, startTransition] = useTransition()
+    const [isPending, startTransition] = useTransition() 
     const locale = useLocale()
     const router = useRouter()
 
